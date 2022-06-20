@@ -40,7 +40,9 @@ enum class EventTypes(val type: String) {
     EXITED_CHANNEL("exited_channel"),
     USER_UPDATED("user_updated"),
     SELF_JOINED_GUILD("self_joined_guild"),
-    SELF_EXITED_GUILD("self_exited_guild");
+    SELF_EXITED_GUILD("self_exited_guild"),
+    PINNED_MESSAGE("pinned_message"),
+    UNPINNED_MESSAGE("unpinned_message");
 
     companion object {
         fun fromString(type: String) = EventTypes.values().first { it.type == type }
