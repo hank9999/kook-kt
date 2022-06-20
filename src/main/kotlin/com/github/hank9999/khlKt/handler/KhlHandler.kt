@@ -1,0 +1,68 @@
+package com.github.hank9999.khlKt.handler
+
+import com.github.hank9999.khlKt.Bot
+import com.github.hank9999.khlKt.handler.types.EventClassHandler
+import com.github.hank9999.khlKt.handler.types.Filters
+import com.github.hank9999.khlKt.handler.types.MessageClassHandler
+import com.github.hank9999.khlKt.types.KhlMessage
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.decodeFromJsonElement
+import com.github.hank9999.khlKt.json.JSON.Companion.json
+import com.github.hank9999.khlKt.types.KhlEvent
+import com.github.hank9999.khlKt.types.types.EventTypes
+import com.github.hank9999.khlKt.types.types.MessageTypes
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import kotlin.concurrent.thread
+import kotlin.reflect.KFunction
+import kotlin.reflect.full.declaredFunctions
+
+class KhlHandler {
+    private val logger: Logger = LoggerFactory.getLogger(KhlHandler::class.java)
+    private val messageClassHandlers: MutableMap<MessageTypes, MutableList<MessageClassHandler>> = mutableMapOf()
+    private val messageFuncHandlers: MutableMap<MessageTypes, MutableList<(msg: KhlMessage) -> Unit>> = mutableMapOf()
+    private val eventClassHandlers: MutableMap<EventTypes, MutableList<EventClassHandler>> = mutableMapOf()
+    private val eventFuncHandlers: MutableMap<EventTypes, MutableList<(event: KhlEvent) -> Unit>> = mutableMapOf()
+
+    fun <T : Any> registerClassHandler(t: T) {
+        val declaredFunctions = t::class.declaredFunctions
+        for (f in declaredFunctions) {
+            // 处理注解，使用其中的元数据
+            f.annotations.forEach {
+                if (it is Bot.OnMessage) {
+                    if (!messageClassHandlers.containsKey(it.type)) messageClassHandlers[it.type] = mutableListOf()
+                    val handler = MessageClassHandler(t, f)
+                    if (!messageClassHandlers[it.type]!!.contains(handler)) messageClassHandlers[it.type]!!.add(handler)
+                } else if (it is Bot.OnEvent) {
+                    if (!eventClassHandlers.containsKey(it.type)) eventClassHandlers[it.type] = mutableListOf()
+                    val handler = EventClassHandler(t, f)
+                    if (!eventClassHandlers[it.type]!!.contains(handler)) eventClassHandlers[it.type]!!.add(handler)
+                }
+            }
+        }
+    }
+
+    fun registerMessageFuncHandler(type: MessageTypes, func: (msg: KhlMessage) -> Unit) {
+        if (!messageFuncHandlers.containsKey(type)) messageFuncHandlers[type] = mutableListOf()
+        if (!messageFuncHandlers[type]!!.contains(func)) messageFuncHandlers[type]!!.add(func)
+    }
+
+    fun registerEventFuncHandler(type: EventTypes, func: (event: KhlEvent) -> Unit) {
+        if (!eventFuncHandlers.containsKey(type)) eventFuncHandlers[type] = mutableListOf()
+        if (!eventFuncHandlers[type]!!.contains(func)) eventFuncHandlers[type]!!.add(func)
+    }
+
+    // TODO: 线程池
+
+    fun messageHandler(element: JsonElement) {
+        val data = json.decodeFromJsonElement<KhlMessage>(element)
+        messageFuncHandlers.forEach { m -> if (m.key == data.type || m.key == MessageTypes.ALL) { m.value.forEach { func -> func(data) } } }
+        messageClassHandlers.forEach { m -> if (m.key == data.type  || m.key == MessageTypes.ALL) { m.value.forEach { h -> h.function.call(h.classInstance, data) } } }
+    }
+
+    fun eventHandler(element: JsonElement) {
+        val data = json.decodeFromJsonElement<KhlEvent>(element)
+        eventFuncHandlers.forEach { e -> if (e.key == data.extra.type  || e.key == EventTypes.ALL) { e.value.forEach { func -> func(data) } } }
+        eventClassHandlers.forEach { e -> if (e.key == data.extra.type  || e.key == EventTypes.ALL) { e.value.forEach { h -> h.function.call(h.classInstance, data) } } }
+    }
+}

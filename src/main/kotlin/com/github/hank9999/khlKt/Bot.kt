@@ -1,5 +1,6 @@
 package com.github.hank9999.khlKt
 
+import com.github.hank9999.khlKt.handler.KhlHandler
 import com.github.hank9999.khlKt.http.HttpApi
 import com.github.hank9999.khlKt.types.KhlEvent
 import com.github.hank9999.khlKt.types.KhlMessage
@@ -36,4 +37,7 @@ class Bot(config: Config) {
 
     @Target(AnnotationTarget.FUNCTION)
     annotation class OnEvent(val type: EventTypes)
+
+    @Target(AnnotationTarget.FUNCTION)
+    annotation class OnFilter(val startWith: String = "", val keyword: String = "", val regex: String = "", val ignoreCase: Boolean = true)
 }
