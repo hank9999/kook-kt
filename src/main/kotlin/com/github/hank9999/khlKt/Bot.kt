@@ -33,10 +33,10 @@ class Bot(config: Config) {
         khlHandler.registerEventFuncHandler(type, func)
     }
 
-    @Target(AnnotationTarget.FUNCTION)
+    @Target(AnnotationTarget.FUNCTION) @Repeatable
     annotation class OnMessage(val type: MessageTypes)
 
-    @Target(AnnotationTarget.FUNCTION)
+    @Target(AnnotationTarget.FUNCTION) @Repeatable
     annotation class OnEvent(val type: EventTypes)
 
     /**
@@ -47,6 +47,6 @@ class Bot(config: Config) {
      * @param ignoreCase: whether to ignore case, only apply for Filter START_WITH and KEYWORD
      * This annotation only catch MessageTypes TEXT and KMD
      */
-    @Target(AnnotationTarget.FUNCTION)
+    @Target(AnnotationTarget.FUNCTION) @Repeatable
     annotation class OnFilter(val type: FilterTypes, val startWith: String = "", val keyword: String = "", val regex: String = "", val ignoreCase: Boolean = true)
 }
