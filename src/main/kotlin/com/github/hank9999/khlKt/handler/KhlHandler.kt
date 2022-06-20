@@ -33,10 +33,12 @@ class KhlHandler {
                     is Bot.OnMessage -> {
                         if (!messageClassHandlers.containsKey(it.type)) messageClassHandlers[it.type] = mutableListOf()
                         messageClassHandlers[it.type]!!.add(MessageClassHandler(t, f))
+                        logger.debug("[Class] ${it.type} handler ${f.name} added")
                     }
                     is Bot.OnEvent -> {
                         if (!eventClassHandlers.containsKey(it.type)) eventClassHandlers[it.type] = mutableListOf()
                         eventClassHandlers[it.type]!!.add(EventClassHandler(t, f))
+                        logger.debug("[Class] ${it.type} handler ${f.name} added")
                     }
                     is Bot.OnFilter -> {
                         when (it.type) {
@@ -44,6 +46,7 @@ class KhlHandler {
                             FilterTypes.KEYWORD -> filterClassHandlers.add(FilterClassHandler(FilterTypes.KEYWORD, t, f, it.keyword, it.ignoreCase))
                             FilterTypes.REGEX -> filterClassHandlers.add(FilterClassHandler(FilterTypes.REGEX, t, f, filterRegex = Regex(it.regex)))
                         }
+                        logger.debug("[Class] ${it.type} handler ${f.name} added")
                     }
                     else -> {}
                 }
@@ -54,17 +57,20 @@ class KhlHandler {
     fun registerMessageFuncHandler(type: MessageTypes, func: (msg: KhlMessage) -> Unit) {
         if (!messageFuncHandlers.containsKey(type)) messageFuncHandlers[type] = mutableListOf()
         if (!messageFuncHandlers[type]!!.contains(func)) messageFuncHandlers[type]!!.add(func)
+        logger.debug("[Function] $type handler ${func.javaClass.name} added")
     }
 
     fun registerEventFuncHandler(type: EventTypes, func: (event: KhlEvent) -> Unit) {
         if (!eventFuncHandlers.containsKey(type)) eventFuncHandlers[type] = mutableListOf()
         if (!eventFuncHandlers[type]!!.contains(func)) eventFuncHandlers[type]!!.add(func)
+        logger.debug("[Function] $type handler ${func.javaClass.name} added")
     }
 
     // TODO: 线程池
 
     fun messageHandler(element: JsonElement) {
         val data = json.decodeFromJsonElement<KhlMessage>(element)
+        logger.debug("Received Message: $data")
         messageFuncHandlers.forEach { m -> if (m.key == data.type || m.key == MessageTypes.ALL) { m.value.forEach { func -> func(data) } } }
         messageClassHandlers.forEach { m -> if (m.key == data.type  || m.key == MessageTypes.ALL) { m.value.forEach { h -> h.function.call(h.classInstance, data) } } }
         filterClassHandlers.forEach { m -> if (data.type == MessageTypes.TEXT || data.type == MessageTypes.KMD) {
@@ -78,6 +84,7 @@ class KhlHandler {
 
     fun eventHandler(element: JsonElement) {
         val data = json.decodeFromJsonElement<KhlEvent>(element)
+        logger.debug("Received Event: $data")
         eventFuncHandlers.forEach { e -> if (e.key == data.extra.type  || e.key == EventTypes.ALL) { e.value.forEach { func -> func(data) } } }
         eventClassHandlers.forEach { e -> if (e.key == data.extra.type  || e.key == EventTypes.ALL) { e.value.forEach { h -> h.function.call(h.classInstance, data) } } }
     }
