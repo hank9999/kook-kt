@@ -1,6 +1,7 @@
 package com.github.hank9999.khlKt
 
 import com.github.hank9999.khlKt.handler.KhlHandler
+import com.github.hank9999.khlKt.handler.types.FilterTypes
 import com.github.hank9999.khlKt.http.HttpApi
 import com.github.hank9999.khlKt.types.KhlEvent
 import com.github.hank9999.khlKt.types.KhlMessage
@@ -38,6 +39,14 @@ class Bot(config: Config) {
     @Target(AnnotationTarget.FUNCTION)
     annotation class OnEvent(val type: EventTypes)
 
+    /**
+     * @param type: FilterTypes, filter types
+     * @param startWith: Filter START_WITH string
+     * @param keyword: Filter KEYWORD string
+     * @param regex: Filter REGEX string
+     * @param ignoreCase: whether to ignore case, only apply for Filter START_WITH and KEYWORD
+     * This annotation only catch MessageTypes TEXT and KMD
+     */
     @Target(AnnotationTarget.FUNCTION)
-    annotation class OnFilter(val startWith: String = "", val keyword: String = "", val regex: String = "", val ignoreCase: Boolean = true)
+    annotation class OnFilter(val type: FilterTypes, val startWith: String = "", val keyword: String = "", val regex: String = "", val ignoreCase: Boolean = true)
 }
