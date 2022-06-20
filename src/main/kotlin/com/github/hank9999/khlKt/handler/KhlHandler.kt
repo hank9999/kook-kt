@@ -29,37 +29,23 @@ class KhlHandler {
         for (f in declaredFunctions) {
             // 处理注解，使用其中的元数据
             f.annotations.forEach {
-                if (it is Bot.OnMessage) {
-                    if (!messageClassHandlers.containsKey(it.type)) messageClassHandlers[it.type] = mutableListOf()
-                    val handler = MessageClassHandler(t, f)
-                    messageClassHandlers[it.type]!!.add(handler)
-                } else if (it is Bot.OnEvent) {
-                    if (!eventClassHandlers.containsKey(it.type)) eventClassHandlers[it.type] = mutableListOf()
-                    val handler = EventClassHandler(t, f)
-                    eventClassHandlers[it.type]!!.add(handler)
-                } else if (it is Bot.OnFilter) {
-                    when (it.type) {
-                        FilterTypes.START_WITH -> filterClassHandlers.add(FilterClassHandler(
-                            FilterTypes.START_WITH,
-                            filterString = it.startWith,
-                            ignoreCase = it.ignoreCase,
-                            classInstance = t,
-                            function = f
-                        ))
-                        FilterTypes.KEYWORD -> filterClassHandlers.add(FilterClassHandler(
-                            FilterTypes.KEYWORD,
-                            filterString = it.keyword,
-                            ignoreCase = it.ignoreCase,
-                            classInstance = t,
-                            function = f
-                        ))
-                        FilterTypes.REGEX -> filterClassHandlers.add(FilterClassHandler(
-                            FilterTypes.REGEX,
-                            filterRegex = Regex(it.regex),
-                            classInstance = t,
-                            function = f
-                        ))
+                when (it) {
+                    is Bot.OnMessage -> {
+                        if (!messageClassHandlers.containsKey(it.type)) messageClassHandlers[it.type] = mutableListOf()
+                        messageClassHandlers[it.type]!!.add(MessageClassHandler(t, f))
                     }
+                    is Bot.OnEvent -> {
+                        if (!eventClassHandlers.containsKey(it.type)) eventClassHandlers[it.type] = mutableListOf()
+                        eventClassHandlers[it.type]!!.add(EventClassHandler(t, f))
+                    }
+                    is Bot.OnFilter -> {
+                        when (it.type) {
+                            FilterTypes.START_WITH -> filterClassHandlers.add(FilterClassHandler(FilterTypes.START_WITH, t, f, it.startWith, it.ignoreCase))
+                            FilterTypes.KEYWORD -> filterClassHandlers.add(FilterClassHandler(FilterTypes.KEYWORD, t, f, it.keyword, it.ignoreCase))
+                            FilterTypes.REGEX -> filterClassHandlers.add(FilterClassHandler(FilterTypes.REGEX, t, f, filterRegex = Regex(it.regex)))
+                        }
+                    }
+                    else -> {}
                 }
             }
         }
