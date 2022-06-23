@@ -33,6 +33,10 @@ class Bot(config: Config) {
         khlHandler.registerEventFuncHandler(type, func)
     }
 
+    fun registerFilterFunc(type: FilterTypes, startWith: String = "", keyword: String = "", regex: String = "", ignoreCase: Boolean = true, func: (msg: KhlMessage) -> Unit) {
+        khlHandler.registerFilterFuncHandler(type, startWith, keyword, regex, ignoreCase, func)
+    }
+
     @Target(AnnotationTarget.FUNCTION) @Repeatable
     annotation class OnMessage(val type: MessageTypes)
 

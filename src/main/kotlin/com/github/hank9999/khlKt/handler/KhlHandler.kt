@@ -1,10 +1,7 @@
 package com.github.hank9999.khlKt.handler
 
 import com.github.hank9999.khlKt.Bot
-import com.github.hank9999.khlKt.handler.types.EventClassHandler
-import com.github.hank9999.khlKt.handler.types.FilterClassHandler
-import com.github.hank9999.khlKt.handler.types.FilterTypes
-import com.github.hank9999.khlKt.handler.types.MessageClassHandler
+import com.github.hank9999.khlKt.handler.types.*
 import com.github.hank9999.khlKt.types.KhlMessage
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -21,6 +18,7 @@ class KhlHandler {
     private val messageClassHandlers: MutableMap<MessageTypes, MutableList<MessageClassHandler>> = mutableMapOf()
     private val messageFuncHandlers: MutableMap<MessageTypes, MutableList<(msg: KhlMessage) -> Unit>> = mutableMapOf()
     private val filterClassHandlers: MutableList<FilterClassHandler> = mutableListOf()
+    private val filterFuncHandlers: MutableList<FilterFuncHandler> = mutableListOf()
     private val eventClassHandlers: MutableMap<EventTypes, MutableList<EventClassHandler>> = mutableMapOf()
     private val eventFuncHandlers: MutableMap<EventTypes, MutableList<(event: KhlEvent) -> Unit>> = mutableMapOf()
 
@@ -66,6 +64,16 @@ class KhlHandler {
         logger.debug("[Handler] Function $type handler ${func.javaClass.name} added")
     }
 
+    fun registerFilterFuncHandler(type: FilterTypes, startWith: String, keyword: String, regex: String, ignoreCase: Boolean, func: (msg: KhlMessage) -> Unit) {
+        val data: FilterFuncHandler = when (type) {
+            FilterTypes.START_WITH -> { FilterFuncHandler(FilterTypes.START_WITH, func, startWith, ignoreCase) }
+            FilterTypes.KEYWORD -> { FilterFuncHandler(FilterTypes.KEYWORD, func, keyword, ignoreCase) }
+            FilterTypes.REGEX -> { FilterFuncHandler(FilterTypes.REGEX, func, filterRegex = Regex(regex)) }
+        }
+        if (!filterFuncHandlers.contains(data)) filterFuncHandlers.add(data)
+        logger.debug("[Handler] Function $type handler ${func.javaClass.name} added")
+    }
+
     // TODO: 线程池
 
     fun messageHandler(element: JsonElement) {
@@ -73,13 +81,18 @@ class KhlHandler {
         logger.debug("[Handler] Received Message: $data")
         messageFuncHandlers.forEach { m -> if (m.key == data.type || m.key == MessageTypes.ALL) { m.value.forEach { func -> func(data) } } }
         messageClassHandlers.forEach { m -> if (m.key == data.type  || m.key == MessageTypes.ALL) { m.value.forEach { h -> h.function.call(h.classInstance, data) } } }
-        filterClassHandlers.forEach { m -> if (data.type == MessageTypes.TEXT || data.type == MessageTypes.KMD) {
-            when (m.type) {
+        if (data.type == MessageTypes.TEXT || data.type == MessageTypes.KMD) {
+            filterClassHandlers.forEach { m -> when (m.type) {
                 FilterTypes.START_WITH -> if (data.content.startsWith(m.filterString, m.ignoreCase)) m.function.call(m.classInstance, data)
                 FilterTypes.KEYWORD -> if (data.content.indexOf(m.filterString, ignoreCase = m.ignoreCase) != -1) m.function.call(m.classInstance, data)
                 FilterTypes.REGEX -> if (m.filterRegex.matches(data.content)) m.function.call(m.classInstance, data)
-            }
-        } }
+            } }
+            filterFuncHandlers.forEach { m -> when (m.type) {
+                FilterTypes.START_WITH -> if (data.content.startsWith(m.filterString, m.ignoreCase)) m.function(data)
+                FilterTypes.KEYWORD -> if (data.content.indexOf(m.filterString, ignoreCase = m.ignoreCase) != -1) m.function(data)
+                FilterTypes.REGEX -> if (m.filterRegex.matches(data.content)) m.function(data)
+            } }
+        }
     }
 
     fun eventHandler(element: JsonElement) {
