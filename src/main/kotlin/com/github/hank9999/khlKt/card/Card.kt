@@ -43,6 +43,20 @@ class Card {
         this.theme = theme
     }
 
+    constructor(size: Size = Size.NA, vararg args: Module) {
+        for (m in args) {
+            this.append(m)
+        }
+        this.size = size
+    }
+
+    constructor(theme: Theme = Theme.NA, vararg args: Module) {
+        for (m in args) {
+            this.append(m)
+        }
+        this.theme = theme
+    }
+
     fun append(module: Module): Card {
         modules.add(module)
         return this
