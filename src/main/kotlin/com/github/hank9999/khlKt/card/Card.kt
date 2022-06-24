@@ -9,17 +9,38 @@ import kotlinx.serialization.json.putJsonArray
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class Card(vararg args: Module) {
-    val type = "com/github/hank9999/cardgithub/hank9999/card"
+class Card {
+    val type = "card"
     private val modules: MutableList<Module> = mutableListOf()
     var theme = Theme.NA
     var size = Size.NA
     private val logger: Logger = LoggerFactory.getLogger(Card::class.java)
 
-    init {
+    constructor(size: Size = Size.NA, theme: Theme = Theme.NA) {
+        this.size = size
+        this.theme = theme
+    }
+
+    constructor(vararg args: Module) {
         for (m in args) {
             this.append(m)
         }
+    }
+
+    constructor(vararg args: Module, size: Size = Size.NA, theme: Theme = Theme.NA) {
+        for (m in args) {
+            this.append(m)
+        }
+        this.size = size
+        this.theme = theme
+    }
+
+    constructor(size: Size = Size.NA, theme: Theme = Theme.NA, vararg args: Module) {
+        for (m in args) {
+            this.append(m)
+        }
+        this.size = size
+        this.theme = theme
     }
 
     fun append(module: Module): Card {
