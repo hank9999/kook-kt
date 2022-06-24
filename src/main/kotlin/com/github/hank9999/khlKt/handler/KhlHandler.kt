@@ -63,14 +63,18 @@ class KhlHandler {
 
     fun registerMessageFuncHandler(type: MessageTypes, func: (msg: KhlMessage) -> Unit) {
         if (!messageFuncHandlers.containsKey(type)) messageFuncHandlers[type] = mutableListOf()
-        if (!messageFuncHandlers[type]!!.contains(func)) messageFuncHandlers[type]!!.add(func)
-        logger.debug("[Handler] Function $type handler ${func.javaClass.name} added")
+        if (!messageFuncHandlers[type]!!.contains(func)) {
+            messageFuncHandlers[type]!!.add(func)
+            logger.debug("[Handler] Function $type handler ${func.javaClass.name} added")
+        }
     }
 
     fun registerEventFuncHandler(type: EventTypes, func: (event: KhlEvent) -> Unit) {
         if (!eventFuncHandlers.containsKey(type)) eventFuncHandlers[type] = mutableListOf()
-        if (!eventFuncHandlers[type]!!.contains(func)) eventFuncHandlers[type]!!.add(func)
-        logger.debug("[Handler] Function $type handler ${func.javaClass.name} added")
+        if (!eventFuncHandlers[type]!!.contains(func)) {
+            eventFuncHandlers[type]!!.add(func)
+            logger.debug("[Handler] Function $type handler ${func.javaClass.name} added")
+        }
     }
 
     fun registerFilterFuncHandler(type: FilterTypes, startWith: String, keyword: String, regex: String, ignoreCase: Boolean, func: (msg: KhlMessage) -> Unit) {
@@ -79,8 +83,10 @@ class KhlHandler {
             FilterTypes.KEYWORD -> { FilterFuncHandler(FilterTypes.KEYWORD, func, keyword, ignoreCase) }
             FilterTypes.REGEX -> { FilterFuncHandler(FilterTypes.REGEX, func, filterRegex = Regex(regex)) }
         }
-        if (!filterFuncHandlers.contains(data)) filterFuncHandlers.add(data)
-        logger.debug("[Handler] Function $type handler ${func.javaClass.name} added")
+        if (!filterFuncHandlers.contains(data)) {
+            filterFuncHandlers.add(data)
+            logger.debug("[Handler] Function $type handler ${func.javaClass.name} added")
+        }
     }
 
     // TODO: 线程池
