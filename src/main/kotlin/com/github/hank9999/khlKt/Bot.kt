@@ -7,8 +7,11 @@ import com.github.hank9999.khlKt.types.KhlEvent
 import com.github.hank9999.khlKt.types.KhlMessage
 import com.github.hank9999.khlKt.types.types.EventTypes
 import com.github.hank9999.khlKt.types.types.MessageTypes
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class Bot(config: Config) {
+    private val logger: Logger = LoggerFactory.getLogger(Bot::class.java)
     companion object {
         lateinit var config: Config
         lateinit var httpApi: HttpApi
@@ -19,6 +22,7 @@ class Bot(config: Config) {
         httpApi = HttpApi()
         khlHandler = KhlHandler()
         WebHook().initialize()
+        logger.info("Initialization complete")
     }
 
     fun <T : Any> registerClass(t: T) {
