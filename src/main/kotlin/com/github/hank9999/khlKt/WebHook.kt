@@ -22,6 +22,12 @@ class WebHook {
     private val config: Config = Bot.config
 
     fun initialize() {
+        // Disable Javalin and Jetty Logger
+        io.javalin.core.util.JavalinLogger.enabled = false
+        org.eclipse.jetty.util.log.Log.setLog(io.javalin.jetty.JettyUtil.NoopLogger())
+        org.eclipse.jetty.util.log.Log.getProperties().setProperty("org.eclipse.jetty.LEVEL", "OFF")
+        org.eclipse.jetty.util.log.Log.getProperties().setProperty("org.eclipse.jetty.util.log.announce", "false")
+        org.eclipse.jetty.util.log.Log.getRootLogger().isDebugEnabled = false
         val app = Javalin.create().start(config.host, config.port)
         app.post(config.path) { ctx -> khlHandler(ctx) }
     }
