@@ -59,8 +59,9 @@ class KhlHandler {
                     }
                     is Bot.OnCommand -> {
                         val startWith = mutableListOf<String>()
-                        it.prefixes.forEach { prefix ->
-                            it.name.forEach { name -> startWith.add(prefix + name) }
+                        val prefixes = if (it.prefixes.isEmpty())  Bot.config.cmd_prefix else it.prefixes.toList()
+                        prefixes.forEach { prefix ->
+                            startWith.add(prefix + it.name)
                             it.aliases.forEach { name -> startWith.add(prefix + name) }
                         }
                         val data = CommandClassHandler(t, f, startWith, it.ignoreCase)
@@ -105,8 +106,9 @@ class KhlHandler {
 
     fun registerCommandFuncHandler(name: String, prefixes: Array<String>, aliases: Array<String>, ignoreCase: Boolean, func: (msg: KhlMessage) -> Unit) {
         val startWith = mutableListOf<String>()
-        prefixes.forEach { prefix ->
-            name.forEach { name -> startWith.add(prefix + name) }
+        val newPrefixes = if (prefixes.isEmpty())  Bot.config.cmd_prefix else prefixes.toList()
+        newPrefixes.forEach { prefix ->
+            startWith.add(prefix + name)
             aliases.forEach { name -> startWith.add(prefix + name) }
         }
         val data = CommandFuncHandler(func, startWith, ignoreCase)
@@ -117,6 +119,7 @@ class KhlHandler {
     }
 
     private fun whetherCommandTriggered(text: String, startWith: List<String>, ignoreCase: Boolean): Boolean {
+        logger.debug(startWith.toString())
         startWith.forEach { prefix -> if (text.startsWith(prefix, ignoreCase)) return true }
         return false
     }
