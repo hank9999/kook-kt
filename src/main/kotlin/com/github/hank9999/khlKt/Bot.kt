@@ -37,11 +37,15 @@ class Bot(config: Config) {
         khlHandler.registerFilterFuncHandler(type, startWith, keyword, regex, ignoreCase, func)
     }
 
-    @Target(AnnotationTarget.FUNCTION) @Repeatable
-    annotation class OnMessage(val type: MessageTypes)
+    fun registerCommandFunc(name: String, prefixes: Array<String> = emptyArray(), aliases: Array<String> = emptyArray(), ignoreCase: Boolean = true, func: (msg: KhlMessage) -> Unit) {
+        khlHandler.registerCommandFuncHandler(name, prefixes, aliases, ignoreCase, func)
+    }
 
     @Target(AnnotationTarget.FUNCTION) @Repeatable
-    annotation class OnEvent(val type: EventTypes)
+    annotation class OnMessage(val type: MessageTypes = MessageTypes.ALL)
+
+    @Target(AnnotationTarget.FUNCTION) @Repeatable
+    annotation class OnEvent(val type: EventTypes = EventTypes.ALL)
 
     /**
      * @param type: FilterTypes, filter types
@@ -53,4 +57,7 @@ class Bot(config: Config) {
      */
     @Target(AnnotationTarget.FUNCTION) @Repeatable
     annotation class OnFilter(val type: FilterTypes, val startWith: String = "", val keyword: String = "", val regex: String = "", val ignoreCase: Boolean = true)
+
+    @Target(AnnotationTarget.FUNCTION) @Repeatable
+    annotation class OnCommand(val name: String, val prefixes: Array<String> = [], val aliases: Array<String> = [], val ignoreCase: Boolean = true)
 }

@@ -21,6 +21,8 @@ class KhlHandler {
     private val filterFuncHandlers: MutableList<FilterFuncHandler> = mutableListOf()
     private val eventClassHandlers: MutableMap<EventTypes, MutableList<EventClassHandler>> = mutableMapOf()
     private val eventFuncHandlers: MutableMap<EventTypes, MutableList<(event: KhlEvent) -> Unit>> = mutableMapOf()
+    private val commandClassHandlers: MutableList<CommandClassHandler> = mutableListOf()
+    private val commandFuncHandlers: MutableList<CommandFuncHandler> = mutableListOf()
 
     fun <T : Any> registerClassHandler(t: T) {
         val declaredFunctions = t::class.declaredFunctions
@@ -55,6 +57,13 @@ class KhlHandler {
                             logger.debug("[Handler] Class ${t.javaClass.name} ${it.type} handler ${f.name} added")
                         }
                     }
+                    is Bot.OnCommand -> {
+                        val data = CommandClassHandler(t, f, it.name, if (it.prefixes.isEmpty()) Bot.config.cmd_prefix else it.prefixes.toList(), it.aliases.toList(), it.ignoreCase)
+                        if (!commandClassHandlers.contains(data)) {
+                            commandClassHandlers.add(data)
+                            logger.debug("[Handler] Class ${t.javaClass.name} Command handler ${f.name} added")
+                        }
+                    }
                     else -> {}
                 }
             }
@@ -86,6 +95,14 @@ class KhlHandler {
         if (!filterFuncHandlers.contains(data)) {
             filterFuncHandlers.add(data)
             logger.debug("[Handler] Function $type handler ${func.javaClass.name} added")
+        }
+    }
+
+    fun registerCommandFuncHandler(name: String, prefixes: Array<String>, aliases: Array<String>, ignoreCase: Boolean, func: (msg: KhlMessage) -> Unit) {
+        val data = CommandFuncHandler(func, name, if (prefixes.isEmpty()) Bot.config.cmd_prefix else prefixes.toList(), aliases.toList(), ignoreCase)
+        if (!commandFuncHandlers.contains(data)) {
+            commandFuncHandlers.add(data)
+            logger.debug("[Handler] Function Command handler ${func.javaClass.name} added")
         }
     }
 
