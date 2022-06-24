@@ -130,26 +130,44 @@ class KhlHandler {
         val data = json.decodeFromJsonElement<KhlMessage>(element)
         logger.debug("[Handler] Received Message: $data")
         logger.debug("[Handler] Message Function Handler Processing")
-        messageFuncHandlers.forEach { m -> if (m.key == data.type || m.key == MessageTypes.ALL) { m.value.forEach { func -> func(data) } } }
+        messageFuncHandlers.forEach { m ->
+            logger.debug("[Handler] Message Function Handler $m")
+            if (m.key == data.type || m.key == MessageTypes.ALL) { m.value.forEach { func -> func(data) } }
+        }
         logger.debug("[Handler] Message Class Handler Processing")
-        messageClassHandlers.forEach { m -> if (m.key == data.type  || m.key == MessageTypes.ALL) { m.value.forEach { h -> h.function.call(h.classInstance, data) } } }
+        messageClassHandlers.forEach { m ->
+            logger.debug("[Handler] Message Class Handler $m")
+            if (m.key == data.type  || m.key == MessageTypes.ALL) { m.value.forEach { h -> h.function.call(h.classInstance, data) } }
+        }
         if (data.type == MessageTypes.TEXT || data.type == MessageTypes.KMD) {
             logger.debug("[Handler] Filter Class Handler Processing")
-            filterClassHandlers.forEach { m -> when (m.type) {
-                FilterTypes.START_WITH -> if (data.content.startsWith(m.filterString, m.ignoreCase)) m.function.call(m.classInstance, data)
-                FilterTypes.KEYWORD -> if (data.content.indexOf(m.filterString, ignoreCase = m.ignoreCase) != -1) m.function.call(m.classInstance, data)
-                FilterTypes.REGEX -> if (m.filterRegex.matches(data.content)) m.function.call(m.classInstance, data)
-            } }
+            filterClassHandlers.forEach { m ->
+                logger.debug("[Handler] Filter Class Handler $m")
+                when (m.type) {
+                    FilterTypes.START_WITH -> if (data.content.startsWith(m.filterString, m.ignoreCase)) m.function.call(m.classInstance, data)
+                    FilterTypes.KEYWORD -> if (data.content.indexOf(m.filterString, ignoreCase = m.ignoreCase) != -1) m.function.call(m.classInstance, data)
+                    FilterTypes.REGEX -> if (m.filterRegex.matches(data.content)) m.function.call(m.classInstance, data)
+                }
+            }
             logger.debug("[Handler] Filter Function Handler Processing")
-            filterFuncHandlers.forEach { m -> when (m.type) {
-                FilterTypes.START_WITH -> if (data.content.startsWith(m.filterString, m.ignoreCase)) m.function(data)
-                FilterTypes.KEYWORD -> if (data.content.indexOf(m.filterString, ignoreCase = m.ignoreCase) != -1) m.function(data)
-                FilterTypes.REGEX -> if (m.filterRegex.matches(data.content)) m.function(data)
-            } }
+            filterFuncHandlers.forEach { m ->
+                logger.debug("[Handler] Filter Function Handler $m")
+                when (m.type) {
+                    FilterTypes.START_WITH -> if (data.content.startsWith(m.filterString, m.ignoreCase)) m.function(data)
+                    FilterTypes.KEYWORD -> if (data.content.indexOf(m.filterString, ignoreCase = m.ignoreCase) != -1) m.function(data)
+                    FilterTypes.REGEX -> if (m.filterRegex.matches(data.content)) m.function(data)
+                }
+            }
             logger.debug("[Handler] Command Class Handler Processing")
-            commandClassHandlers.forEach { m -> if (whetherCommandTriggered(data.content, m.startWith, m.ignoreCase)) m.function.call(m.classInstance, data) }
+            commandClassHandlers.forEach { m ->
+                logger.debug("[Handler] Command Class Handler $m")
+                if (whetherCommandTriggered(data.content, m.startWith, m.ignoreCase)) m.function.call(m.classInstance, data)
+            }
             logger.debug("[Handler] Command Function Handler Processing")
-            commandFuncHandlers.forEach { m -> if (whetherCommandTriggered(data.content, m.startWith, m.ignoreCase)) m.function(data) }
+            commandFuncHandlers.forEach { m ->
+                logger.debug("[Handler] Command Function Handler $m")
+                if (whetherCommandTriggered(data.content, m.startWith, m.ignoreCase)) m.function(data)
+            }
         }
     }
 
@@ -157,8 +175,14 @@ class KhlHandler {
         val data = json.decodeFromJsonElement<KhlEvent>(element)
         logger.debug("[Handler] Received Event: $data")
         logger.debug("[Handler] Event Function Handler Processing")
-        eventFuncHandlers.forEach { e -> if (e.key == data.extra.type  || e.key == EventTypes.ALL) { e.value.forEach { func -> func(data) } } }
+        eventFuncHandlers.forEach { e ->
+            logger.debug("[Handler] Event Function Handler $e")
+            if (e.key == data.extra.type  || e.key == EventTypes.ALL) { e.value.forEach { func -> func(data) } }
+        }
         logger.debug("[Handler] Event Class Handler Processing")
-        eventClassHandlers.forEach { e -> if (e.key == data.extra.type  || e.key == EventTypes.ALL) { e.value.forEach { h -> h.function.call(h.classInstance, data) } } }
+        eventClassHandlers.forEach { e ->
+            logger.debug("[Handler] Event Class Handler $e")
+            if (e.key == data.extra.type  || e.key == EventTypes.ALL) { e.value.forEach { h -> h.function.call(h.classInstance, data) } }
+        }
     }
 }
