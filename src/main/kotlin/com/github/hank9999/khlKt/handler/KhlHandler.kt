@@ -58,7 +58,12 @@ class KhlHandler {
                         }
                     }
                     is Bot.OnCommand -> {
-                        val data = CommandClassHandler(t, f, it.name, if (it.prefixes.isEmpty()) Bot.config.cmd_prefix else it.prefixes.toList(), it.aliases.toList(), it.ignoreCase)
+                        val startWith = mutableListOf<String>()
+                        it.prefixes.forEach { prefix ->
+                            it.name.forEach { name -> startWith.add(prefix + name) }
+                            it.aliases.forEach { name -> startWith.add(prefix + name) }
+                        }
+                        val data = CommandClassHandler(t, f, startWith, it.ignoreCase)
                         if (!commandClassHandlers.contains(data)) {
                             commandClassHandlers.add(data)
                             logger.debug("[Handler] Class ${t.javaClass.name} Command handler ${f.name} added")
@@ -99,11 +104,21 @@ class KhlHandler {
     }
 
     fun registerCommandFuncHandler(name: String, prefixes: Array<String>, aliases: Array<String>, ignoreCase: Boolean, func: (msg: KhlMessage) -> Unit) {
-        val data = CommandFuncHandler(func, name, if (prefixes.isEmpty()) Bot.config.cmd_prefix else prefixes.toList(), aliases.toList(), ignoreCase)
+        val startWith = mutableListOf<String>()
+        prefixes.forEach { prefix ->
+            name.forEach { name -> startWith.add(prefix + name) }
+            aliases.forEach { name -> startWith.add(prefix + name) }
+        }
+        val data = CommandFuncHandler(func, startWith, ignoreCase)
         if (!commandFuncHandlers.contains(data)) {
             commandFuncHandlers.add(data)
             logger.debug("[Handler] Function Command handler ${func.javaClass.name} added")
         }
+    }
+
+    private fun whetherCommandTriggered(text: String, startWith: List<String>, ignoreCase: Boolean): Boolean {
+        startWith.forEach { prefix -> if (text.startsWith(prefix, ignoreCase)) return true }
+        return false
     }
 
     // TODO: 线程池
@@ -124,6 +139,8 @@ class KhlHandler {
                 FilterTypes.KEYWORD -> if (data.content.indexOf(m.filterString, ignoreCase = m.ignoreCase) != -1) m.function(data)
                 FilterTypes.REGEX -> if (m.filterRegex.matches(data.content)) m.function(data)
             } }
+            commandClassHandlers.forEach { m -> if (whetherCommandTriggered(data.content, m.startWith, m.ignoreCase)) m.function.call(m.classInstance, data) }
+            commandFuncHandlers.forEach { m -> if (whetherCommandTriggered(data.content, m.startWith, m.ignoreCase)) m.function(data) }
         }
     }
 
