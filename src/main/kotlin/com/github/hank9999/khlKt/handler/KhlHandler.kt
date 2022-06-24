@@ -30,21 +30,30 @@ class KhlHandler {
                 when (it) {
                     is Bot.OnMessage -> {
                         if (!messageClassHandlers.containsKey(it.type)) messageClassHandlers[it.type] = mutableListOf()
-                        messageClassHandlers[it.type]!!.add(MessageClassHandler(t, f))
-                        logger.debug("[Handler] Class ${it.type} handler ${f.name} added")
+                        val data = MessageClassHandler(t, f)
+                        if (!messageClassHandlers[it.type]!!.contains(data)) {
+                            messageClassHandlers[it.type]!!.add(data)
+                            logger.debug("[Handler] Class ${t.javaClass.name} ${it.type} handler ${f.name} added")
+                        }
                     }
                     is Bot.OnEvent -> {
                         if (!eventClassHandlers.containsKey(it.type)) eventClassHandlers[it.type] = mutableListOf()
-                        eventClassHandlers[it.type]!!.add(EventClassHandler(t, f))
-                        logger.debug("[Handler] Class ${it.type} handler ${f.name} added")
+                        val data = EventClassHandler(t, f)
+                        if (!eventClassHandlers[it.type]!!.contains(data)) {
+                            eventClassHandlers[it.type]!!.add(data)
+                            logger.debug("[Handler] Class ${t.javaClass.name} ${it.type} handler ${f.name} added")
+                        }
                     }
                     is Bot.OnFilter -> {
-                        when (it.type) {
-                            FilterTypes.START_WITH -> filterClassHandlers.add(FilterClassHandler(FilterTypes.START_WITH, t, f, it.startWith, it.ignoreCase))
-                            FilterTypes.KEYWORD -> filterClassHandlers.add(FilterClassHandler(FilterTypes.KEYWORD, t, f, it.keyword, it.ignoreCase))
-                            FilterTypes.REGEX -> filterClassHandlers.add(FilterClassHandler(FilterTypes.REGEX, t, f, filterRegex = Regex(it.regex)))
+                        val data = when (it.type) {
+                            FilterTypes.START_WITH -> FilterClassHandler(FilterTypes.START_WITH, t, f, it.startWith, it.ignoreCase)
+                            FilterTypes.KEYWORD -> FilterClassHandler(FilterTypes.KEYWORD, t, f, it.keyword, it.ignoreCase)
+                            FilterTypes.REGEX -> FilterClassHandler(FilterTypes.REGEX, t, f, filterRegex = Regex(it.regex))
                         }
-                        logger.debug("[Handler] Class ${it.type} handler ${f.name} added")
+                        if (!filterClassHandlers.contains(data)) {
+                            filterClassHandlers.add(data)
+                            logger.debug("[Handler] Class ${t.javaClass.name} ${it.type} handler ${f.name} added")
+                        }
                     }
                     else -> {}
                 }
@@ -65,7 +74,7 @@ class KhlHandler {
     }
 
     fun registerFilterFuncHandler(type: FilterTypes, startWith: String, keyword: String, regex: String, ignoreCase: Boolean, func: (msg: KhlMessage) -> Unit) {
-        val data: FilterFuncHandler = when (type) {
+        val data = when (type) {
             FilterTypes.START_WITH -> { FilterFuncHandler(FilterTypes.START_WITH, func, startWith, ignoreCase) }
             FilterTypes.KEYWORD -> { FilterFuncHandler(FilterTypes.KEYWORD, func, keyword, ignoreCase) }
             FilterTypes.REGEX -> { FilterFuncHandler(FilterTypes.REGEX, func, filterRegex = Regex(regex)) }
