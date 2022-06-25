@@ -19,7 +19,7 @@ class HttpApi {
 
     companion object {
         const val api = "https://www.kaiheila.cn/api/v3"
-        val authHeader = mapOf("Authorization" to "com.github.hank9999.khlKt.Bot ${Bot.config.token}")
+        val authHeader = mapOf("Authorization" to "Bot ${Bot.config.token}")
         private val logger: Logger = LoggerFactory.getLogger(HttpApi::class.java)
         private val rateLimit = RateLimit()
     }

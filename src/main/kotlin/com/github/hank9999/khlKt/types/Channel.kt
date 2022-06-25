@@ -15,8 +15,8 @@ data class Channel(
     @Required val level: Int = 0,
     @Required val slow_mode: Int = 0,
     @Required val type: ChannelTypes = ChannelTypes.TEXT,
-    @Required val permission_overwrites: PermissionOverwrites = PermissionOverwrites(),
-    @Required val permission_users: PermissionUsers = PermissionUsers(),
+    @Required val permission_overwrites: List<PermissionOverwrites> = emptyList(),
+    @Required val permission_users: List<PermissionUsers> = emptyList(),
     @Required val permission_sync: Int = 0,
     val has_password: Boolean = false
 ) {

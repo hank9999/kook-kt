@@ -19,5 +19,5 @@ data class GuildView(
     @Required val default_channel_id: String = "",
     @Required val welcome_channel_id: String = "",
     @Required val roles: List<Role> = emptyList(),
-    @Required val channels: Channel = Channel()
+    @Required val channels: List<Channel> = emptyList(),
 )
