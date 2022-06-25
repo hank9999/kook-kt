@@ -1,7 +1,6 @@
 package com.github.hank9999.khlKt.card
 
-import com.github.hank9999.khlKt.types.types.Size
-import com.github.hank9999.khlKt.types.types.Theme
+import com.github.hank9999.khlKt.types.Type
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -12,11 +11,11 @@ import org.slf4j.LoggerFactory
 class Card {
     val type = "card"
     private val modules: MutableList<Module> = mutableListOf()
-    var theme = Theme.NA
-    var size = Size.NA
+    var theme = Type.Theme.NA
+    var size = Type.Size.NA
     private val logger: Logger = LoggerFactory.getLogger(Card::class.java)
 
-    constructor(size: Size = Size.NA, theme: Theme = Theme.NA) {
+    constructor(size: Type.Size = Type.Size.NA, theme: Type.Theme = Type.Theme.NA) {
         this.size = size
         this.theme = theme
     }
@@ -27,7 +26,7 @@ class Card {
         }
     }
 
-    constructor(vararg args: Module, size: Size = Size.NA, theme: Theme = Theme.NA) {
+    constructor(vararg args: Module, size: Type.Size = Type.Size.NA, theme: Type.Theme = Type.Theme.NA) {
         for (m in args) {
             this.append(m)
         }
@@ -35,7 +34,7 @@ class Card {
         this.theme = theme
     }
 
-    constructor(size: Size = Size.NA, theme: Theme = Theme.NA, vararg args: Module) {
+    constructor(size: Type.Size = Type.Size.NA, theme: Type.Theme = Type.Theme.NA, vararg args: Module) {
         for (m in args) {
             this.append(m)
         }
@@ -43,14 +42,14 @@ class Card {
         this.theme = theme
     }
 
-    constructor(size: Size = Size.NA, vararg args: Module) {
+    constructor(size: Type.Size = Type.Size.NA, vararg args: Module) {
         for (m in args) {
             this.append(m)
         }
         this.size = size
     }
 
-    constructor(theme: Theme = Theme.NA, vararg args: Module) {
+    constructor(theme: Type.Theme = Type.Theme.NA, vararg args: Module) {
         for (m in args) {
             this.append(m)
         }
@@ -93,10 +92,10 @@ class Card {
     fun toJsonObject(): JsonObject {
         return buildJsonObject {
             put("type", type)
-            if (theme != Theme.NA) {
+            if (theme != Type.Theme.NA) {
                 put("theme", theme.theme)
             }
-            if (size != Size.NA) {
+            if (size != Type.Size.NA) {
                 put("size", size.size)
             }
             putJsonArray("modules") {

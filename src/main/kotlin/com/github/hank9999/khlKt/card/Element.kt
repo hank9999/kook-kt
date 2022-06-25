@@ -1,10 +1,7 @@
 package com.github.hank9999.khlKt.card
 
 import com.github.hank9999.khlKt.card.exceptions.CardException
-import com.github.hank9999.khlKt.types.types.Click
-import com.github.hank9999.khlKt.types.types.Size
-import com.github.hank9999.khlKt.types.types.TextTypes
-import com.github.hank9999.khlKt.types.types.Theme
+import com.github.hank9999.khlKt.types.Type
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -16,7 +13,7 @@ abstract class Element {
     abstract fun toJsonObject(): JsonObject
     private val logger: Logger = LoggerFactory.getLogger(Element::class.java)
 
-    class Text(val content: String, val emoji: Boolean = true, val type: TextTypes = TextTypes.PLAIN) : Element() {
+    class Text(val content: String, val emoji: Boolean = true, val type: Type.Text = Type.Text.PLAIN) : Element() {
         override fun toJsonObject(): JsonObject {
             return buildJsonObject {
                 put("type", type.type)
@@ -29,9 +26,9 @@ abstract class Element {
     }
 
 
-    class Image(val src: String, val alt: String = "", val circle: Boolean = false,) : Element() {
-        var size = Size.NA
-        constructor(src: String, alt: String = "", circle: Boolean = false, size: Size) : this(src, alt, circle) {
+    class Image(val src: String, val alt: String = "", val circle: Boolean = false) : Element() {
+        var size = Type.Size.NA
+        constructor(src: String, alt: String = "", circle: Boolean = false, size: Type.Size) : this(src, alt, circle) {
             this.size = size
         }
         override fun toJsonObject(): JsonObject {
@@ -44,25 +41,25 @@ abstract class Element {
                 if (circle) {
                     put("circle", true)
                 }
-                if (size != Size.NA) {
+                if (size != Type.Size.NA) {
                     put("size", size.size)
                 }
             }
         }
     }
 
-    class Button(val theme: Theme = Theme.NA, val text: Text, val value: String = "", val click: Click = Click.NA) : Element() {
+    class Button(val theme: Type.Theme = Type.Theme.NA, val text: Text, val value: String = "", val click: Type.Click = Type.Click.NA) : Element() {
         override fun toJsonObject(): JsonObject {
             return buildJsonObject {
                 put("type", "button")
-                if (theme != Theme.NA) {
+                if (theme != Type.Theme.NA) {
                     put("theme", theme.theme)
                 }
                 put("text", text.toJsonObject())
                 if (value.isNotEmpty()) {
                     put("value", value)
                 }
-                if (click != Click.NA) {
+                if (click != Type.Click.NA) {
                     put("click", click.click)
                 }
             }

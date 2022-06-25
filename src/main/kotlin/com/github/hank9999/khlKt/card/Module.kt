@@ -1,10 +1,7 @@
 package com.github.hank9999.khlKt.card
 
 import com.github.hank9999.khlKt.card.exceptions.CardException
-import com.github.hank9999.khlKt.types.types.CountdownMode
-import com.github.hank9999.khlKt.types.types.FileTypes
-import com.github.hank9999.khlKt.types.types.SectionMode
-import com.github.hank9999.khlKt.types.types.TextTypes
+import com.github.hank9999.khlKt.types.Type
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -20,7 +17,7 @@ abstract class Module {
 
     class Header(val text: Element.Text) : Module() {
         init {
-            if (text.type != TextTypes.PLAIN) throw CardException("Header, only plain-text for header")
+            if (text.type != Type.Text.PLAIN) throw CardException("Header, only plain-text for header")
             if (text.content.length > 100) throw CardException("Header, only 100 Chinese character for header")
         }
         override fun toJsonObject(): JsonObject {
@@ -31,34 +28,34 @@ abstract class Module {
         }
     }
 
-    class Section(val mode: SectionMode = SectionMode.LEFT) : Module() {
+    class Section(val mode: Type.SectionMode = Type.SectionMode.LEFT) : Module() {
         var text: Element? = null
         var accessory: Element? = null
-        constructor(text: Element.Text, mode: SectionMode = SectionMode.LEFT) : this(mode) {
+        constructor(text: Element.Text, mode: Type.SectionMode = Type.SectionMode.LEFT) : this(mode) {
             this.text = text
         }
-        constructor(text: Element.Paragraph, mode: SectionMode = SectionMode.LEFT) : this(mode) {
+        constructor(text: Element.Paragraph, mode: Type.SectionMode = Type.SectionMode.LEFT) : this(mode) {
             this.text = text
         }
-        constructor(accessory: Element.Image, mode: SectionMode = SectionMode.LEFT) : this(mode) {
+        constructor(accessory: Element.Image, mode: Type.SectionMode = Type.SectionMode.LEFT) : this(mode) {
             this.accessory = accessory
         }
-        constructor(accessory: Element.Button, mode: SectionMode = SectionMode.LEFT) : this(mode) {
+        constructor(accessory: Element.Button, mode: Type.SectionMode = Type.SectionMode.LEFT) : this(mode) {
             this.accessory = accessory
         }
-        constructor(text: Element.Text, accessory: Element.Image, mode: SectionMode = SectionMode.LEFT) : this(mode) {
-            this.text = text
-            this.accessory = accessory
-        }
-        constructor(text: Element.Text, accessory: Element.Button, mode: SectionMode = SectionMode.LEFT) : this(mode) {
+        constructor(text: Element.Text, accessory: Element.Image, mode: Type.SectionMode = Type.SectionMode.LEFT) : this(mode) {
             this.text = text
             this.accessory = accessory
         }
-        constructor(text: Element.Paragraph, accessory: Element.Image, mode: SectionMode = SectionMode.LEFT) : this(mode) {
+        constructor(text: Element.Text, accessory: Element.Button, mode: Type.SectionMode = Type.SectionMode.LEFT) : this(mode) {
             this.text = text
             this.accessory = accessory
         }
-        constructor(text: Element.Paragraph, accessory: Element.Button, mode: SectionMode = SectionMode.LEFT) : this(mode) {
+        constructor(text: Element.Paragraph, accessory: Element.Image, mode: Type.SectionMode = Type.SectionMode.LEFT) : this(mode) {
+            this.text = text
+            this.accessory = accessory
+        }
+        constructor(text: Element.Paragraph, accessory: Element.Button, mode: Type.SectionMode = Type.SectionMode.LEFT) : this(mode) {
             this.text = text
             this.accessory = accessory
         }
@@ -277,7 +274,7 @@ abstract class Module {
         }
     }
 
-    class Divider() : Module() {
+    class Divider : Module() {
         override fun toJsonObject(): JsonObject {
             return buildJsonObject {
                 put("type", "divider")
@@ -285,23 +282,23 @@ abstract class Module {
         }
     }
 
-    class File(val type: FileTypes, val src: String, val title: String, val cover: String = "") : Module() {
+    class File(val type: Type.File, val src: String, val title: String, val cover: String = "") : Module() {
         override fun toJsonObject(): JsonObject {
             return buildJsonObject {
                 put("type", type.type)
                 put("src", src)
                 put("title", title)
-                if (cover.isNotEmpty() && type == FileTypes.AUDIO) put("cover", cover)
+                if (cover.isNotEmpty() && type == Type.File.AUDIO) put("cover", cover)
             }
         }
     }
 
-    class Countdown(val mode: CountdownMode, val endTime: Long, val startTime: Long = 0L) : Module() {
+    class Countdown(val mode: Type.CountdownMode, val endTime: Long, val startTime: Long = 0L) : Module() {
         override fun toJsonObject(): JsonObject {
             return buildJsonObject {
                 put("type", mode.mode)
                 put("endTime", endTime)
-                if (startTime != 0L && mode == CountdownMode.SECOND) put("startTime", startTime)
+                if (startTime != 0L && mode == Type.CountdownMode.SECOND) put("startTime", startTime)
             }
         }
     }
