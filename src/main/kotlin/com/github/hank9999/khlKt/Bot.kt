@@ -29,11 +29,11 @@ class Bot(config: Config) {
         khlHandler.registerClassHandler(t)
     }
 
-    fun registerMessageFunc(type: MessageTypes, func: (msg: KhlMessage) -> Unit) {
+    fun registerMessageFunc(type: MessageTypes = MessageTypes.ALL, func: (msg: KhlMessage) -> Unit) {
         khlHandler.registerMessageFuncHandler(type, func)
     }
 
-    fun registerEventFunc(type: EventTypes, func: (event: KhlEvent) -> Unit) {
+    fun registerEventFunc(type: EventTypes = EventTypes.ALL, func: (event: KhlEvent) -> Unit) {
         khlHandler.registerEventFuncHandler(type, func)
     }
 
