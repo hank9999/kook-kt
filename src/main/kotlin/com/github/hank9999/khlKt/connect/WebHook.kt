@@ -1,22 +1,21 @@
-package com.github.hank9999.khlKt
+package com.github.hank9999.khlKt.connect
 
+import com.github.hank9999.khlKt.Config
+import com.github.hank9999.khlKt.connect.Utils.Companion.decompressZlib
 import com.github.hank9999.khlKt.handler.KhlHandler
-import io.javalin.Javalin
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import io.javalin.http.Context
 import com.github.hank9999.khlKt.json.JSON.Companion.json
 import com.github.hank9999.khlKt.json.JSON.Companion.t
 import com.github.hank9999.khlKt.json.JSON.Operator.get
 import com.github.hank9999.khlKt.json.JSON.Operator.invoke
 import com.github.hank9999.khlKt.types.types.MessageTypes
 import com.github.hank9999.khlKt.types.types.MessageTypes.*
-import com.github.hank9999.khlKt.http.exceptions.HttpException
-import com.github.hank9999.khlKt.types.Type
+import io.javalin.Javalin
+import io.javalin.http.Context
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import java.util.zip.InflaterInputStream
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class WebHook(config: Config, khlHandler: KhlHandler) {
     private var config: Config
@@ -39,10 +38,6 @@ class WebHook(config: Config, khlHandler: KhlHandler) {
         app.post(config.path) { ctx -> khlHandler(ctx) }
     }
 
-    private fun decompressZlib(content: ByteArray): String {
-        return InflaterInputStream(content.inputStream()).bufferedReader().use { it.readText() }
-    }
-
     private fun khlHandler(ctx: Context) {
         val body = decompressZlib(ctx.bodyAsBytes())
         val element = json.parseToJsonElement(body)
@@ -55,22 +50,11 @@ class WebHook(config: Config, khlHandler: KhlHandler) {
             logger.warn("[Khl] Wrong Verify Token, message may be fake, ignored")
             return
         }
-
-        try {
-            when (MessageTypes.fromInt(dObject["type"](t.int))) {
-                KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE -> khlHandler.addMessageQueue(dObject)
-                SYS -> khlEventHandler(ctx, dObject)
-                ALL -> TODO()
-            }
-        } catch(e: HttpException) {
-            logger.error("${e.javaClass.name} ${e.message}")
-            ctx.status(200)
-        } catch (e: Exception) {
-            // 如果遇到什么奇怪的bug 打印json全文
-            logger.error(body)
-            logger.error("${e.javaClass.name} ${e.message}")
-            // logger.error(e.stackTraceToString())
-            ctx.status(200)
+        ctx.status(200)
+        when (MessageTypes.fromInt(dObject["type"](t.int))) {
+            KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE -> khlHandler.addMessageQueue(dObject)
+            SYS -> khlEventHandler(ctx, dObject)
+            ALL -> {}
         }
     }
 

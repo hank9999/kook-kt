@@ -1,8 +1,9 @@
 package com.github.hank9999.khlKt
 
+import com.github.hank9999.khlKt.connect.WebHook
+import com.github.hank9999.khlKt.connect.WebSocket
 import com.github.hank9999.khlKt.handler.KhlHandler
 import com.github.hank9999.khlKt.handler.types.FilterTypes
-import com.github.hank9999.khlKt.http.HttpApi
 import com.github.hank9999.khlKt.types.KhlEvent
 import com.github.hank9999.khlKt.types.KhlMessage
 import com.github.hank9999.khlKt.types.types.EventTypes
@@ -13,16 +14,20 @@ import org.slf4j.LoggerFactory
 
 class Bot(config: Config) {
     private val logger: Logger = LoggerFactory.getLogger(Bot::class.java)
-    var config: Config
-    var khlHandler: KhlHandler
-    var httpApi: HttpApi
+    private val khlHandler: KhlHandler
+
+    companion object {
+        lateinit var config: Config
+    }
 
     init {
-        this.config = config
-        httpApi = HttpApi(config)
+        Companion.config = config
         khlHandler = KhlHandler(config)
-        if (config.host.isNotEmpty()) WebHook(config, khlHandler).initialize()
-//        else WebSocket(config, khlHandler).connect()
+        if (config.host.isNotEmpty()) {
+            WebHook(config, khlHandler).initialize()
+        } else {
+            WebSocket(config, khlHandler).connect()
+        }
         logger.info("Initialization complete")
     }
 
