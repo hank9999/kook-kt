@@ -27,7 +27,7 @@ allprojects {
     }
 }
 dependencies {
-    implementation 'com.github.hank9999:khl-kt:0.0.1'
+    implementation 'com.github.hank9999:khl-kt:0.0.1-fix1'
 }
 ```
 ### 使用
