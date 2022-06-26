@@ -1,6 +1,7 @@
 package com.github.hank9999.khlKt.http
 
 import com.github.hank9999.khlKt.Bot
+import com.github.hank9999.khlKt.Config
 import com.github.hank9999.khlKt.http.types.apiResponse.GuildView
 import com.github.hank9999.khlKt.http.types.apiResponse.MessageCreate
 import com.github.hank9999.khlKt.types.types.MessageTypes
@@ -15,13 +16,16 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 
-class HttpApi {
-
+class HttpApi(config: Config) {
     companion object {
-        const val api = "https://www.kaiheila.cn/api/v3"
-        val authHeader = mapOf("Authorization" to "Bot ${Bot.config.token}")
-        private val logger: Logger = LoggerFactory.getLogger(HttpApi::class.java)
+        private const val api = "https://www.kaiheila.cn/api/v3"
+        private var authHeader: Map<String, String> = emptyMap()
         private val rateLimit = RateLimit()
+        private val logger: Logger = LoggerFactory.getLogger(HttpApi::class.java)
+    }
+
+    init {
+        authHeader = mapOf("Authorization" to "Bot ${config.token}")
     }
 
     object Message {
