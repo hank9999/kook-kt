@@ -1,4 +1,5 @@
 # khl-kt
+[![](https://jitpack.io/v/hank9999/khl-kt.svg)](https://jitpack.io/#hank9999/khl-kt)  
 一个开黑啦 Kotlin SDK  
 ## 快速开始
 ### 引入依赖
