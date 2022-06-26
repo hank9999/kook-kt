@@ -3,6 +3,7 @@ package com.github.hank9999.khlKt.handler
 import com.github.hank9999.khlKt.Bot
 import com.github.hank9999.khlKt.Config
 import com.github.hank9999.khlKt.handler.types.*
+import com.github.hank9999.khlKt.http.exceptions.HttpException
 import com.github.hank9999.khlKt.json.JSON.Companion.json
 import com.github.hank9999.khlKt.types.KhlEvent
 import com.github.hank9999.khlKt.types.KhlMessage
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
+import kotlin.collections.set
 import kotlin.coroutines.suspendCoroutine
 import kotlin.reflect.full.declaredFunctions
 
@@ -55,7 +57,16 @@ class KhlHandler(config: Config) {
                     if (messageQueue.size != 0) {
                         val data = messageQueue.pop(0)
                         launch {
-                            messageHandler(data)
+                            try {
+                                messageHandler(data)
+                            } catch(e: HttpException) {
+                                logger.error("${e.javaClass.name} ${e.message}")
+                            } catch (e: Exception) {
+                                // 如果遇到什么奇怪的bug 打印全文
+                                logger.error(data.toString())
+                                logger.error("${e.javaClass.name} ${e.message}")
+                                // logger.error(e.stackTraceToString())
+                            }
                         }
                         continue
                     }
@@ -67,7 +78,16 @@ class KhlHandler(config: Config) {
                     if (eventQueue.size != 0) {
                         val data = eventQueue.pop(0)
                         launch {
-                            eventHandler(data)
+                            try {
+                                eventHandler(data)
+                            } catch(e: HttpException) {
+                                logger.error("${e.javaClass.name} ${e.message}")
+                            } catch (e: Exception) {
+                                // 如果遇到什么奇怪的bug 打印全文
+                                logger.error(data.toString())
+                                logger.error("${e.javaClass.name} ${e.message}")
+                                // logger.error(e.stackTraceToString())
+                            }
                         }
                         continue
                     }
@@ -189,7 +209,7 @@ class KhlHandler(config: Config) {
             logger.debug("[Handler] Message Class Handler Processing")
             messageClassHandlers.forEach { m ->
                 logger.debug("[Handler] Message Class Handler $m")
-                if (m.key == data.type  || m.key == MessageTypes.ALL) { m.value.forEach { h ->
+                if (m.key == data.type || m.key == MessageTypes.ALL) { m.value.forEach { h ->
                     launch { suspendCoroutine<Unit> { continuation -> h.function.call(h.classInstance, data, continuation) } }
                 } }
             }
@@ -243,12 +263,12 @@ class KhlHandler(config: Config) {
             logger.debug("[Handler] Event Function Handler Processing")
             eventFuncHandlers.forEach { e ->
                 logger.debug("[Handler] Event Function Handler $e")
-                if (e.key == data.extra.type  || e.key == EventTypes.ALL) { e.value.forEach { func -> launch { func(data, coroutineScope) } } }
+                if (e.key == data.extra.type || e.key == EventTypes.ALL) { e.value.forEach { func -> launch { func(data, coroutineScope) } } }
             }
             logger.debug("[Handler] Event Class Handler Processing")
             eventClassHandlers.forEach { e ->
                 logger.debug("[Handler] Event Class Handler $e")
-                if (e.key == data.extra.type  || e.key == EventTypes.ALL) { e.value.forEach { h ->
+                if (e.key == data.extra.type || e.key == EventTypes.ALL) { e.value.forEach { h ->
                         launch { suspendCoroutine<Unit> { continuation -> h.function.call(h.classInstance, data, continuation) } }
                 } }
             }
