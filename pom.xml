@@ -6,7 +6,7 @@
 
     <artifactId>khl-kt</artifactId>
     <groupId>com.github.hank9999</groupId>
-    <version>0.0.1</version>
+    <version>0.0.1-fix1</version>
     <packaging>jar</packaging>
 
     <properties>
