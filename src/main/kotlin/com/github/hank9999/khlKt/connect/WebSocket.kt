@@ -84,9 +84,6 @@ class WebSocket(config: Config, khlHandler: KhlHandler) {
                 }
             }
         }
-        while (true) {
-            if (status == Status.CONNECTED) return
-        }
     }
 
     suspend fun handler() {
