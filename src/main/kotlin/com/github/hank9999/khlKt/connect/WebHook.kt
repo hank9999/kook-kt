@@ -52,10 +52,16 @@ class WebHook(config: Config, khlHandler: KhlHandler) {
             return
         }
         ctx.status(200)
-        when (MessageTypes.fromInt(dObject["type"].int)) {
-            KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE -> khlHandler.addMessageQueue(dObject)
-            SYS -> khlEventHandler(ctx, dObject)
-            ALL -> {}
+        try {
+            when (MessageTypes.fromInt(dObject["type"].int)) {
+                KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE -> khlHandler.addMessageQueue(dObject)
+                SYS -> khlEventHandler(ctx, dObject)
+                ALL -> {}
+            }
+        } catch (e: Exception) {
+            // 如果遇到什么奇怪的bug 打印全文
+            logger.error(body)
+            logger.error("${e.javaClass.name} ${e.message}")
         }
     }
 

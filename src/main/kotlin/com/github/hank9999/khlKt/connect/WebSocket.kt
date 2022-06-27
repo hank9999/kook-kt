@@ -88,15 +88,22 @@ class WebSocket(config: Config, khlHandler: KhlHandler) {
     suspend fun handler() {
         while (true) {
             if (messageQueue.size != 0) {
-                val data = json.parseToJsonElement(messageQueue.pop(0))
+                val message = messageQueue.pop(0)
+                val data = json.parseToJsonElement(message)
                 when (data["s"].int) {
                     0 -> {
                         logger.debug("[WebSocket] Received Event: $data")
                         sn = data["sn"].int
-                        when (MessageTypes.fromInt(data["d"]["type"].int)) {
-                            KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE -> khlHandler.addMessageQueue(data["d"])
-                            SYS -> khlHandler.addEventQueue(data["d"])
-                            ALL -> {}
+                        try {
+                            when (MessageTypes.fromInt(data["d"]["type"].int)) {
+                                KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE -> khlHandler.addMessageQueue(data["d"])
+                                SYS -> khlHandler.addEventQueue(data["d"])
+                                ALL -> {}
+                            }
+                        } catch (e: Exception) {
+                            // 如果遇到什么奇怪的bug 打印全文
+                            logger.error(message)
+                            logger.error("${e.javaClass.name} ${e.message}")
                         }
                     }
                     1 -> {
