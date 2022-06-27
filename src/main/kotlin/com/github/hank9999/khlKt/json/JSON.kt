@@ -1,9 +1,6 @@
 package com.github.hank9999.khlKt.json
 
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.*
 
 class JSON {
 
@@ -12,23 +9,23 @@ class JSON {
             return jsonObject[i]!!
         }
 
-        val JsonElement.string: String
-            get() { return jsonObject.jsonPrimitive.string }
+        val JsonElement.String: String
+            get() { return this.jsonPrimitive.content }
 
-        val JsonElement.int: Int
-            get() { return jsonObject.jsonPrimitive.int }
+        val JsonElement.Int: Int
+            get() { return this.jsonPrimitive.int }
 
-        val JsonElement.bool: Boolean
-            get() { return jsonObject.jsonPrimitive.bool }
+        val JsonElement.Bool: Boolean
+            get() { return this.jsonPrimitive.boolean }
 
-        val JsonElement.long: Long
-            get() { return jsonObject.jsonPrimitive.long }
+        val JsonElement.Long: Long
+            get() { return this.jsonPrimitive.long }
 
-        val JsonElement.double: Double
-            get() { return jsonObject.jsonPrimitive.double }
+        val JsonElement.Double: Double
+            get() { return this.jsonPrimitive.double }
 
-        val JsonElement.float: Float
-            get() { return jsonObject.jsonPrimitive.float }
+        val JsonElement.Float: Float
+            get() { return this.jsonPrimitive.float }
     }
 
     companion object {

@@ -4,9 +4,10 @@ import com.github.hank9999.khlKt.Config
 import com.github.hank9999.khlKt.connect.Utils.Companion.decompressZlib
 import com.github.hank9999.khlKt.handler.KhlHandler
 import com.github.hank9999.khlKt.json.JSON.Companion.json
+import com.github.hank9999.khlKt.json.JSON.Extension.Int
+import com.github.hank9999.khlKt.json.JSON.Extension.Long
+import com.github.hank9999.khlKt.json.JSON.Extension.String
 import com.github.hank9999.khlKt.json.JSON.Extension.get
-import com.github.hank9999.khlKt.json.JSON.Extension.int
-import com.github.hank9999.khlKt.json.JSON.Extension.string
 import com.github.hank9999.khlKt.types.types.MessageTypes
 import com.github.hank9999.khlKt.types.types.MessageTypes.*
 import io.javalin.Javalin
@@ -42,12 +43,12 @@ class WebHook(config: Config, khlHandler: KhlHandler) {
     private fun khlHandler(ctx: Context) {
         val body = decompressZlib(ctx.bodyAsBytes())
         val element = json.parseToJsonElement(body)
-        if (element["s"].int != 0) {
+        if (element["s"].Int != 0) {
             logger.warn("[Khl] Unknown signaling, ignored")
             return
         }
         val dObject = element["d"].jsonPrimitive
-        if (dObject["verify_token"].string != config.verify_token) {
+        if (dObject["verify_token"].String != config.verify_token) {
             logger.warn("[Khl] Wrong Verify Token, message may be fake, ignored")
             return
         }
@@ -66,9 +67,9 @@ class WebHook(config: Config, khlHandler: KhlHandler) {
     }
 
     private fun khlEventHandler(ctx: Context, element: JsonElement) {
-        when (element["channel_type"].string) {
+        when (element["channel_type"].String) {
             "WEBHOOK_CHALLENGE" -> {
-                val challenge = element["challenge"].string
+                val challenge = element["challenge"].String
                 val resp = buildJsonObject { put("challenge", challenge) }.toString()
                 ctx.contentType("application/json").result(resp)
                 logger.info("[Khl] Received WEBHOOK_CHALLENGE request, challenge: $challenge, Responded")
