@@ -5,9 +5,8 @@ import com.github.hank9999.khlKt.connect.Type.Status
 import com.github.hank9999.khlKt.handler.KhlHandler
 import com.github.hank9999.khlKt.http.HttpApi
 import com.github.hank9999.khlKt.json.JSON.Companion.json
-import com.github.hank9999.khlKt.json.JSON.Companion.t
-import com.github.hank9999.khlKt.json.JSON.Operator.get
-import com.github.hank9999.khlKt.json.JSON.Operator.invoke
+import com.github.hank9999.khlKt.json.JSON.Extension.get
+import com.github.hank9999.khlKt.json.JSON.Extension.int
 import com.github.hank9999.khlKt.types.types.MessageTypes
 import com.github.hank9999.khlKt.types.types.MessageTypes.*
 import kotlinx.coroutines.CoroutineScope
@@ -90,11 +89,11 @@ class WebSocket(config: Config, khlHandler: KhlHandler) {
         while (true) {
             if (messageQueue.size != 0) {
                 val data = json.parseToJsonElement(messageQueue.pop(0))
-                when (data["s"](t.int)) {
+                when (data["s"].int) {
                     0 -> {
                         logger.debug("[WebSocket] Received Event: $data")
-                        sn = data["sn"](t.int)
-                        when (MessageTypes.fromInt(data["d"]["type"](t.int))) {
+                        sn = data["sn"].int
+                        when (MessageTypes.fromInt(data["d"]["type"].int)) {
                             KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE -> khlHandler.addMessageQueue(data["d"])
                             SYS -> khlHandler.addEventQueue(data["d"])
                             ALL -> {}
@@ -102,7 +101,7 @@ class WebSocket(config: Config, khlHandler: KhlHandler) {
                     }
                     1 -> {
                         logger.debug("[WebSocket] Received Hello: $data")
-                        val code = data["d"]["code"](t.int)
+                        val code = data["d"]["code"].int
                         status = if (code == 0) Status.CONNECTED else Status.RESTARTING
                     }
                     3 -> {

@@ -5,9 +5,9 @@ import com.github.hank9999.khlKt.http.exceptions.HttpException
 import com.github.hank9999.khlKt.http.types.apiResponse.GuildView
 import com.github.hank9999.khlKt.http.types.apiResponse.MessageCreate
 import com.github.hank9999.khlKt.json.JSON.Companion.json
-import com.github.hank9999.khlKt.json.JSON.Companion.t
-import com.github.hank9999.khlKt.json.JSON.Operator.get
-import com.github.hank9999.khlKt.json.JSON.Operator.invoke
+import com.github.hank9999.khlKt.json.JSON.Extension.get
+import com.github.hank9999.khlKt.json.JSON.Extension.int
+import com.github.hank9999.khlKt.json.JSON.Extension.string
 import com.github.hank9999.khlKt.types.types.MessageTypes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -47,8 +47,8 @@ class HttpApi {
             }
             val resp = Http.apost("$api/$route", authHeader, formData.build())
             val respJson = json.parseToJsonElement(resp.body)
-            if (respJson["code"](t.int) != 0) {
-                throw HttpException("HttpApi ERROR ${respJson["code"](t.int)} $route ${respJson["message"](t.string)}")
+            if (respJson["code"].int != 0) {
+                throw HttpException("HttpApi ERROR ${respJson["code"].int} $route ${respJson["message"].string}")
             }
             if (resp.headers.containsKey("x-rate-limit-limit")) {
                 rateLimit.updateRateLimitInfo(
@@ -73,8 +73,8 @@ class HttpApi {
             delay(sleepTime)
             val resp = Http.aget("$api/$route", authHeader)
             val respJson = json.parseToJsonElement(resp.body)
-            if (respJson["code"](t.int) != 0) {
-                throw HttpException("HttpApi ERROR ${respJson["code"](t.int)} $route ${respJson["message"](t.string)}")
+            if (respJson["code"].int != 0) {
+                throw HttpException("HttpApi ERROR ${respJson["code"].int} $route ${respJson["message"].string}")
             }
             if (resp.headers.containsKey("x-rate-limit-limit")) {
                 rateLimit.updateRateLimitInfo(
@@ -98,8 +98,8 @@ class HttpApi {
             delay(sleepTime)
             val resp = Http.aget("$api/$route", authHeader, mapOf("guild_id" to guildId))
             val respJson = json.parseToJsonElement(resp.body)
-            if (respJson["code"](t.int) != 0) {
-                throw HttpException("HttpApi ERROR ${respJson["code"](t.int)} $route ${respJson["message"](t.string)}")
+            if (respJson["code"].int != 0) {
+                throw HttpException("HttpApi ERROR ${respJson["code"].int} $route ${respJson["message"].string}")
             }
             if (resp.headers.containsKey("x-rate-limit-limit")) {
                 rateLimit.updateRateLimitInfo(
@@ -123,8 +123,8 @@ class HttpApi {
             delay(sleepTime)
             val resp = Http.aget("$api/$route", authHeader)
             val respJson = json.parseToJsonElement(resp.body)
-            if (respJson["code"](t.int) != 0) {
-                throw HttpException("HttpApi ERROR ${respJson["code"](t.int)} $route ${respJson["message"](t.string)}")
+            if (respJson["code"].int != 0) {
+                throw HttpException("HttpApi ERROR ${respJson["code"].int} $route ${respJson["message"].string}")
             }
             if (resp.headers.containsKey("x-rate-limit-limit")) {
                 rateLimit.updateRateLimitInfo(
@@ -135,7 +135,7 @@ class HttpApi {
                 )
             }
             logger.debug("[HttpApi] $bucket response, $respJson, ${resp.headers}")
-            respJson["data"]["url"](t.string)
+            respJson["data"]["url"].string
         }
     }
 }

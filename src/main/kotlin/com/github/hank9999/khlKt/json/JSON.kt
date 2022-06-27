@@ -1,36 +1,37 @@
 package com.github.hank9999.khlKt.json
 
-import com.github.hank9999.khlKt.json.types.T
-import kotlinx.serialization.json.*
-import kotlin.reflect.KClass
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 class JSON {
 
-    object Operator {
+    object Extension {
         operator fun JsonElement.get(i: String): JsonElement {
             return jsonObject[i]!!
         }
 
-        operator fun JsonElement.invoke(type: KClass<Int>): Int {
-            return jsonPrimitive.int
-        }
+        val JsonElement.string: String
+            get() { return jsonObject.jsonPrimitive.string }
 
-        operator fun JsonElement.invoke(type: KClass<String>): String {
-            return jsonPrimitive.content
-        }
+        val JsonElement.int: Int
+            get() { return jsonObject.jsonPrimitive.int }
 
-        operator fun JsonElement.invoke(type: KClass<Long>): Long {
-            return jsonPrimitive.long
-        }
+        val JsonElement.bool: Boolean
+            get() { return jsonObject.jsonPrimitive.bool }
 
-        operator fun JsonElement.invoke(type: KClass<Boolean>): Boolean {
-            return jsonPrimitive.boolean
-        }
+        val JsonElement.long: Long
+            get() { return jsonObject.jsonPrimitive.long }
 
+        val JsonElement.double: Double
+            get() { return jsonObject.jsonPrimitive.double }
+
+        val JsonElement.float: Float
+            get() { return jsonObject.jsonPrimitive.float }
     }
 
     companion object {
-        val t = T()
         val json = Json {
             ignoreUnknownKeys = true
             classDiscriminator = "#class"

@@ -4,15 +4,16 @@ import com.github.hank9999.khlKt.Config
 import com.github.hank9999.khlKt.connect.Utils.Companion.decompressZlib
 import com.github.hank9999.khlKt.handler.KhlHandler
 import com.github.hank9999.khlKt.json.JSON.Companion.json
-import com.github.hank9999.khlKt.json.JSON.Companion.t
-import com.github.hank9999.khlKt.json.JSON.Operator.get
-import com.github.hank9999.khlKt.json.JSON.Operator.invoke
+import com.github.hank9999.khlKt.json.JSON.Extension.get
+import com.github.hank9999.khlKt.json.JSON.Extension.int
+import com.github.hank9999.khlKt.json.JSON.Extension.string
 import com.github.hank9999.khlKt.types.types.MessageTypes
 import com.github.hank9999.khlKt.types.types.MessageTypes.*
 import io.javalin.Javalin
 import io.javalin.http.Context
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -41,17 +42,17 @@ class WebHook(config: Config, khlHandler: KhlHandler) {
     private fun khlHandler(ctx: Context) {
         val body = decompressZlib(ctx.bodyAsBytes())
         val element = json.parseToJsonElement(body)
-        if (element["s"](t.int) != 0) {
+        if (element["s"].int != 0) {
             logger.warn("[Khl] Unknown signaling, ignored")
             return
         }
-        val dObject = element["d"]
-        if (dObject["verify_token"](t.string) != config.verify_token) {
+        val dObject = element["d"].jsonPrimitive
+        if (dObject["verify_token"].string != config.verify_token) {
             logger.warn("[Khl] Wrong Verify Token, message may be fake, ignored")
             return
         }
         ctx.status(200)
-        when (MessageTypes.fromInt(dObject["type"](t.int))) {
+        when (MessageTypes.fromInt(dObject["type"].int)) {
             KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE -> khlHandler.addMessageQueue(dObject)
             SYS -> khlEventHandler(ctx, dObject)
             ALL -> {}
@@ -59,9 +60,9 @@ class WebHook(config: Config, khlHandler: KhlHandler) {
     }
 
     private fun khlEventHandler(ctx: Context, element: JsonElement) {
-        when (element["channel_type"](t.string)) {
+        when (element["channel_type"].string) {
             "WEBHOOK_CHALLENGE" -> {
-                val challenge = element["challenge"](t.string)
+                val challenge = element["challenge"].string
                 val resp = buildJsonObject { put("challenge", challenge) }.toString()
                 ctx.contentType("application/json").result(resp)
                 logger.info("[Khl] Received WEBHOOK_CHALLENGE request, challenge: $challenge, Responded")
