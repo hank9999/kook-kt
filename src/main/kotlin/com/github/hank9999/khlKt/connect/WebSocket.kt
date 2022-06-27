@@ -15,6 +15,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.slf4j.Logger
@@ -97,7 +100,25 @@ class WebSocket(config: Config, khlHandler: KhlHandler) {
                         logger.debug("[WebSocket] Received Event: $data")
                         sn = data["sn"].Int
                         try {
-                            when (MessageTypes.fromInt(data["d"]["type"].int)) {
+                            val dData = if (data["d"]["type"].String == "SYS_MSG") {
+                                buildJsonObject {
+                                    put("type", 255)
+                                    put("channel_type", data["d"]["channelType"].String)
+                                    put("target_id", data["d"]["toUserId"].String)
+                                    put("author_id", data["d"]["fromUserId"].String)
+                                    put("content", data["d"]["content"].String)
+                                    put("msg_id", data["d"]["msgId"].String)
+                                    put("msg_timestamp", data["d"]["msgTimestamp"].Long)
+                                    put("nonce", data["d"]["nonce"].String)
+                                    put("from_type", data["d"]["from_type"].Int)
+                                    putJsonObject("extra") {
+                                        put("type", "broadcast")
+                                    }
+                                }
+                            } else {
+                                data["d"]
+                            }
+                            when (MessageTypes.fromInt(dData["type"].Int)) {
                                 KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE -> khlHandler.addMessageQueue(data["d"])
                                 SYS -> khlHandler.addEventQueue(data["d"])
                                 ALL -> {}

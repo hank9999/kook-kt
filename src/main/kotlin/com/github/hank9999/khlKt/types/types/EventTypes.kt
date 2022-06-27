@@ -1,13 +1,13 @@
 package com.github.hank9999.khlKt.types.types
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 @Serializable(with = EventTypes.EventTypesSerializer::class)
 enum class EventTypes(val type: String) {
@@ -42,7 +42,8 @@ enum class EventTypes(val type: String) {
     SELF_JOINED_GUILD("self_joined_guild"),
     SELF_EXITED_GUILD("self_exited_guild"),
     PINNED_MESSAGE("pinned_message"),
-    UNPINNED_MESSAGE("unpinned_message");
+    UNPINNED_MESSAGE("unpinned_message"),
+    BROADCAST("broadcast");
 
     companion object {
         fun fromString(type: String) = EventTypes.values().first { it.type == type }

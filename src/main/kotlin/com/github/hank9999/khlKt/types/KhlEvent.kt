@@ -20,7 +20,8 @@ data class KhlEvent(
     @Required val msg_timestamp: Long  = 0,
     @Required val extra: Extra = Extra(),
     @Required val nonce: String = "",
-    val verify_token: String = ""
+    val verify_token: String = "",
+    val from_type: Int = 1
 ) {
     @Serializable
     data class Extra(

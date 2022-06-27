@@ -12,10 +12,7 @@ import com.github.hank9999.khlKt.types.types.MessageTypes
 import com.github.hank9999.khlKt.types.types.MessageTypes.*
 import io.javalin.Javalin
 import io.javalin.http.Context
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.put
+import kotlinx.serialization.json.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -54,7 +51,25 @@ class WebHook(config: Config, khlHandler: KhlHandler) {
         }
         ctx.status(200)
         try {
-            when (MessageTypes.fromInt(dObject["type"].int)) {
+            val data = if (dObject["type"].String == "SYS_MSG") {
+                buildJsonObject {
+                    put("type", 255)
+                    put("channel_type", dObject["channelType"].String)
+                    put("target_id", dObject["toUserId"].String)
+                    put("author_id", dObject["fromUserId"].String)
+                    put("content", dObject["content"].String)
+                    put("msg_id", dObject["msgId"].String)
+                    put("msg_timestamp", dObject["msgTimestamp"].Long)
+                    put("nonce", dObject["nonce"].String)
+                    put("from_type", dObject["from_type"].Int)
+                    putJsonObject("extra") {
+                        put("type", "broadcast")
+                    }
+                }
+            } else {
+                 dObject
+            }
+            when (MessageTypes.fromInt(data["type"].Int)) {
                 KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE -> khlHandler.addMessageQueue(dObject)
                 SYS -> khlEventHandler(ctx, dObject)
                 ALL -> {}
