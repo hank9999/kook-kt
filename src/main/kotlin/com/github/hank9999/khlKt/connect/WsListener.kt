@@ -1,6 +1,5 @@
 package com.github.hank9999.khlKt.connect
 
-import com.github.hank9999.khlKt.connect.Type.Status
 import com.github.hank9999.khlKt.connect.Utils.Companion.decompressZlib
 import com.github.hank9999.khlKt.connect.WebSocket.Companion.addQueue
 import com.github.hank9999.khlKt.connect.WebSocket.Companion.logger
@@ -12,7 +11,6 @@ class WsListener : WebSocketListener() {
     override fun onClosed(webSocket: okhttp3.WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
         logger.debug("[WebSocket] Closed $code, $reason")
-        WebSocket.status = Status.CLOSED
     }
 
     override fun onClosing(webSocket: okhttp3.WebSocket, code: Int, reason: String) {
@@ -27,7 +25,15 @@ class WsListener : WebSocketListener() {
 
     override fun onMessage(webSocket: okhttp3.WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
-        addQueue(decompressZlib(bytes.toByteArray()))
+        val text = decompressZlib(bytes.toByteArray())
+        addQueue(text)
+        logger.debug("[WebSocket] Received ws compressed message: $text")
+    }
+
+    override fun onMessage(webSocket: okhttp3.WebSocket, text: String) {
+        super.onMessage(webSocket, text)
+        addQueue(text)
+        logger.debug("[WebSocket] Received ws message: $text")
     }
 
     override fun onOpen(webSocket: okhttp3.WebSocket, response: Response) {

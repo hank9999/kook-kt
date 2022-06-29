@@ -5,7 +5,7 @@ class Type {
         CONNECTING,
         CONNECTED,
         INIT,
-        RESTARTING,
+        RECONNECT,
         CLOSED
     }
 }

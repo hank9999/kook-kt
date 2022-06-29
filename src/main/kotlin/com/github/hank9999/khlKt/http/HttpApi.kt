@@ -69,7 +69,6 @@ class HttpApi {
             val route = "user/me"
             val sleepTime = rateLimit.getSleepTime(bucket)
             logger.debug("[HttpApi] $bucket request, sleep $sleepTime ms")
-            logger.debug("[HttpApi] $bucket request, sleep $sleepTime ms")
             delay(sleepTime)
             val resp = Http.aget("$api/$route", authHeader)
             val respJson = json.parseToJsonElement(resp.body)
@@ -86,6 +85,28 @@ class HttpApi {
             }
             logger.debug("[HttpApi] $bucket response, $respJson, ${resp.headers}")
             json.decodeFromJsonElement(respJson["data"])
+        }
+
+        suspend fun offline() = withContext(Dispatchers.IO) {
+            val bucket = "user/offline"
+            val route = "user/offline"
+            val sleepTime = rateLimit.getSleepTime(bucket)
+            logger.debug("[HttpApi] $bucket request, sleep $sleepTime ms")
+            delay(sleepTime)
+            val resp = Http.apost("$api/$route", authHeader, FormBody.Builder().build())
+            val respJson = json.parseToJsonElement(resp.body)
+            if (respJson["code"].Int != 0) {
+                throw HttpException("HttpApi ERROR ${respJson["code"].Int} $route ${respJson["message"].String}")
+            }
+            if (resp.headers.containsKey("x-rate-limit-limit")) {
+                rateLimit.updateRateLimitInfo(
+                    bucket,
+                    resp.headers["x-rate-limit-limit"]!![0].toInt(),
+                    resp.headers["x-rate-limit-remaining"]!![0].toInt(),
+                    resp.headers["x-rate-limit-reset"]!![0].toInt()
+                )
+            }
+            logger.debug("[HttpApi] $bucket response, $respJson, ${resp.headers}")
         }
     }
 
