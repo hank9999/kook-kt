@@ -11,17 +11,19 @@ import com.github.hank9999.kook.json.JSON.Extension.Int
 import com.github.hank9999.kook.json.JSON.Extension.String
 import com.github.hank9999.kook.json.JSON.Extension.get
 import com.github.hank9999.kook.types.types.MessageTypes
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonArray
 import okhttp3.FormBody
-import okhttp3.Headers
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 
 class HttpApi {
@@ -30,7 +32,10 @@ class HttpApi {
         private val authHeader = mapOf("Authorization" to "Bot ${Bot.config.token}")
         private val rateLimit = RateLimit()
         private val logger: Logger = LoggerFactory.getLogger(HttpApi::class.java)
-
+        private val threadNumber = Runtime.getRuntime().availableProcessors()*2 + 1
+        private val threadPool = ThreadPoolExecutor(threadNumber, threadNumber,0L, TimeUnit.MILLISECONDS, LinkedBlockingQueue(10240))
+        private val coroutineContext = threadPool.asCoroutineDispatcher()
+        private val coroutineScope = CoroutineScope(coroutineContext)
         fun updateRateLimitInfo(bucket: String, headers: Map<String, List<String>>) {
             if (headers.containsKey("x-rate-limit-limit")) {
                 rateLimit.updateRateLimitInfo(
@@ -42,7 +47,7 @@ class HttpApi {
             }
         }
 
-        suspend fun execRequest(data: Api, page: Int? = null): HttpApiResponse = withContext(Dispatchers.IO) {
+        suspend fun execRequest(data: Api, page: Int? = null): HttpApiResponse = withContext(coroutineContext) {
             val sleepTime = rateLimit.getSleepTime(data.bucket)
             logger.debug("[HttpApi] ${data.route} request, sleep $sleepTime ms")
             delay(sleepTime)
@@ -67,7 +72,7 @@ class HttpApi {
             HttpApiResponse(respJson["data"], resp.headers)
         }
 
-        suspend fun request(data: Api): JsonElement = withContext(Dispatchers.IO) {
+        suspend fun request(data: Api): JsonElement = withContext(coroutineContext) {
             if (!data.pageable) {
                 execRequest(data).json
             } else {
@@ -92,10 +97,58 @@ class HttpApi {
                 }
             }
         }
+
+        fun requestAsFlow(data: Api): Flow<JsonElement> = flow {
+            val json1 = execRequest(data).json
+            if (data.pageable) {
+                val pageTotal = json1["meta"]["page_total"].Int
+                for (page in 1..pageTotal) {
+                    if (page == 1) {
+                        emit(json1["items"])
+                    } else {
+                        emit(execRequest(data, page).json["items"])
+                    }
+                }
+            } else {
+                emit(json1)
+            }
+        }
+
+        suspend fun requestAsIterator(data: Api): Iterator<JsonElement> {
+            val json1 = execRequest(data).json
+            var currentPage = 0
+            val pageTotal = if (data.pageable) {
+                json1["meta"]["page_total"].Int
+            } else {
+                1
+            }
+            class Itr : Iterator<JsonElement> {
+                override fun hasNext(): Boolean {
+                    return currentPage < pageTotal
+                }
+
+                override fun next(): JsonElement {
+                    currentPage += 1
+                    return if (currentPage == 1){
+                        json1["items"]
+                    } else {
+                        var jsonData: JsonElement? = null
+                        val job = coroutineScope.launch {
+                            jsonData = execRequest(data, currentPage).json["items"]
+                        }
+                        runBlocking {
+                            job.join()
+                        }
+                        jsonData!!
+                    }
+                }
+            }
+            return Itr()
+        }
     }
 
     object Message {
-        suspend fun create(content: String, target_id: String, type: MessageTypes = MessageTypes.TEXT, quote: String = "", temp_target_id: String = ""): MessageCreate = withContext(Dispatchers.IO) {
+        suspend fun create(content: String, target_id: String, type: MessageTypes = MessageTypes.TEXT, quote: String = "", temp_target_id: String = ""): MessageCreate = withContext(coroutineContext) {
             val bucket = "message/create"
             val route = "message/create"
             val sleepTime = rateLimit.getSleepTime(bucket)
@@ -132,7 +185,7 @@ class HttpApi {
     }
 
     object User {
-        suspend fun me(): com.github.hank9999.kook.types.User = withContext(Dispatchers.IO) {
+        suspend fun me(): com.github.hank9999.kook.types.User = withContext(coroutineContext) {
             val bucket = "user/me"
             val route = "user/me"
             val sleepTime = rateLimit.getSleepTime(bucket)
@@ -155,7 +208,7 @@ class HttpApi {
             json.decodeFromJsonElement(respJson["data"])
         }
 
-        suspend fun offline() = withContext(Dispatchers.IO) {
+        suspend fun offline() = withContext(coroutineContext) {
             val bucket = "user/offline"
             val route = "user/offline"
             val sleepTime = rateLimit.getSleepTime(bucket)
@@ -179,7 +232,7 @@ class HttpApi {
     }
 
     object Guild {
-        suspend fun view(guildId: String): GuildView = withContext(Dispatchers.IO) {
+        suspend fun view(guildId: String): GuildView = withContext(coroutineContext) {
             val bucket = "guild/view"
             val route = "guild/view"
             val sleepTime = rateLimit.getSleepTime(bucket)
@@ -204,7 +257,7 @@ class HttpApi {
     }
 
     object Gateway {
-        suspend fun index(): String = withContext(Dispatchers.IO) {
+        suspend fun index(): String = withContext(coroutineContext) {
             val bucket = "gateway/index"
             val route = "gateway/index"
             val sleepTime = rateLimit.getSleepTime(bucket)

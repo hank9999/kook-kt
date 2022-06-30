@@ -36,7 +36,7 @@ class Handler(config: Config) {
     private val commandFuncHandlers: MutableList<CommandFuncHandler> = mutableListOf()
     private val messageQueue: MutableList<JsonElement> = mutableListOf()
     private val eventQueue: MutableList<JsonElement> = mutableListOf()
-    private val threadNumber = Runtime.getRuntime().availableProcessors()*2 + 1
+    private val threadNumber = Runtime.getRuntime().availableProcessors() + 1
     private val threadPool = ThreadPoolExecutor(threadNumber, threadNumber,0L, TimeUnit.MILLISECONDS, LinkedBlockingQueue(10240))
     private val coroutineScope = CoroutineScope(threadPool.asCoroutineDispatcher())
     private var config: Config
