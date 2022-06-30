@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>khl-kt</artifactId>
+    <artifactId>kook-kt</artifactId>
     <groupId>com.github.hank9999</groupId>
     <version>0.0.1-fix1</version>
     <packaging>jar</packaging>
@@ -19,8 +19,8 @@
         <serialization.version>1.3.3</serialization.version>
     </properties>
 
-    <name>khl-kt</name>
-    <description>A Kotlin SDK for Kaiheila</description>
+    <name>kook-kt</name>
+    <description>A Kotlin SDK for KOOK</description>
     <url>https://kotlinlang.org/</url>
     <licenses>
         <license>
@@ -34,9 +34,9 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:https://github.com/hank9999/khl-kt.git</connection>
-        <developerConnection>scm:git:https://github.com/hank9999/khl-kt.git</developerConnection>
-        <url>https://github.com/hank9999/khl-kt</url>
+        <connection>scm:git:https://github.com/hank9999/kook-kt.git</connection>
+        <developerConnection>scm:git:https://github.com/hank9999/kook-kt.git</developerConnection>
+        <url>https://github.com/hank9999/kook-kt</url>
     </scm>
 
     <build>

@@ -1,6 +1,6 @@
-# khl-kt
-[![](https://jitpack.io/v/hank9999/khl-kt.svg)](https://jitpack.io/#hank9999/khl-kt)  
-一个开黑啦 Kotlin SDK  
+# kook-kt
+[![](https://jitpack.io/v/hank9999/kook-kt.svg)](https://jitpack.io/#hank9999/kook-kt)  
+一个 KOOK Kotlin SDK  
 ## 快速开始
 ### 引入依赖
 #### Maven
@@ -14,7 +14,7 @@
 <dependencies>
     <dependency>
         <groupId>com.github.hank9999</groupId>
-        <artifactId>khl-kt</artifactId>
+        <artifactId>kook-kt</artifactId>
         <version>0.0.1-fix1</version>
     </dependency>
 </dependencies>
@@ -28,13 +28,13 @@ allprojects {
     }
 }
 dependencies {
-    implementation 'com.github.hank9999:khl-kt:0.0.1-fix1'
+    implementation 'com.github.hank9999:kook-kt:0.0.1-fix1'
 }
 ```
 ### 使用
 ```kotlin
 fun main(args: Array<String>) {
-    val bot = Bot(com.github.hank9999.khlKt.Config(token = "xxxx"))
+    val bot = Bot(Config(token = "xxxx"))
     // 注册监听事件
     bot.registerClass(M())
     bot.registerMessageFunc { msg, cs -> message2(msg, cs) }
@@ -43,30 +43,30 @@ fun main(args: Array<String>) {
 
 class M {
     @Bot.OnMessage
-    suspend fun message(msg: KhlMessage) {
+    suspend fun message(msg: Message) {
         logger.info(msg.toString())
     }
 
     @Bot.OnEvent
-    suspend fun event(event: KhlEvent) {
+    suspend fun event(event: Event) {
         logger.info(event.toString())
     }
 
     @Bot.OnFilter(FilterTypes.START_WITH, "/1234")
-    suspend fun filter(msg: KhlMessage) {
+    suspend fun filter(msg: Message) {
         logger.info(msg.toString())
     }
 
     @Bot.OnCommand("test")
-    suspend fun command(msg: KhlMessage) {
+    suspend fun command(msg: Message) {
         logger.info(msg.toString())
     }
 }
-fun message2(msg: KhlMessage, cs: CoroutineScope) {
+fun message2(msg: Message, cs: CoroutineScope) {
     println(msg)
 }
 
-fun message3(msg: KhlMessage, cs: CoroutineScope) {
+fun message3(msg: Message, cs: CoroutineScope) {
     cs.launch {
         delay(500)
         logger.info(msg.toString())
