@@ -7,7 +7,7 @@ abstract class Api {
     abstract val method: Method
     abstract val bucket: String
     abstract val route: String
-    abstract val formData: FormBody
+    abstract val postData: RequestBody
     abstract val params: Map<String, String>
     abstract val pageable: Boolean
 
@@ -19,7 +19,7 @@ abstract class Api {
             override val method = Method.GET
             override val bucket = "guild/list"
             override val route = "guild/list"
-            override val formData = emptyFormBody
+            override val postData = emptyFormBody
             override val params = if (sort != null) mapOf("sort" to sort) else emptyParams
             override val pageable = true
         }
@@ -27,7 +27,7 @@ abstract class Api {
             override val method = Method.GET
             override val bucket = "guild/view"
             override val route = "guild/view"
-            override val formData = emptyFormBody
+            override val postData = emptyFormBody
             override val params = mapOf("guild_id" to guildId)
             override val pageable = false
         }
@@ -36,7 +36,7 @@ abstract class Api {
             override val method = Method.GET
             override val bucket = "guild/user-list"
             override val route = "guild/user-list"
-            override val formData = emptyFormBody
+            override val postData = emptyFormBody
             override val params = mutableMapOf<String, String>().apply {
                 this["guild_id"] = guildId
                 channelId?.let { this["channel_id"] = channelId }
@@ -52,7 +52,7 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "guild/nickname"
             override val route = "guild/nickname"
-            override val formData = FormBody.Builder().apply {
+            override val postData = FormBody.Builder().apply {
                 this.add("guild_id", guildId)
                 this.add("nickname", nickname ?: "")
                 userId?.let { this.add("user_id", userId) }
@@ -64,7 +64,7 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "guild/leave"
             override val route = "guild/leave"
-            override val formData = FormBody.Builder().add("guild_id", guildId).build()
+            override val postData = FormBody.Builder().add("guild_id", guildId).build()
             override val params = emptyParams
             override val pageable = false
         }
@@ -72,7 +72,7 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "guild/nickname"
             override val route = "guild/nickname"
-            override val formData = FormBody.Builder()
+            override val postData = FormBody.Builder()
                 .add("guild_id", guildId)
                 .add("target_id", targetId)
                 .build()
@@ -85,7 +85,7 @@ abstract class Api {
             override val method = Method.GET
             override val bucket = "guild-mute/list"
             override val route = "guild-mute/list"
-            override val formData = emptyFormBody
+            override val postData = emptyFormBody
             override val params = mutableMapOf<String, String>().apply {
                 this["guild_id"] = guildId
                 returnType?.let { this["return_type"] = returnType }
@@ -96,7 +96,7 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "guild-mute/create"
             override val route = "guild-mute/create"
-            override val formData = FormBody.Builder()
+            override val postData = FormBody.Builder()
                 .add("guild_id", guildId)
                 .add("user_id", userId)
                 .add("type", type.toString())
@@ -108,7 +108,7 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "guild-mute/delete"
             override val route = "guild-mute/delete"
-            override val formData = FormBody.Builder()
+            override val postData = FormBody.Builder()
                 .add("guild_id", guildId)
                 .add("user_id", userId)
                 .add("type", type.toString())

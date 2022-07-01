@@ -61,7 +61,7 @@ class HttpApi {
                 }
                 Http.aget("$api/${data.route}", authHeader, params)
             } else {
-                Http.apost("$api/${data.route}", authHeader, data.formData, params)
+                Http.apost("$api/${data.route}", authHeader, data.postData, params)
             }
             val respJson = json.parseToJsonElement(resp.body)
             if (respJson["code"].Int != 0) {
@@ -154,19 +154,19 @@ class HttpApi {
             val sleepTime = rateLimit.getSleepTime(bucket)
             logger.debug("[HttpApi] $bucket request, sleep $sleepTime ms")
             delay(sleepTime)
-            val formData = FormBody.Builder()
+            val postData = FormBody.Builder()
                 .add("content", content)
                 .add("target_id", target_id)
             if (type != MessageTypes.TEXT) {
-                formData.add("type", type.type.toString())
+                postData.add("type", type.type.toString())
             }
             if (quote.isNotEmpty()) {
-                formData.add("quote", quote)
+                postData.add("quote", quote)
             }
             if (temp_target_id.isNotEmpty()) {
-                formData.add("temp_target_id", temp_target_id)
+                postData.add("temp_target_id", temp_target_id)
             }
-            val resp = Http.apost("$api/$route", authHeader, formData.build())
+            val resp = Http.apost("$api/$route", authHeader, postData.build())
             val respJson = json.parseToJsonElement(resp.body)
             if (respJson["code"].Int != 0) {
                 throw HttpException("HttpApi ERROR ${respJson["code"].Int} $route ${respJson["message"].String}")
