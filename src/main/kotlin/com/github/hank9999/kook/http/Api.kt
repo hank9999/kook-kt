@@ -1,7 +1,14 @@
 package com.github.hank9999.kook.http
 
 import com.github.hank9999.kook.http.types.Method
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import okhttp3.FormBody
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 abstract class Api {
     abstract val method: Method
@@ -113,6 +120,79 @@ abstract class Api {
                 .add("user_id", userId)
                 .add("type", type.toString())
                 .build()
+            override val params = emptyParams
+            override val pageable = false
+        }
+    }
+    abstract class Channel: Api() {
+        class List(guildId: String, type: Int? = null): Channel() {
+            override val method = Method.GET
+            override val bucket = "channel/list"
+            override val route = "channel/list"
+            override val postData = emptyFormBody
+            override val params = mutableMapOf<String, String>().apply {
+                this["guild_id"] = guildId
+                type?.let { this["type"] = type.toString() }
+            }
+            override val pageable = true
+        }
+        class View(targetId: String): Channel() {
+            override val method = Method.GET
+            override val bucket = "channel/view"
+            override val route = "channel/view"
+            override val postData = emptyFormBody
+            override val params = mapOf("target_id" to targetId)
+            override val pageable = false
+        }
+        class Create(guildId: String, name: String, type: Int? = null, parentId: String? = null,
+                     limitAmount: Int? = null, voiceQuality: Int? = null): Channel() {
+            override val method = Method.POST
+            override val bucket = "channel/create"
+            override val route = "channel/create"
+            override val postData = FormBody.Builder().apply {
+                this.add("guild_id", guildId)
+                this.add("name", name)
+                type?.let { this.add("type", type.toString()) }
+                parentId?.let { this.add("parent_id", parentId) }
+                limitAmount?.let { this.add("limit_amount", limitAmount.toString()) }
+                voiceQuality?.let { this.add("voice_quality", voiceQuality.toString()) }
+            }.build()
+            override val params = emptyParams
+            override val pageable = false
+        }
+        class Update(channelId: String, name: String? = null, topic: String? = null, slowMode: Int? = null): Channel() {
+            override val method = Method.POST
+            override val bucket = "channel/update"
+            override val route = "channel/update"
+            override val postData = FormBody.Builder().apply {
+                this.add("channel_id", channelId)
+                name?.let { this.add("name", name) }
+                topic?.let { this.add("topic", topic) }
+                slowMode?.let { this.add("slow_mode", slowMode.toString()) }
+            }.build()
+            override val params = emptyParams
+            override val pageable = false
+        }
+        class Delete(channelId: String): Channel() {
+            override val method = Method.POST
+            override val bucket = "channel/delete"
+            override val route = "channel/delete"
+            override val postData = FormBody.Builder().add("channel_id", channelId).build()
+            override val params = emptyParams
+            override val pageable = false
+        }
+        class MoveUser(targetId: String, userIds: Array<String>): Channel() {
+            override val method = Method.POST
+            override val bucket = "channel/delete"
+            override val route = "channel/delete"
+            override val postData = buildJsonObject {
+                put("target_id", targetId)
+                putJsonArray("user_ids") {
+                    userIds.forEach {
+                        add(it)
+                    }
+                }
+            }.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
             override val params = emptyParams
             override val pageable = false
         }
