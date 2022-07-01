@@ -27,8 +27,12 @@ class Http {
             }
         }
 
-        fun post(url: String, headers: Map<String, String> = mapOf(), data: RequestBody): HttpResponse {
-            val builder = Request.Builder().url(url).post(data)
+        fun post(url: String, headers: Map<String, String> = mapOf(), data: RequestBody, params: Map<String, String> = mapOf()): HttpResponse {
+            val httpBuilder: HttpUrl.Builder = url.toHttpUrlOrNull()!!.newBuilder()
+            for (item in params.entries) {
+                httpBuilder.addQueryParameter(item.key, item.value)
+            }
+            val builder = Request.Builder().url(httpBuilder.build()).post(data)
             for (item in headers.entries) {
                 builder.addHeader(item.key, item.value)
             }
