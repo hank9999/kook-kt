@@ -12,7 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class Bot(config: Config) {
+class Bot(config: Config, connect: Boolean = true) {
     private val logger: Logger = LoggerFactory.getLogger(Bot::class.java)
     private val handler: Handler
 
@@ -23,10 +23,12 @@ class Bot(config: Config) {
     init {
         Companion.config = config
         handler = Handler(config)
-        if (config.host.isNotEmpty()) {
-            WebHook(config, handler).initialize()
-        } else {
-            WebSocket(config, handler).connect()
+        if (connect) {
+            if (config.host.isNotEmpty()) {
+                WebHook(config, handler).initialize()
+            } else {
+                WebSocket(config, handler).connect()
+            }
         }
         logger.info("Initialization complete")
     }
