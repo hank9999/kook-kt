@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory
 
 class Bot(config: Config, connect: Boolean = true) {
     private val logger: Logger = LoggerFactory.getLogger(Bot::class.java)
-    private val handler: Handler
+    private var handler: Handler? = null
 
     companion object {
         lateinit var config: Config
@@ -22,35 +22,35 @@ class Bot(config: Config, connect: Boolean = true) {
 
     init {
         Companion.config = config
-        handler = Handler(config)
         if (connect) {
+            handler = Handler(config)
             if (config.host.isNotEmpty()) {
-                WebHook(config, handler).initialize()
+                WebHook(config, handler!!).initialize()
             } else {
-                WebSocket(config, handler).connect()
+                WebSocket(config, handler!!).connect()
             }
         }
         logger.info("Initialization complete")
     }
 
     fun <T : Any> registerClass(t: T) {
-        handler.registerClassHandler(t)
+        handler?.registerClassHandler(t)
     }
 
     fun registerMessageFunc(type: MessageTypes = MessageTypes.ALL, func: (msg: Message, cs: CoroutineScope) -> Unit) {
-        handler.registerMessageFuncHandler(type, func)
+        handler?.registerMessageFuncHandler(type, func)
     }
 
     fun registerEventFunc(type: EventTypes = EventTypes.ALL, func: (event: Event, cs: CoroutineScope) -> Unit) {
-        handler.registerEventFuncHandler(type, func)
+        handler?.registerEventFuncHandler(type, func)
     }
 
     fun registerFilterFunc(type: FilterTypes, startWith: String = "", keyword: String = "", regex: String = "", ignoreCase: Boolean = true, func: (msg: Message, cs: CoroutineScope) -> Unit) {
-        handler.registerFilterFuncHandler(type, startWith, keyword, regex, ignoreCase, func)
+        handler?.registerFilterFuncHandler(type, startWith, keyword, regex, ignoreCase, func)
     }
 
     fun registerCommandFunc(name: String, prefixes: Array<String> = emptyArray(), aliases: Array<String> = emptyArray(), ignoreCase: Boolean = true, func: (msg: Message, cs: CoroutineScope) -> Unit) {
-        handler.registerCommandFuncHandler(name, prefixes, aliases, ignoreCase, func)
+        handler?.registerCommandFuncHandler(name, prefixes, aliases, ignoreCase, func)
     }
 
     @Target(AnnotationTarget.FUNCTION) @Repeatable
