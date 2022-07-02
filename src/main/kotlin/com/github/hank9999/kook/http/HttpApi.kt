@@ -148,39 +148,9 @@ class HttpApi {
     }
 
     object Message {
-        suspend fun create(content: String, target_id: String, type: MessageTypes = MessageTypes.TEXT, quote: String = "", temp_target_id: String = ""): MessageCreate = withContext(coroutineContext) {
-            val bucket = "message/create"
-            val route = "message/create"
-            val sleepTime = rateLimit.getSleepTime(bucket)
-            logger.debug("[HttpApi] $bucket request, sleep $sleepTime ms")
-            delay(sleepTime)
-            val postData = FormBody.Builder()
-                .add("content", content)
-                .add("target_id", target_id)
-            if (type != MessageTypes.TEXT) {
-                postData.add("type", type.type.toString())
-            }
-            if (quote.isNotEmpty()) {
-                postData.add("quote", quote)
-            }
-            if (temp_target_id.isNotEmpty()) {
-                postData.add("temp_target_id", temp_target_id)
-            }
-            val resp = Http.apost("$api/$route", authHeader, postData.build())
-            val respJson = json.parseToJsonElement(resp.body)
-            if (respJson["code"].Int != 0) {
-                throw HttpException("HttpApi ERROR ${respJson["code"].Int} $route ${respJson["message"].String}")
-            }
-            if (resp.headers.containsKey("x-rate-limit-limit")) {
-                rateLimit.updateRateLimitInfo(
-                    bucket,
-                    resp.headers["x-rate-limit-limit"]!![0].toInt(),
-                    resp.headers["x-rate-limit-remaining"]!![0].toInt(),
-                    resp.headers["x-rate-limit-reset"]!![0].toInt()
-                )
-            }
-            logger.debug("[HttpApi] $bucket response, $respJson, ${resp.headers}")
-            json.decodeFromJsonElement(respJson["data"])
+        suspend fun create(targetId: String, content: Any, type: MessageTypes? = null, quote: String? = null, nonce: String? = null, tempTargetId: String? = null): MessageCreate = withContext(coroutineContext) {
+            val data = request(Api.Message.Create(targetId, content, type, quote, nonce, tempTargetId))
+            json.decodeFromJsonElement(data)
         }
     }
 
