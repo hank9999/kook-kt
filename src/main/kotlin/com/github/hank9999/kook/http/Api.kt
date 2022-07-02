@@ -208,7 +208,7 @@ abstract class Api {
             override val route = "channel-role/index"
             override val postData = emptyPostData
             override val params = mapOf("channel_id" to channelId)
-            override val pageable = true
+            override val pageable = false
         }
         class Create(channelId: String, type: String? = null, value: String? = null): ChannelRole() {
             override val method = Method.POST
@@ -220,7 +220,7 @@ abstract class Api {
                 value?.let { put("value", value) }
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
-            override val pageable = true
+            override val pageable = false
         }
         class Update(channelId: String, type: String? = null, value: String? = null, allow: Int? = null,
                      deny: Int? = null): ChannelRole() {
@@ -235,7 +235,7 @@ abstract class Api {
                 deny?.let { put("deny", deny) }
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
-            override val pageable = true
+            override val pageable = false
         }
         class Delete(channelId: String, type: String? = null, value: String? = null): ChannelRole() {
             override val method = Method.POST
@@ -247,7 +247,7 @@ abstract class Api {
                 value?.let { put("value", value) }
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
-            override val pageable = true
+            override val pageable = false
         }
     }
 }
