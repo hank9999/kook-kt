@@ -24,7 +24,7 @@ abstract class Api {
     val emptyParams = emptyMap<String, String>()
 
     abstract class Guild: Api() {
-        class List(sort: String? = null): Guild() {
+        class List(sort: String? = null) : Guild() {
             override val method = Method.GET
             override val bucket = "guild/list"
             override val route = "guild/list"
@@ -32,7 +32,7 @@ abstract class Api {
             override val params = if (sort != null) mapOf("sort" to sort) else emptyParams
             override val pageable = true
         }
-        class View(guildId: String): Guild() {
+        class View(guildId: String) : Guild() {
             override val method = Method.GET
             override val bucket = "guild/view"
             override val route = "guild/view"
@@ -40,7 +40,7 @@ abstract class Api {
             override val params = mapOf("guild_id" to guildId)
             override val pageable = false
         }
-        class UserList(guildId: String, channelId: String? = null, search: String? = null, roleId: Int? = null, mobileVerified: Int? = null, activeTime: Int? = null, joinedAt: Int? = null): Guild() {
+        class UserList(guildId: String, channelId: String? = null, search: String? = null, roleId: Int? = null, mobileVerified: Int? = null, activeTime: Int? = null, joinedAt: Int? = null) : Guild() {
             override val method = Method.GET
             override val bucket = "guild/user-list"
             override val route = "guild/user-list"
@@ -56,7 +56,7 @@ abstract class Api {
             }
             override val pageable = true
         }
-        class Nickname(guildId: String, nickname: String? = null, userId: String? = null): Guild() {
+        class Nickname(guildId: String, nickname: String? = null, userId: String? = null) : Guild() {
             override val method = Method.POST
             override val bucket = "guild/nickname"
             override val route = "guild/nickname"
@@ -68,7 +68,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class Leave(guildId: String): Guild() {
+        class Leave(guildId: String) : Guild() {
             override val method = Method.POST
             override val bucket = "guild/leave"
             override val route = "guild/leave"
@@ -78,7 +78,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class KickOut(guildId: String, targetId: String): Guild() {
+        class KickOut(guildId: String, targetId: String) : Guild() {
             override val method = Method.POST
             override val bucket = "guild/nickname"
             override val route = "guild/nickname"
@@ -91,7 +91,7 @@ abstract class Api {
         }
     }
     abstract class GuildMute: Api() {
-        class List(guildId: String, returnType: String? = null): GuildMute() {
+        class List(guildId: String, returnType: String? = null) : GuildMute() {
             override val method = Method.GET
             override val bucket = "guild-mute/list"
             override val route = "guild-mute/list"
@@ -102,7 +102,7 @@ abstract class Api {
             }
             override val pageable = false
         }
-        class Create(guildId: String, userId: String, type: Int): GuildMute() {
+        class Create(guildId: String, userId: String, type: Int) : GuildMute() {
             override val method = Method.POST
             override val bucket = "guild-mute/create"
             override val route = "guild-mute/create"
@@ -114,7 +114,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class Delete(guildId: String, userId: String, type: Int): GuildMute() {
+        class Delete(guildId: String, userId: String, type: Int) : GuildMute() {
             override val method = Method.POST
             override val bucket = "guild-mute/delete"
             override val route = "guild-mute/delete"
@@ -128,7 +128,7 @@ abstract class Api {
         }
     }
     abstract class Channel: Api() {
-        class List(guildId: String, type: Int? = null): Channel() {
+        class List(guildId: String, type: Int? = null) : Channel() {
             override val method = Method.GET
             override val bucket = "channel/list"
             override val route = "channel/list"
@@ -139,7 +139,7 @@ abstract class Api {
             }
             override val pageable = true
         }
-        class View(targetId: String): Channel() {
+        class View(targetId: String) : Channel() {
             override val method = Method.GET
             override val bucket = "channel/view"
             override val route = "channel/view"
@@ -147,7 +147,7 @@ abstract class Api {
             override val params = mapOf("target_id" to targetId)
             override val pageable = false
         }
-        class Create(guildId: String, name: String, type: Int? = null, parentId: String? = null, limitAmount: Int? = null, voiceQuality: Int? = null): Channel() {
+        class Create(guildId: String, name: String, type: Int? = null, parentId: String? = null, limitAmount: Int? = null, voiceQuality: Int? = null) : Channel() {
             override val method = Method.POST
             override val bucket = "channel/create"
             override val route = "channel/create"
@@ -162,7 +162,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class Update(channelId: String, name: String? = null, topic: String? = null, slowMode: Int? = null): Channel() {
+        class Update(channelId: String, name: String? = null, topic: String? = null, slowMode: Int? = null) : Channel() {
             override val method = Method.POST
             override val bucket = "channel/update"
             override val route = "channel/update"
@@ -175,7 +175,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class Delete(channelId: String): Channel() {
+        class Delete(channelId: String) : Channel() {
             override val method = Method.POST
             override val bucket = "channel/delete"
             override val route = "channel/delete"
@@ -185,7 +185,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class MoveUser(targetId: String, userIds: Array<String>): Channel() {
+        class MoveUser(targetId: String, userIds: Array<String>) : Channel() {
             override val method = Method.POST
             override val bucket = "channel/delete"
             override val route = "channel/delete"
@@ -202,7 +202,7 @@ abstract class Api {
         }
     }
     abstract class ChannelRole: Api() {
-        class Index(channelId: String): ChannelRole() {
+        class Index(channelId: String) : ChannelRole() {
             override val method = Method.GET
             override val bucket = "channel-role/index"
             override val route = "channel-role/index"
@@ -210,7 +210,7 @@ abstract class Api {
             override val params = mapOf("channel_id" to channelId)
             override val pageable = false
         }
-        class Create(channelId: String, type: String? = null, value: String? = null): ChannelRole() {
+        class Create(channelId: String, type: String? = null, value: String? = null) : ChannelRole() {
             override val method = Method.POST
             override val bucket = "channel-role/create"
             override val route = "channel-role/create"
@@ -222,7 +222,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class Update(channelId: String, type: String? = null, value: String? = null, allow: Int? = null, deny: Int? = null): ChannelRole() {
+        class Update(channelId: String, type: String? = null, value: String? = null, allow: Int? = null, deny: Int? = null) : ChannelRole() {
             override val method = Method.POST
             override val bucket = "channel-role/update"
             override val route = "channel-role/update"
@@ -236,7 +236,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class Delete(channelId: String, type: String? = null, value: String? = null): ChannelRole() {
+        class Delete(channelId: String, type: String? = null, value: String? = null) : ChannelRole() {
             override val method = Method.POST
             override val bucket = "channel-role/delete"
             override val route = "channel-role/delete"
@@ -250,7 +250,7 @@ abstract class Api {
         }
     }
     abstract class Message: Api() {
-        class List(targetId: String, msgId: String? = null, pin: Int? = null, flag: String? = null, pageSize: Int? = null): Message() {
+        class List(targetId: String, msgId: String? = null, pin: Int? = null, flag: String? = null, pageSize: Int? = null) : Message() {
             override val method = Method.GET
             override val bucket = "message/list"
             override val route = "message/list"
@@ -264,7 +264,7 @@ abstract class Api {
             }
             override val pageable = false
         }
-        class View(msgId: String): Message() {
+        class View(msgId: String) : Message() {
             override val method = Method.GET
             override val bucket = "message/view"
             override val route = "message/view"
@@ -272,7 +272,7 @@ abstract class Api {
             override val params = mapOf("msg_id" to msgId)
             override val pageable = false
         }
-        class Create(targetId: String, content: Any, type: MessageTypes? = null, quote: String? = null, nonce: String? = null, tempTargetId: String? = null): Message() {
+        class Create(targetId: String, content: Any, type: MessageTypes? = null, quote: String? = null, nonce: String? = null, tempTargetId: String? = null) : Message() {
             override val method = Method.POST
             override val bucket = "message/create"
             override val route = "message/create"
@@ -290,7 +290,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class Update(msgId: String, content: Any, quote: String? = null, tempTargetId: String? = null): Message() {
+        class Update(msgId: String, content: Any, quote: String? = null, tempTargetId: String? = null) : Message() {
             override val method = Method.POST
             override val bucket = "message/create"
             override val route = "message/create"
@@ -303,7 +303,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class Delete(msgId: String): Message() {
+        class Delete(msgId: String) : Message() {
             override val method = Method.POST
             override val bucket = "message/delete"
             override val route = "message/delete"
@@ -313,7 +313,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class ReactionList(msgId: String, emoji: String): Message() {
+        class ReactionList(msgId: String, emoji: String) : Message() {
             override val method = Method.GET
             override val bucket = "message/reaction-list"
             override val route = "message/reaction-list"
@@ -321,7 +321,7 @@ abstract class Api {
             override val params = mapOf("msg_id" to msgId, "emoji" to emoji)
             override val pageable = false
         }
-        class AddReaction(msgId: String, emoji: String): Message() {
+        class AddReaction(msgId: String, emoji: String) : Message() {
             override val method = Method.POST
             override val bucket = "message/add-reaction"
             override val route = "message/add-reaction"
@@ -332,7 +332,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class DeleteReaction(msgId: String, emoji: String, userId: String?): Message() {
+        class DeleteReaction(msgId: String, emoji: String, userId: String?) : Message() {
             override val method = Method.POST
             override val bucket = "message/delete-reaction"
             override val route = "message/delete-reaction"
