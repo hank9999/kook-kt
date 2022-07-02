@@ -1,5 +1,6 @@
 package com.github.hank9999.kook.http
 
+import com.github.hank9999.kook.card.CardMessage
 import com.github.hank9999.kook.http.types.Method
 import com.github.hank9999.kook.types.types.MessageTypes
 import kotlinx.serialization.json.add
@@ -278,7 +279,10 @@ abstract class Api {
             override val postData = buildJsonObject {
                 put("target_id", targetId)
                 put("content", content.toString())
-                type?.let { put("type", type.type) }
+                when (content) {
+                    is CardMessage -> put("type", MessageTypes.CARD.type)
+                    else -> type?.let { put("type", type.type) }
+                }
                 quote?.let { put("quote", quote) }
                 nonce?.let { put("nonce", nonce) }
                 tempTargetId?.let { put("temp_target_id", tempTargetId) }
