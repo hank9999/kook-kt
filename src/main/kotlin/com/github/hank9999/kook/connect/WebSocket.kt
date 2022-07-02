@@ -23,7 +23,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.Instant
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -91,11 +90,18 @@ class WebSocket(config: Config, handler: Handler) {
         coroutineScope.launch {
             launch { handler() }
             launch {
+                var sendTime: Long
                 while (true) {
                     if (status == Status.CONNECTED) {
+                        sendTime = System.currentTimeMillis()
                         mWebSocket?.send("{\"s\":2,\"sn\":$sn}")
                         logger.debug("[WebSocket] Ping sn: $sn")
-                        delay(30 * 1000)
+                        delay(6 * 1000)
+                        if (lastPong != 0L && (lastPong < sendTime) && status != Status.RECONNECT) {
+                            status = Status.CLOSED
+                        } else {
+                            delay(24 * 1000)
+                        }
                     } else {
                         delay(100)
                     }
@@ -137,9 +143,6 @@ class WebSocket(config: Config, handler: Handler) {
                     }
                 }
                 while (true) {
-                    if (lastPong != 0L && (Instant.now().epochSecond - lastPong >= 40) && status != Status.RECONNECT) {
-                        status = Status.CLOSED
-                    }
                     if (status == Status.RECONNECT) {
                         logger.debug("[WebSocket] Reconnecting")
                         mWebSocket?.close(1002, "reconnect")
@@ -211,7 +214,7 @@ class WebSocket(config: Config, handler: Handler) {
                     }
                     3 -> {
                         logger.debug("[WebSocket] Received Pong")
-                        lastPong = Instant.now().epochSecond
+                        lastPong = System.currentTimeMillis()
                     }
                     5 -> {
                         logger.debug("[WebSocket] Received RECONNECT")
