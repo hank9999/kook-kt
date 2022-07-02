@@ -18,7 +18,8 @@ abstract class Api {
     abstract val params: Map<String, String>
     abstract val pageable: Boolean
 
-    val emptyFormBody = FormBody.Builder().build()
+    val mediaType = "application/json; charset=utf-8".toMediaType()
+    val emptyPostData = "".toRequestBody(mediaType)
     val emptyParams = emptyMap<String, String>()
 
     abstract class Guild: Api() {
@@ -26,7 +27,7 @@ abstract class Api {
             override val method = Method.GET
             override val bucket = "guild/list"
             override val route = "guild/list"
-            override val postData = emptyFormBody
+            override val postData = emptyPostData
             override val params = if (sort != null) mapOf("sort" to sort) else emptyParams
             override val pageable = true
         }
@@ -34,7 +35,7 @@ abstract class Api {
             override val method = Method.GET
             override val bucket = "guild/view"
             override val route = "guild/view"
-            override val postData = emptyFormBody
+            override val postData = emptyPostData
             override val params = mapOf("guild_id" to guildId)
             override val pageable = false
         }
@@ -43,7 +44,7 @@ abstract class Api {
             override val method = Method.GET
             override val bucket = "guild/user-list"
             override val route = "guild/user-list"
-            override val postData = emptyFormBody
+            override val postData = emptyPostData
             override val params = mutableMapOf<String, String>().apply {
                 this["guild_id"] = guildId
                 channelId?.let { this["channel_id"] = channelId }
@@ -59,11 +60,11 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "guild/nickname"
             override val route = "guild/nickname"
-            override val postData = FormBody.Builder().apply {
-                this.add("guild_id", guildId)
-                this.add("nickname", nickname ?: "")
-                userId?.let { this.add("user_id", userId) }
-            }.build()
+            override val postData = buildJsonObject {
+                put("guild_id", guildId)
+                put("nickname", nickname ?: "")
+                userId?.let { put("user_id", userId) }
+            }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
         }
@@ -71,7 +72,9 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "guild/leave"
             override val route = "guild/leave"
-            override val postData = FormBody.Builder().add("guild_id", guildId).build()
+            override val postData = buildJsonObject {
+                put("guild_id", guildId)
+            }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
         }
@@ -79,10 +82,10 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "guild/nickname"
             override val route = "guild/nickname"
-            override val postData = FormBody.Builder()
-                .add("guild_id", guildId)
-                .add("target_id", targetId)
-                .build()
+            override val postData = buildJsonObject {
+                put("guild_id", guildId)
+                put("target_id", targetId)
+            }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
         }
@@ -92,7 +95,7 @@ abstract class Api {
             override val method = Method.GET
             override val bucket = "guild-mute/list"
             override val route = "guild-mute/list"
-            override val postData = emptyFormBody
+            override val postData = emptyPostData
             override val params = mutableMapOf<String, String>().apply {
                 this["guild_id"] = guildId
                 returnType?.let { this["return_type"] = returnType }
@@ -103,11 +106,11 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "guild-mute/create"
             override val route = "guild-mute/create"
-            override val postData = FormBody.Builder()
-                .add("guild_id", guildId)
-                .add("user_id", userId)
-                .add("type", type.toString())
-                .build()
+            override val postData = buildJsonObject {
+                put("guild_id", guildId)
+                put("user_id", userId)
+                put("type", type)
+            }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
         }
@@ -115,11 +118,11 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "guild-mute/delete"
             override val route = "guild-mute/delete"
-            override val postData = FormBody.Builder()
-                .add("guild_id", guildId)
-                .add("user_id", userId)
-                .add("type", type.toString())
-                .build()
+            override val postData = buildJsonObject {
+                put("guild_id", guildId)
+                put("user_id", userId)
+                put("type", type)
+            }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
         }
@@ -129,7 +132,7 @@ abstract class Api {
             override val method = Method.GET
             override val bucket = "channel/list"
             override val route = "channel/list"
-            override val postData = emptyFormBody
+            override val postData = emptyPostData
             override val params = mutableMapOf<String, String>().apply {
                 this["guild_id"] = guildId
                 type?.let { this["type"] = type.toString() }
@@ -140,7 +143,7 @@ abstract class Api {
             override val method = Method.GET
             override val bucket = "channel/view"
             override val route = "channel/view"
-            override val postData = emptyFormBody
+            override val postData = emptyPostData
             override val params = mapOf("target_id" to targetId)
             override val pageable = false
         }
@@ -149,14 +152,14 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "channel/create"
             override val route = "channel/create"
-            override val postData = FormBody.Builder().apply {
-                this.add("guild_id", guildId)
-                this.add("name", name)
-                type?.let { this.add("type", type.toString()) }
-                parentId?.let { this.add("parent_id", parentId) }
-                limitAmount?.let { this.add("limit_amount", limitAmount.toString()) }
-                voiceQuality?.let { this.add("voice_quality", voiceQuality.toString()) }
-            }.build()
+            override val postData = buildJsonObject {
+                put("guild_id", guildId)
+                put("name", name)
+                type?.let { put("type", type) }
+                parentId?.let { put("parent_id", parentId) }
+                limitAmount?.let { put("limit_amount", limitAmount) }
+                voiceQuality?.let { put("voice_quality", voiceQuality) }
+            }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
         }
@@ -164,12 +167,12 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "channel/update"
             override val route = "channel/update"
-            override val postData = FormBody.Builder().apply {
-                this.add("channel_id", channelId)
-                name?.let { this.add("name", name) }
-                topic?.let { this.add("topic", topic) }
-                slowMode?.let { this.add("slow_mode", slowMode.toString()) }
-            }.build()
+            override val postData = buildJsonObject {
+                put("channel_id", channelId)
+                name?.let { put("name", name) }
+                topic?.let { put("topic", topic) }
+                slowMode?.let { put("slow_mode", slowMode) }
+            }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
         }
@@ -177,7 +180,9 @@ abstract class Api {
             override val method = Method.POST
             override val bucket = "channel/delete"
             override val route = "channel/delete"
-            override val postData = FormBody.Builder().add("channel_id", channelId).build()
+            override val postData = buildJsonObject {
+                put("channel_id", channelId)
+            }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
         }
@@ -192,7 +197,7 @@ abstract class Api {
                         add(it)
                     }
                 }
-            }.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+            }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
         }
