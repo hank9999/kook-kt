@@ -5,7 +5,6 @@ import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
-import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -200,6 +199,55 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+        }
+    }
+    abstract class ChannelRole: Api() {
+        class Index(channelId: String): ChannelRole() {
+            override val method = Method.GET
+            override val bucket = "channel-role/index"
+            override val route = "channel-role/index"
+            override val postData = emptyPostData
+            override val params = mapOf("channel_id" to channelId)
+            override val pageable = true
+        }
+        class Create(channelId: String, type: String? = null, value: String? = null): ChannelRole() {
+            override val method = Method.POST
+            override val bucket = "channel-role/create"
+            override val route = "channel-role/create"
+            override val postData = buildJsonObject {
+                put("channel_id", channelId)
+                type?.let { put("type", type) }
+                value?.let { put("value", value) }
+            }.toString().toRequestBody(mediaType)
+            override val params = emptyParams
+            override val pageable = true
+        }
+        class Update(channelId: String, type: String? = null, value: String? = null, allow: Int? = null,
+                     deny: Int? = null): ChannelRole() {
+            override val method = Method.POST
+            override val bucket = "channel-role/update"
+            override val route = "channel-role/update"
+            override val postData = buildJsonObject {
+                put("channel_id", channelId)
+                type?.let { put("type", type) }
+                value?.let { put("value", value) }
+                allow?.let { put("allow", allow) }
+                deny?.let { put("deny", deny) }
+            }.toString().toRequestBody(mediaType)
+            override val params = emptyParams
+            override val pageable = true
+        }
+        class Delete(channelId: String, type: String? = null, value: String? = null): ChannelRole() {
+            override val method = Method.POST
+            override val bucket = "channel-role/delete"
+            override val route = "channel-role/delete"
+            override val postData = buildJsonObject {
+                put("channel_id", channelId)
+                type?.let { put("type", type) }
+                value?.let { put("value", value) }
+            }.toString().toRequestBody(mediaType)
+            override val params = emptyParams
+            override val pageable = true
         }
     }
 }
