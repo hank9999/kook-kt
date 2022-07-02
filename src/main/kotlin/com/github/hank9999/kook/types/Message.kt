@@ -1,5 +1,7 @@
 package com.github.hank9999.kook.types
 
+import com.github.hank9999.kook.http.HttpApi
+import com.github.hank9999.kook.http.types.apiResponse.MessageCreate
 import com.github.hank9999.kook.types.kmd.KMarkdown
 import com.github.hank9999.kook.types.types.ChannelPrivacyTypes
 import com.github.hank9999.kook.types.types.MessageTypes
@@ -36,4 +38,12 @@ data class Message(
         val quote: Quote = Quote(),
         val attachments: Attachments = Attachments()
     )
+
+    suspend fun reply(content: Any, type: MessageTypes? = null, nonce: String? = null, tempTargetId: String? = null): MessageCreate {
+        return HttpApi.Message.create(this.target_id, content, type, this.msg_id, nonce, tempTargetId)
+    }
+
+    suspend fun send(content: Any, type: MessageTypes? = null, quote: String? = null, nonce: String? = null, tempTargetId: String? = null): MessageCreate {
+        return HttpApi.Message.create(this.target_id, content, type, quote, nonce, tempTargetId)
+    }
 }
