@@ -1,6 +1,7 @@
 package com.github.hank9999.kook.http
 
 import com.github.hank9999.kook.http.types.Method
+import com.github.hank9999.kook.types.types.MessageTypes
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -38,8 +39,7 @@ abstract class Api {
             override val params = mapOf("guild_id" to guildId)
             override val pageable = false
         }
-        class UserList(guildId: String, channelId: String? = null, search: String? = null, roleId: Int? = null,
-                       mobileVerified: Int? = null, activeTime: Int? = null, joinedAt: Int? = null): Guild() {
+        class UserList(guildId: String, channelId: String? = null, search: String? = null, roleId: Int? = null, mobileVerified: Int? = null, activeTime: Int? = null, joinedAt: Int? = null): Guild() {
             override val method = Method.GET
             override val bucket = "guild/user-list"
             override val route = "guild/user-list"
@@ -146,8 +146,7 @@ abstract class Api {
             override val params = mapOf("target_id" to targetId)
             override val pageable = false
         }
-        class Create(guildId: String, name: String, type: Int? = null, parentId: String? = null,
-                     limitAmount: Int? = null, voiceQuality: Int? = null): Channel() {
+        class Create(guildId: String, name: String, type: Int? = null, parentId: String? = null, limitAmount: Int? = null, voiceQuality: Int? = null): Channel() {
             override val method = Method.POST
             override val bucket = "channel/create"
             override val route = "channel/create"
@@ -222,8 +221,7 @@ abstract class Api {
             override val params = emptyParams
             override val pageable = false
         }
-        class Update(channelId: String, type: String? = null, value: String? = null, allow: Int? = null,
-                     deny: Int? = null): ChannelRole() {
+        class Update(channelId: String, type: String? = null, value: String? = null, allow: Int? = null, deny: Int? = null): ChannelRole() {
             override val method = Method.POST
             override val bucket = "channel-role/update"
             override val route = "channel-role/update"
@@ -245,6 +243,99 @@ abstract class Api {
                 put("channel_id", channelId)
                 type?.let { put("type", type) }
                 value?.let { put("value", value) }
+            }.toString().toRequestBody(mediaType)
+            override val params = emptyParams
+            override val pageable = false
+        }
+    }
+    abstract class Message: Api() {
+        class List(targetId: String, msgId: String? = null, pin: Int? = null, flag: String? = null, pageSize: Int? = null): Message() {
+            override val method = Method.GET
+            override val bucket = "message/list"
+            override val route = "message/list"
+            override val postData = emptyPostData
+            override val params = mutableMapOf<String, String>().apply {
+                this["target_id"] = targetId
+                msgId?.let { this["msg_id"] = msgId }
+                pin?.let { this["pin"] = pin.toString() }
+                flag?.let { this["flag"] = flag }
+                pageSize?.let { this["page_size"] = pageSize.toString() }
+            }
+            override val pageable = false
+        }
+        class View(msgId: String): Message() {
+            override val method = Method.GET
+            override val bucket = "message/view"
+            override val route = "message/view"
+            override val postData = emptyPostData
+            override val params = mapOf("msg_id" to msgId)
+            override val pageable = false
+        }
+        class Create(targetId: String, content: Any, type: MessageTypes? = null, quote: String? = null, nonce: String? = null, tempTargetId: String? = null): Message() {
+            override val method = Method.POST
+            override val bucket = "message/create"
+            override val route = "message/create"
+            override val postData = buildJsonObject {
+                put("target_id", targetId)
+                put("content", content.toString())
+                type?.let { put("type", type.type) }
+                quote?.let { put("quote", quote) }
+                nonce?.let { put("nonce", nonce) }
+                tempTargetId?.let { put("temp_target_id", tempTargetId) }
+            }.toString().toRequestBody(mediaType)
+            override val params = emptyParams
+            override val pageable = false
+        }
+        class Update(msgId: String, content: Any, quote: String? = null, tempTargetId: String? = null): Message() {
+            override val method = Method.POST
+            override val bucket = "message/create"
+            override val route = "message/create"
+            override val postData = buildJsonObject {
+                put("msg_id", msgId)
+                put("content", content.toString())
+                quote?.let { put("quote", quote) }
+                tempTargetId?.let { put("temp_target_id", tempTargetId) }
+            }.toString().toRequestBody(mediaType)
+            override val params = emptyParams
+            override val pageable = false
+        }
+        class Delete(msgId: String): Message() {
+            override val method = Method.POST
+            override val bucket = "message/delete"
+            override val route = "message/delete"
+            override val postData = buildJsonObject {
+                put("msg_id", msgId)
+            }.toString().toRequestBody(mediaType)
+            override val params = emptyParams
+            override val pageable = false
+        }
+        class ReactionList(msgId: String, emoji: String): Message() {
+            override val method = Method.GET
+            override val bucket = "message/reaction-list"
+            override val route = "message/reaction-list"
+            override val postData = emptyPostData
+            override val params = mapOf("msg_id" to msgId, "emoji" to emoji)
+            override val pageable = false
+        }
+        class AddReaction(msgId: String, emoji: String): Message() {
+            override val method = Method.POST
+            override val bucket = "message/add-reaction"
+            override val route = "message/add-reaction"
+            override val postData = buildJsonObject {
+                put("msg_id", msgId)
+                put("emoji", emoji)
+            }.toString().toRequestBody(mediaType)
+            override val params = emptyParams
+            override val pageable = false
+        }
+        class DeleteReaction(msgId: String, emoji: String, userId: String?): Message() {
+            override val method = Method.POST
+            override val bucket = "message/delete-reaction"
+            override val route = "message/delete-reaction"
+            override val postData = buildJsonObject {
+                put("msg_id", msgId)
+                put("emoji", emoji)
+                userId?.let { put("user_id", userId) }
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
