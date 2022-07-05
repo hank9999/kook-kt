@@ -80,15 +80,13 @@ abstract class Element {
             return this
         }
 
-        fun removeAt(index: Int): Paragraph {
-            fields.removeAt(index)
+        fun remove(field: Text): Paragraph {
+            fields.remove(field)
             return this
         }
 
-        fun pop(index: Int): Text {
-            val field = get(index)
-            fields.removeAt(index)
-            return field
+        fun removeAt(index: Int): Text {
+            return fields.removeAt(index)
         }
 
         fun clear(): Paragraph {

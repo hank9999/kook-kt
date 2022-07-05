@@ -164,7 +164,7 @@ class WebSocket(config: Config, handler: Handler) {
     suspend fun handler() {
         while (true) {
             if (messageQueue.size != 0) {
-                val message = messageQueue.pop(0)
+                val message = messageQueue.removeAt(0)
                 val data = json.parseToJsonElement(message)
                 when (data["s"].Int) {
                     0 -> {
@@ -229,15 +229,5 @@ class WebSocket(config: Config, handler: Handler) {
             }
             delay(100)
         }
-    }
-}
-
-private fun <E> MutableList<E>.pop(i: Int): E {
-    if (size >= i + 1) {
-        val data = get(i)
-        removeAt(i)
-        return data
-    } else {
-        throw IndexOutOfBoundsException("Index: $i, Size: $size")
     }
 }

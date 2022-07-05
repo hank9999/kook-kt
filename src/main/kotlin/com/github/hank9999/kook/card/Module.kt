@@ -81,15 +81,12 @@ abstract class Module {
             return this
         }
 
-        fun removeAt(index: Int): ImageGroup {
-            elements.removeAt(index)
+        fun remove(element: Element.Image): ImageGroup {
+            elements.remove(element)
             return this
         }
-
-        fun pop(index: Int): Element.Image {
-            val element = get(index)
-            elements.removeAt(index)
-            return element
+        fun removeAt(index: Int): Element.Image {
+            return elements.removeAt(index)
         }
 
         fun clear(): ImageGroup {
@@ -132,15 +129,13 @@ abstract class Module {
             return this
         }
 
-        fun removeAt(index: Int): Container {
-            elements.removeAt(index)
+        fun remove(element: Element.Image): Container {
+            elements.remove(element)
             return this
         }
 
-        fun pop(index: Int): Element.Image {
-            val element = get(index)
-            elements.removeAt(index)
-            return element
+        fun removeAt(index: Int): Element.Image {
+            return elements.removeAt(index)
         }
 
         fun clear(): Container {
@@ -183,15 +178,13 @@ abstract class Module {
             return this
         }
 
-        fun removeAt(index: Int): ActionGroup {
-            elements.removeAt(index)
+        fun remove(element: Element.Button): ActionGroup {
+            elements.remove(element)
             return this
         }
 
-        fun pop(index: Int): Element.Button {
-            val element = get(index)
-            elements.removeAt(index)
-            return element
+        fun removeAt(index: Int): Element.Button {
+            return elements.removeAt(index)
         }
 
         fun clear(): ActionGroup {
@@ -235,15 +228,13 @@ abstract class Module {
             return this
         }
 
-        fun removeAt(index: Int): Context {
-            elements.removeAt(index)
+        fun remove(element: Element): Context {
+            elements.remove(element)
             return this
         }
 
-        fun pop(index: Int): Element {
-            val element = get(index)
-            elements.removeAt(index)
-            return element
+        fun removeAt(index: Int): Element {
+            return elements.removeAt(index)
         }
 
         fun clear(): Context {

@@ -55,7 +55,7 @@ class Handler(config: Config) {
             launch {
                 while (true) {
                     if (messageQueue.size != 0) {
-                        val data = messageQueue.pop(0)
+                        val data = messageQueue.removeAt(0)
                         launch {
                             try {
                                 messageHandler(data)
@@ -76,7 +76,7 @@ class Handler(config: Config) {
             launch {
                 while (true) {
                     if (eventQueue.size != 0) {
-                        val data = eventQueue.pop(0)
+                        val data = eventQueue.removeAt(0)
                         launch {
                             try {
                                 eventHandler(data)
@@ -273,14 +273,5 @@ class Handler(config: Config) {
                 } }
             }
         }
-    }
-}
-private fun <E> MutableList<E>.pop(i: Int): E {
-    if (size >= i + 1) {
-        val data = get(i)
-        removeAt(i)
-        return data
-    } else {
-        throw IndexOutOfBoundsException("Index: $i, Size: $size")
     }
 }

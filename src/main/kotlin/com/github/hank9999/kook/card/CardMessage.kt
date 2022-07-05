@@ -20,15 +20,13 @@ class CardMessage(vararg args: Card) {
         return this
     }
 
-    fun removeAt(index: Int): CardMessage {
-        cards.removeAt(index)
+    fun remove(card: Card): CardMessage {
+        cards.remove(card)
         return this
     }
 
-    fun pop(index: Int): Card {
-        val card = get(index)
-        cards.removeAt(index)
-        return card
+    fun removeAt(index: Int): Card {
+        return cards.removeAt(index)
     }
 
     fun clear() {

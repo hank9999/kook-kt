@@ -61,15 +61,13 @@ class Card {
         return this
     }
 
-    fun removeAt(index: Int): Card {
-        modules.removeAt(index)
+    fun remove(module: Module): Card {
+        modules.remove(module)
         return this
     }
 
-    fun pop(index: Int): Module {
-        val module = get(index)
-        modules.removeAt(index)
-        return module
+    fun removeAt(index: Int): Module {
+        return modules.removeAt(index)
     }
 
     fun clear(): Card {
