@@ -23,7 +23,7 @@ abstract class Api {
     val emptyPostData = "".toRequestBody(mediaType)
     val emptyParams = emptyMap<String, String>()
 
-    abstract class Guild: Api() {
+    abstract class Guild : Api() {
         class List(sort: String? = null) : Guild() {
             override val method = Method.GET
             override val bucket = "guild/list"
@@ -90,7 +90,7 @@ abstract class Api {
             override val pageable = false
         }
     }
-    abstract class GuildMute: Api() {
+    abstract class GuildMute : Api() {
         class List(guildId: String, returnType: String? = null) : GuildMute() {
             override val method = Method.GET
             override val bucket = "guild-mute/list"
@@ -127,7 +127,7 @@ abstract class Api {
             override val pageable = false
         }
     }
-    abstract class Channel: Api() {
+    abstract class Channel : Api() {
         class List(guildId: String, type: Int? = null) : Channel() {
             override val method = Method.GET
             override val bucket = "channel/list"
@@ -201,7 +201,7 @@ abstract class Api {
             override val pageable = false
         }
     }
-    abstract class ChannelRole: Api() {
+    abstract class ChannelRole : Api() {
         class Index(channelId: String) : ChannelRole() {
             override val method = Method.GET
             override val bucket = "channel-role/index"
@@ -249,7 +249,7 @@ abstract class Api {
             override val pageable = false
         }
     }
-    abstract class Message: Api() {
+    abstract class Message : Api() {
         class List(targetId: String, msgId: String? = null, pin: Int? = null, flag: String? = null, pageSize: Int? = null) : Message() {
             override val method = Method.GET
             override val bucket = "message/list"
@@ -345,5 +345,16 @@ abstract class Api {
             override val pageable = false
         }
     }
+    abstract class ChannelUser : Api() {
+        class GetJoinedChannel(guildId: String, userId: String) : ChannelUser() {
+            override val method = Method.POST
+            override val bucket = "channel-user/get-joined-channel"
+            override val route = "channel-user/get-joined-channel"
+            override val postData = emptyPostData
+            override val params = mapOf("guild_id" to guildId, "user_id" to userId)
+            override val pageable = true
+        }
+    }
+
 }
 
