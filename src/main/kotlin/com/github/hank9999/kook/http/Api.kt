@@ -355,6 +355,35 @@ abstract class Api {
             override val pageable = true
         }
     }
-
+    abstract class UserChat : Api() {
+        class List : UserChat() {
+            override val method = Method.GET
+            override val bucket = "user-chat/list"
+            override val route = "user-chat/list"
+            override val postData = emptyPostData
+            override val params = emptyParams
+            override val pageable = true
+        }
+        class Create(targetId: String) : UserChat() {
+            override val method = Method.POST
+            override val bucket = "user-chat/create"
+            override val route = "user-chat/create"
+            override val postData = buildJsonObject {
+                put("target_id", targetId)
+            }.toString().toRequestBody(mediaType)
+            override val params = emptyParams
+            override val pageable = false
+        }
+        class Delete(chatCode: String) : UserChat() {
+            override val method = Method.POST
+            override val bucket = "user-chat/delete"
+            override val route = "user-chat/delete"
+            override val postData = buildJsonObject {
+                put("chat_code", chatCode)
+            }.toString().toRequestBody(mediaType)
+            override val params = emptyParams
+            override val pageable = false
+        }
+    }
 }
 
