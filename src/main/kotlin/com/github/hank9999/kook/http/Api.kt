@@ -347,7 +347,7 @@ abstract class Api {
     }
     abstract class ChannelUser : Api() {
         class GetJoinedChannel(guildId: String, userId: String) : ChannelUser() {
-            override val method = Method.POST
+            override val method = Method.GET
             override val bucket = "channel-user/get-joined-channel"
             override val route = "channel-user/get-joined-channel"
             override val postData = emptyPostData
