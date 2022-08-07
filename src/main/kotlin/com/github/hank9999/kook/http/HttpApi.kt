@@ -55,13 +55,14 @@ class HttpApi {
             if (page != null) {
                 params["page"] = page.toString()
             }
+            val apiBaseUrl = if (data.baseApiUrl != null) data.baseApiUrl else api
             val resp = if (data.method == Method.GET) {
                 data.params.entries.forEach {
                     params[it.key] = it.value
                 }
-                Http.aget("$api/${data.route}", authHeader, params)
+                Http.aget("${apiBaseUrl}/${data.route}", authHeader, params)
             } else {
-                Http.apost("$api/${data.route}", authHeader, data.postData, params)
+                Http.apost("$apiBaseUrl/${data.route}", authHeader, data.postData, params)
             }
             val respJson = json.parseToJsonElement(resp.body)
             if (respJson["code"].Int != 0) {
