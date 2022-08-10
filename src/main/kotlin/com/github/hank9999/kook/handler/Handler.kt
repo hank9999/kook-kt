@@ -7,6 +7,7 @@ import com.github.hank9999.kook.http.exceptions.HttpException
 import com.github.hank9999.kook.json.JSON.Companion.json
 import com.github.hank9999.kook.types.Event
 import com.github.hank9999.kook.types.Message
+import com.github.hank9999.kook.types.types.ChannelPrivacyTypes
 import com.github.hank9999.kook.types.types.EventTypes
 import com.github.hank9999.kook.types.types.MessageTypes
 import kotlinx.coroutines.CoroutineScope
@@ -27,7 +28,7 @@ import kotlin.reflect.full.declaredFunctions
 class Handler(config: Config) {
     private val logger: Logger = LoggerFactory.getLogger(Handler::class.java)
     private val messageClassHandlers: MutableMap<MessageTypes, MutableList<MessageClassHandler>> = mutableMapOf()
-    private val messageFuncHandlers: MutableMap<MessageTypes, MutableList<(msg: Message, cs: CoroutineScope) -> Unit>> = mutableMapOf()
+    private val messageFuncHandlers: MutableMap<MessageTypes, MutableList<MessageFuncHandler>> = mutableMapOf()
     private val filterClassHandlers: MutableList<FilterClassHandler> = mutableListOf()
     private val filterFuncHandlers: MutableList<FilterFuncHandler> = mutableListOf()
     private val eventClassHandlers: MutableMap<EventTypes, MutableList<EventClassHandler>> = mutableMapOf()
@@ -105,7 +106,7 @@ class Handler(config: Config) {
                 when (it) {
                     is Bot.OnMessage -> {
                         if (!messageClassHandlers.containsKey(it.type)) messageClassHandlers[it.type] = mutableListOf()
-                        val data = MessageClassHandler(t, f)
+                        val data = MessageClassHandler(t, it.channelPrivacyTypes, f)
                         if (!messageClassHandlers[it.type]!!.contains(data)) {
                             messageClassHandlers[it.type]!!.add(data)
                             logger.debug("[Handler] Class ${t.javaClass.name} ${it.type} handler ${f.name} added")
@@ -121,9 +122,9 @@ class Handler(config: Config) {
                     }
                     is Bot.OnFilter -> {
                         val data = when (it.type) {
-                            FilterTypes.START_WITH -> FilterClassHandler(FilterTypes.START_WITH, t, f, it.startWith, it.ignoreCase)
-                            FilterTypes.KEYWORD -> FilterClassHandler(FilterTypes.KEYWORD, t, f, it.keyword, it.ignoreCase)
-                            FilterTypes.REGEX -> FilterClassHandler(FilterTypes.REGEX, t, f, filterRegex = Regex(it.regex))
+                            FilterTypes.START_WITH -> FilterClassHandler(FilterTypes.START_WITH, t, f, it.channelPrivacyTypes, it.startWith, it.ignoreCase)
+                            FilterTypes.KEYWORD -> FilterClassHandler(FilterTypes.KEYWORD, t, f, it.channelPrivacyTypes, it.keyword, it.ignoreCase)
+                            FilterTypes.REGEX -> FilterClassHandler(FilterTypes.REGEX, t, f, it.channelPrivacyTypes, filterRegex = Regex(it.regex))
                         }
                         if (!filterClassHandlers.contains(data)) {
                             filterClassHandlers.add(data)
@@ -137,7 +138,7 @@ class Handler(config: Config) {
                             startWith.add(prefix + it.name)
                             it.aliases.forEach { name -> startWith.add(prefix + name) }
                         }
-                        val data = CommandClassHandler(t, f, startWith, it.ignoreCase)
+                        val data = CommandClassHandler(t, f, startWith, it.ignoreCase, it.channelPrivacyTypes)
                         if (!commandClassHandlers.contains(data)) {
                             commandClassHandlers.add(data)
                             logger.debug("[Handler] Class ${t.javaClass.name} Command handler ${f.name} added")
@@ -149,10 +150,11 @@ class Handler(config: Config) {
         }
     }
 
-    fun registerMessageFuncHandler(type: MessageTypes, func: (msg: Message, cs: CoroutineScope) -> Unit) {
+    fun registerMessageFuncHandler(type: MessageTypes, channelPrivacyTypes: ChannelPrivacyTypes, func: (msg: Message, cs: CoroutineScope) -> Unit) {
         if (!messageFuncHandlers.containsKey(type)) messageFuncHandlers[type] = mutableListOf()
-        if (!messageFuncHandlers[type]!!.contains(func)) {
-            messageFuncHandlers[type]!!.add(func)
+        val data = MessageFuncHandler(channelPrivacyTypes, func)
+        if (!messageFuncHandlers[type]!!.contains(data)) {
+            messageFuncHandlers[type]!!.add(data)
             logger.debug("[Handler] Function $type handler ${func.javaClass.name} added")
         }
     }
@@ -165,11 +167,11 @@ class Handler(config: Config) {
         }
     }
 
-    fun registerFilterFuncHandler(type: FilterTypes, startWith: String, keyword: String, regex: String, ignoreCase: Boolean, func: (msg: Message, cs: CoroutineScope) -> Unit) {
+    fun registerFilterFuncHandler(type: FilterTypes, channelPrivacyTypes: ChannelPrivacyTypes, startWith: String, keyword: String, regex: String, ignoreCase: Boolean, func: (msg: Message, cs: CoroutineScope) -> Unit) {
         val data = when (type) {
-            FilterTypes.START_WITH -> { FilterFuncHandler(FilterTypes.START_WITH, func, startWith, ignoreCase) }
-            FilterTypes.KEYWORD -> { FilterFuncHandler(FilterTypes.KEYWORD, func, keyword, ignoreCase) }
-            FilterTypes.REGEX -> { FilterFuncHandler(FilterTypes.REGEX, func, filterRegex = Regex(regex)) }
+            FilterTypes.START_WITH -> { FilterFuncHandler(FilterTypes.START_WITH, func, channelPrivacyTypes, startWith, ignoreCase) }
+            FilterTypes.KEYWORD -> { FilterFuncHandler(FilterTypes.KEYWORD, func, channelPrivacyTypes, keyword, ignoreCase) }
+            FilterTypes.REGEX -> { FilterFuncHandler(FilterTypes.REGEX, func, channelPrivacyTypes, filterRegex = Regex(regex)) }
         }
         if (!filterFuncHandlers.contains(data)) {
             filterFuncHandlers.add(data)
@@ -177,14 +179,14 @@ class Handler(config: Config) {
         }
     }
 
-    fun registerCommandFuncHandler(name: String, prefixes: Array<String>, aliases: Array<String>, ignoreCase: Boolean, func: (msg: Message, cs: CoroutineScope) -> Unit) {
+    fun registerCommandFuncHandler(name: String, prefixes: Array<String>, aliases: Array<String>, ignoreCase: Boolean, channelPrivacyTypes: ChannelPrivacyTypes, func: (msg: Message, cs: CoroutineScope) -> Unit) {
         val startWith = mutableListOf<String>()
         val newPrefixes = if (prefixes.isEmpty()) config.cmd_prefix else prefixes.toList()
         newPrefixes.forEach { prefix ->
             startWith.add(prefix + name)
             aliases.forEach { name -> startWith.add(prefix + name) }
         }
-        val data = CommandFuncHandler(func, startWith, ignoreCase)
+        val data = CommandFuncHandler(func, startWith, ignoreCase, channelPrivacyTypes)
         if (!commandFuncHandlers.contains(data)) {
             commandFuncHandlers.add(data)
             logger.debug("[Handler] Function Command handler ${func.javaClass.name} added")
@@ -193,7 +195,11 @@ class Handler(config: Config) {
 
     private fun whetherCommandTriggered(text: String, startWith: List<String>, ignoreCase: Boolean): Boolean {
         logger.debug("[Handler] Command List: $startWith")
-        startWith.forEach { prefix -> if (text.startsWith(prefix, ignoreCase)) return true }
+        startWith.forEach { prefix ->
+            if (text.startsWith(prefix, ignoreCase)) {
+                return true
+            }
+        }
         return false
     }
 
@@ -204,29 +210,38 @@ class Handler(config: Config) {
             logger.debug("[Handler] Message Function Handler Processing")
             messageFuncHandlers.forEach { m ->
                 logger.debug("[Handler] Message Function Handler $m")
-                if (m.key == data.type || m.key == MessageTypes.ALL) { m.value.forEach { func -> launch { func(data, coroutineScope) } } }
+                if (m.key == data.type || m.key == MessageTypes.ALL) {
+                    m.value.forEach { h ->
+                        if (h.channelPrivacyTypes == data.channel_type || h.channelPrivacyTypes == ChannelPrivacyTypes.ALL) {
+                            launch { h.function(data, coroutineScope) }
+                        }
+                    }
+                }
             }
             logger.debug("[Handler] Message Class Handler Processing")
             messageClassHandlers.forEach { m ->
                 logger.debug("[Handler] Message Class Handler $m")
-                if (m.key == data.type || m.key == MessageTypes.ALL) { m.value.forEach { h ->
-                    launch { suspendCoroutine<Unit> { continuation -> h.function.call(h.classInstance, data, continuation) } }
-                } }
+                if (m.key == data.type || m.key == MessageTypes.ALL) {
+                    m.value.forEach { h ->
+                        if (h.channelPrivacyTypes == data.channel_type || h.channelPrivacyTypes == ChannelPrivacyTypes.ALL) {
+                            launch { suspendCoroutine<Unit> { continuation -> h.function.call(h.classInstance, data, continuation) } }
+                        }
+                    }
+                }
             }
             if (data.type == MessageTypes.TEXT || data.type == MessageTypes.KMD) {
                 logger.debug("[Handler] Filter Class Handler Processing")
                 filterClassHandlers.forEach { m ->
                     logger.debug("[Handler] Filter Class Handler $m")
+                    val isMatchChannelPrivacyType = m.channelPrivacyTypes == data.channel_type || m.channelPrivacyTypes == ChannelPrivacyTypes.ALL
                     when (m.type) {
-                        FilterTypes.START_WITH -> {
-                            if (data.content.startsWith(m.filterString, m.ignoreCase)) {
-                                launch { suspendCoroutine<Unit> { continuation -> m.function.call(m.classInstance, data, continuation) } }
-                            }
-                        }
-                        FilterTypes.KEYWORD -> if (data.content.indexOf(m.filterString, ignoreCase = m.ignoreCase) != -1) {
+                        FilterTypes.START_WITH -> if (data.content.startsWith(m.filterString, m.ignoreCase) && isMatchChannelPrivacyType) {
                             launch { suspendCoroutine<Unit> { continuation -> m.function.call(m.classInstance, data, continuation) } }
                         }
-                        FilterTypes.REGEX -> if (m.filterRegex.matches(data.content)) {
+                        FilterTypes.KEYWORD -> if (data.content.indexOf(m.filterString, ignoreCase = m.ignoreCase) != -1 && isMatchChannelPrivacyType) {
+                            launch { suspendCoroutine<Unit> { continuation -> m.function.call(m.classInstance, data, continuation) } }
+                        }
+                        FilterTypes.REGEX -> if (m.filterRegex.matches(data.content) && isMatchChannelPrivacyType) {
                             launch { suspendCoroutine<Unit> { continuation -> m.function.call(m.classInstance, data, continuation) } }
                         }
                     }
@@ -234,23 +249,34 @@ class Handler(config: Config) {
                 logger.debug("[Handler] Filter Function Handler Processing")
                 filterFuncHandlers.forEach { m ->
                     logger.debug("[Handler] Filter Function Handler $m")
+                    val isMatchChannelPrivacyType = m.channelPrivacyTypes == data.channel_type || m.channelPrivacyTypes == ChannelPrivacyTypes.ALL
                     when (m.type) {
-                        FilterTypes.START_WITH -> if (data.content.startsWith(m.filterString, m.ignoreCase)) launch { m.function(data, coroutineScope) }
-                        FilterTypes.KEYWORD -> if (data.content.indexOf(m.filterString, ignoreCase = m.ignoreCase) != -1) launch { m.function(data, coroutineScope) }
-                        FilterTypes.REGEX -> if (m.filterRegex.matches(data.content)) launch { m.function(data, coroutineScope) }
+                        FilterTypes.START_WITH -> if (data.content.startsWith(m.filterString, m.ignoreCase) && isMatchChannelPrivacyType) {
+                            launch { m.function(data, coroutineScope) }
+                        }
+                        FilterTypes.KEYWORD -> if (data.content.indexOf(m.filterString, ignoreCase = m.ignoreCase) != -1 && isMatchChannelPrivacyType) {
+                            launch { m.function(data, coroutineScope) }
+                        }
+                        FilterTypes.REGEX -> if (m.filterRegex.matches(data.content) && isMatchChannelPrivacyType) {
+                            launch { m.function(data, coroutineScope) }
+                        }
                     }
                 }
                 logger.debug("[Handler] Command Class Handler Processing")
                 commandClassHandlers.forEach { m ->
                     logger.debug("[Handler] Command Class Handler $m")
-                    if (whetherCommandTriggered(data.content, m.startWith, m.ignoreCase)) {
+                    val isMatchChannelPrivacyType = m.channelPrivacyTypes == data.channel_type || m.channelPrivacyTypes == ChannelPrivacyTypes.ALL
+                    if (whetherCommandTriggered(data.content, m.startWith, m.ignoreCase) && isMatchChannelPrivacyType) {
                         launch { suspendCoroutine<Unit> { continuation -> m.function.call(m.classInstance, data, continuation) } }
                     }
                 }
                 logger.debug("[Handler] Command Function Handler Processing")
                 commandFuncHandlers.forEach { m ->
                     logger.debug("[Handler] Command Function Handler $m")
-                    if (whetherCommandTriggered(data.content, m.startWith, m.ignoreCase)) launch { m.function(data, coroutineScope) }
+                    val isMatchChannelPrivacyType = m.channelPrivacyTypes == data.channel_type || m.channelPrivacyTypes == ChannelPrivacyTypes.ALL
+                    if (whetherCommandTriggered(data.content, m.startWith, m.ignoreCase) && isMatchChannelPrivacyType) {
+                        launch { m.function(data, coroutineScope) }
+                    }
                 }
             }
         }
@@ -263,14 +289,20 @@ class Handler(config: Config) {
             logger.debug("[Handler] Event Function Handler Processing")
             eventFuncHandlers.forEach { e ->
                 logger.debug("[Handler] Event Function Handler $e")
-                if (e.key == data.extra.type || e.key == EventTypes.ALL) { e.value.forEach { func -> launch { func(data, coroutineScope) } } }
+                if (e.key == data.extra.type || e.key == EventTypes.ALL) {
+                    e.value.forEach { func ->
+                        launch { func(data, coroutineScope) }
+                    }
+                }
             }
             logger.debug("[Handler] Event Class Handler Processing")
             eventClassHandlers.forEach { e ->
                 logger.debug("[Handler] Event Class Handler $e")
-                if (e.key == data.extra.type || e.key == EventTypes.ALL) { e.value.forEach { h ->
+                if (e.key == data.extra.type || e.key == EventTypes.ALL) {
+                    e.value.forEach { h ->
                         launch { suspendCoroutine<Unit> { continuation -> h.function.call(h.classInstance, data, continuation) } }
-                } }
+                    }
+                }
             }
         }
     }
