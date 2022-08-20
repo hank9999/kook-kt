@@ -31,6 +31,7 @@ class WebSocket(config: Config, handler: Handler) {
     private var handler: Handler
     private var mWebSocket: okhttp3.WebSocket? = null
     private val coroutineScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+    private val coroutineScopeHandler = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
 
     companion object {
         private val messageQueue: MutableList<String> = mutableListOf()
@@ -87,8 +88,8 @@ class WebSocket(config: Config, handler: Handler) {
     }
 
     fun connect() {
+        coroutineScopeHandler.launch { handler() }
         coroutineScope.launch {
-            launch { handler() }
             launch {
                 var sendTime: Long
                 while (true) {
@@ -98,6 +99,7 @@ class WebSocket(config: Config, handler: Handler) {
                         logger.debug("[WebSocket] Ping sn: $sn")
                         delay(6 * 1000)
                         if (lastPong != 0L && (lastPong < sendTime) && status != Status.RECONNECT) {
+                            logger.error("[WebSocket] No pong response after ping more than 6s")
                             status = Status.CLOSED
                         } else {
                             delay(24 * 1000)
@@ -121,7 +123,7 @@ class WebSocket(config: Config, handler: Handler) {
                         if (lastWebSocket != mWebSocket.hashCode()) break
                         if (status == Status.RECONNECT) break
                         if (status == Status.CLOSED && !isResuming) {
-                            logger.debug("[WebSocket] Connection closed, resuming")
+                            logger.error("[WebSocket] Connection closed, resuming")
                             mWebSocket?.close(1002, "restart")
                             mWebSocket = null
                             gateway = "${getGateway()}&resume=1&sn=$sn&session_id=$sessionId"
@@ -134,6 +136,7 @@ class WebSocket(config: Config, handler: Handler) {
                             while (true) {
                                 if (status == Status.CONNECTED) {
                                     isResuming = false
+                                    logger.info("[WebSocket] Resume finished")
                                     break
                                 }
                                 delay(100)
@@ -144,7 +147,7 @@ class WebSocket(config: Config, handler: Handler) {
                 }
                 while (true) {
                     if (status == Status.RECONNECT) {
-                        logger.debug("[WebSocket] Reconnecting")
+                        logger.info("[WebSocket] Reconnecting")
                         mWebSocket?.close(1002, "reconnect")
                         mWebSocket = null
                         offline()
@@ -207,6 +210,7 @@ class WebSocket(config: Config, handler: Handler) {
                         val code = data["d"]["code"].Int
                          if (code == 0 && !isResuming) {
                              status = Status.CONNECTED
+                             logger.info("[WebSocket] Connected")
                         } else if (code != 0) {
                              status = Status.RECONNECT
                         }
@@ -226,8 +230,9 @@ class WebSocket(config: Config, handler: Handler) {
                     }
                     else -> {}
                 }
+            } else {
+                delay(5)
             }
-            delay(100)
         }
     }
 }

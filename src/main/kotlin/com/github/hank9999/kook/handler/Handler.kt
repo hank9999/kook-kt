@@ -69,9 +69,9 @@ class Handler(config: Config) {
                                 // logger.error(e.stackTraceToString())
                             }
                         }
-                        continue
+                    } else {
+                        delay(5)
                     }
-                    delay(100L)
                 }
             }
             launch {
@@ -90,9 +90,9 @@ class Handler(config: Config) {
                                 // logger.error(e.stackTraceToString())
                             }
                         }
-                        continue
+                    } else {
+                        delay(5)
                     }
-                    delay(100L)
                 }
             }
         }
