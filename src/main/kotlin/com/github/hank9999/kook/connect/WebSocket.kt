@@ -1,9 +1,8 @@
 package com.github.hank9999.kook.connect
 
-import com.github.hank9999.kook.Config
 import com.github.hank9999.kook.connect.Type.Status
 import com.github.hank9999.kook.handler.Handler
-import com.github.hank9999.kook.http.HttpApi
+import com.github.hank9999.kook.http.KookApi
 import com.github.hank9999.kook.http.exceptions.HttpException
 import com.github.hank9999.kook.json.JSON.Companion.json
 import com.github.hank9999.kook.json.JSON.Extension.Int
@@ -26,36 +25,26 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class WebSocket(config: Config, handler: Handler) {
-    private var config: Config
-    private var handler: Handler
+class WebSocket(val handler: Handler, val kookApi: KookApi) {
     private var mWebSocket: okhttp3.WebSocket? = null
     private val coroutineScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
     private val coroutineScopeHandler = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
-
-    companion object {
-        private val messageQueue: MutableList<String> = mutableListOf()
-        val logger: Logger = LoggerFactory.getLogger(WebSocket::class.java)
-        var sn = 0
-        var status = Status.INIT
-        var lastPong = 0L
-        var sessionId = ""
-        var isResuming = false
-        fun addQueue(text: String) {
-            messageQueue.add(text)
-        }
-    }
-
-    init {
-        this.config = config
-        this.handler = handler
+    private val messageQueue: MutableList<String> = mutableListOf()
+    val logger: Logger = LoggerFactory.getLogger(WebSocket::class.java)
+    var sn = 0
+    var status = Status.INIT
+    var lastPong = 0L
+    var sessionId = ""
+    var isResuming = false
+    fun addQueue(text: String) {
+        messageQueue.add(text)
     }
 
     suspend fun getGateway(): String {
         var gateway = ""
         while (true) {
             try {
-                gateway = HttpApi.Gateway.index()
+                gateway = kookApi.Gateway().index()
             } catch (e: HttpException) {
                 logger.error(e.message)
             } catch (_: Exception) {}
@@ -73,7 +62,7 @@ class WebSocket(config: Config, handler: Handler) {
         while (true) {
             var success = false
             try {
-                HttpApi.User.offline()
+                kookApi.User().offline()
                 success = true
             } catch (e: HttpException) {
                 logger.error(e.message)
@@ -110,7 +99,7 @@ class WebSocket(config: Config, handler: Handler) {
                 }
             }
             val mClient = OkHttpClient.Builder().pingInterval(30, TimeUnit.SECONDS).build()
-            val wsListener = WsListener()
+            val wsListener = WsListener(logger) { text -> addQueue(text) }
             while (true) {
                 var gateway = getGateway()
                 logger.debug("[WebSocket] Get gateway: $gateway")

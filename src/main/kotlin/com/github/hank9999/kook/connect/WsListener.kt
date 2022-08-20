@@ -1,13 +1,12 @@
 package com.github.hank9999.kook.connect
 
 import com.github.hank9999.kook.connect.Utils.Companion.decompressZlib
-import com.github.hank9999.kook.connect.WebSocket.Companion.addQueue
-import com.github.hank9999.kook.connect.WebSocket.Companion.logger
 import okhttp3.Response
 import okhttp3.WebSocketListener
 import okio.ByteString
+import org.slf4j.Logger
 
-class WsListener : WebSocketListener() {
+class WsListener(val logger: Logger, val addQueue: (text: String) -> Unit) : WebSocketListener() {
     override fun onClosed(webSocket: okhttp3.WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
         logger.debug("[WebSocket] Closed $code, $reason")

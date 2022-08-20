@@ -4,6 +4,8 @@ import com.github.hank9999.kook.connect.WebHook
 import com.github.hank9999.kook.connect.WebSocket
 import com.github.hank9999.kook.handler.Handler
 import com.github.hank9999.kook.handler.types.FilterTypes
+import com.github.hank9999.kook.http.HttpApi
+import com.github.hank9999.kook.http.KookApi
 import com.github.hank9999.kook.types.Event
 import com.github.hank9999.kook.types.Message
 import com.github.hank9999.kook.types.types.ChannelPrivacyTypes
@@ -15,43 +17,44 @@ import org.slf4j.LoggerFactory
 
 class Bot(config: Config, connect: Boolean = true) {
     private val logger: Logger = LoggerFactory.getLogger(Bot::class.java)
-    private var handler: Handler? = null
+    private val handler = Handler(config)
+    val httpApi = HttpApi(config.token)
+    val kookApi = KookApi(httpApi)
 
     companion object {
-        lateinit var config: Config
+        lateinit var kookApi: KookApi
     }
 
     init {
-        Companion.config = config
+        Companion.kookApi = kookApi
         if (connect) {
-            handler = Handler(config)
             if (config.host.isNotEmpty()) {
-                WebHook(config, handler!!).initialize()
+                WebHook(config, handler).initialize()
             } else {
-                WebSocket(config, handler!!).connect()
+                WebSocket(handler, kookApi).connect()
             }
         }
         logger.info("Initialization complete")
     }
 
     fun <T : Any> registerClass(t: T) {
-        handler?.registerClassHandler(t)
+        handler.registerClassHandler(t)
     }
 
     fun registerMessageFunc(type: MessageTypes = MessageTypes.ALL, channelPrivacyTypes: ChannelPrivacyTypes = ChannelPrivacyTypes.GROUP, func: (msg: Message, cs: CoroutineScope) -> Unit) {
-        handler?.registerMessageFuncHandler(type, channelPrivacyTypes, func)
+        handler.registerMessageFuncHandler(type, channelPrivacyTypes, func)
     }
 
     fun registerEventFunc(type: EventTypes = EventTypes.ALL, func: (event: Event, cs: CoroutineScope) -> Unit) {
-        handler?.registerEventFuncHandler(type, func)
+        handler.registerEventFuncHandler(type, func)
     }
 
     fun registerFilterFunc(type: FilterTypes, channelPrivacyTypes: ChannelPrivacyTypes = ChannelPrivacyTypes.GROUP, startWith: String = "", keyword: String = "", regex: String = "", ignoreCase: Boolean = true, func: (msg: Message, cs: CoroutineScope) -> Unit) {
-        handler?.registerFilterFuncHandler(type, channelPrivacyTypes, startWith, keyword, regex, ignoreCase, func)
+        handler.registerFilterFuncHandler(type, channelPrivacyTypes, startWith, keyword, regex, ignoreCase, func)
     }
 
     fun registerCommandFunc(name: String, prefixes: Array<String> = emptyArray(), aliases: Array<String> = emptyArray(), ignoreCase: Boolean = true, channelPrivacyTypes: ChannelPrivacyTypes = ChannelPrivacyTypes.GROUP, func: (msg: Message, cs: CoroutineScope) -> Unit) {
-        handler?.registerCommandFuncHandler(name, prefixes, aliases, ignoreCase, channelPrivacyTypes, func)
+        handler.registerCommandFuncHandler(name, prefixes, aliases, ignoreCase, channelPrivacyTypes, func)
     }
 
     @Target(AnnotationTarget.FUNCTION) @Repeatable
