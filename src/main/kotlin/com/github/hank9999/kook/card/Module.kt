@@ -72,12 +72,21 @@ abstract class Module {
     class ImageGroup(vararg args: Element.Image) : Module() {
         private val elements: MutableList<Element.Image> = mutableListOf()
         init {
-            for (item in args) append(item)
+            for (item in args) {
+                append(item)
+            }
         }
 
         fun append(element: Element.Image): ImageGroup {
             if (length() >= 9) throw CardException("ImageGroup, elements max length 9")
             elements.add(element)
+            return this
+        }
+
+        fun append(vararg args: Element.Image): ImageGroup {
+            for (item in args) {
+                append(item)
+            }
             return this
         }
 
@@ -120,12 +129,21 @@ abstract class Module {
     class Container(vararg args: Element.Image) : Module() {
         private val elements: MutableList<Element.Image> = mutableListOf()
         init {
-            for (item in args) append(item)
+            for (item in args) {
+                append(item)
+            }
         }
 
         fun append(element: Element.Image): Container {
             if (length() >= 9) throw CardException("Container, elements max length 9")
             elements.add(element)
+            return this
+        }
+
+        fun append(vararg args: Element.Image): Container {
+            for (item in args) {
+                append(item)
+            }
             return this
         }
 
@@ -169,12 +187,21 @@ abstract class Module {
     class ActionGroup(vararg args: Element.Button) : Module() {
         private val elements: MutableList<Element.Button> = mutableListOf()
         init {
-            for (item in args) append(item)
+            for (item in args) {
+                append(item)
+            }
         }
 
         fun append(element: Element.Button): ActionGroup {
             if (length() >= 4) throw CardException("ActionGroup, elements max length 4")
             elements.add(element)
+            return this
+        }
+
+        fun append(vararg args: Element.Button): ActionGroup {
+            for (item in args) {
+                append(item)
+            }
             return this
         }
 
@@ -218,13 +245,22 @@ abstract class Module {
     class Context(vararg args: Element) : Module() {
         private val elements: MutableList<Element> = mutableListOf()
         init {
-            for (item in args) append(item)
+            for (item in args) {
+                append(item)
+            }
         }
 
         fun append(element: Element): Context {
             if (element !is Element.Text && element !is Element.Image) throw CardException("Context, element type error, only Text and Image")
             if (length() >= 10) throw CardException("Context, elements max length 10")
             elements.add(element)
+            return this
+        }
+
+        fun append(vararg args: Element): Context {
+            for (item in args) {
+                append(item)
+            }
             return this
         }
 

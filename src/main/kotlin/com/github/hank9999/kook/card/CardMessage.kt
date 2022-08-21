@@ -11,12 +11,21 @@ class CardMessage(vararg args: Card) {
 
     init {
         for (c in args) {
-            if (c.length() != 0) this.append(c)
+            if (c.length() != 0) {
+                append(c)
+            }
         }
     }
 
     fun append(card: Card): CardMessage {
         cards.add(card)
+        return this
+    }
+
+    fun append(vararg args: Card): CardMessage {
+        for (m in args) {
+            append(m)
+        }
         return this
     }
 

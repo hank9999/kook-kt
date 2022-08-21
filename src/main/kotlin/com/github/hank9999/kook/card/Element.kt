@@ -71,12 +71,21 @@ abstract class Element {
 
         init {
             if (cols !in 1..3) throw CardException("Paragraph, cols error, only 1-3")
-            for (item in args) append(item)
+            for (item in args) {
+                append(item)
+            }
         }
 
         fun append(field: Text): Paragraph {
             if (length() >= 50) throw CardException("Paragraph, fields max length 50")
             fields.add(field)
+            return this
+        }
+
+        fun append(vararg args: Text): Paragraph {
+            for (item in args) {
+                append(item)
+            }
             return this
         }
 

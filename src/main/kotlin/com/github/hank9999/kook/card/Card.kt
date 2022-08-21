@@ -51,13 +51,20 @@ class Card {
 
     constructor(theme: Type.Theme = Type.Theme.NA, vararg args: Module) {
         for (m in args) {
-            this.append(m)
+            append(m)
         }
         this.theme = theme
     }
 
     fun append(module: Module): Card {
         modules.add(module)
+        return this
+    }
+
+    fun append(vararg args: Module): Card {
+        for (m in args) {
+            append(m)
+        }
         return this
     }
 
