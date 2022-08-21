@@ -6,12 +6,15 @@ import com.github.hank9999.kook.handler.Handler
 import com.github.hank9999.kook.handler.types.FilterTypes
 import com.github.hank9999.kook.http.HttpApi
 import com.github.hank9999.kook.http.KookApi
+import com.github.hank9999.kook.http.exceptions.HttpException
 import com.github.hank9999.kook.types.Event
 import com.github.hank9999.kook.types.Message
 import com.github.hank9999.kook.types.types.ChannelPrivacyTypes
 import com.github.hank9999.kook.types.types.EventTypes
 import com.github.hank9999.kook.types.types.MessageTypes
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -20,12 +23,28 @@ class Bot(config: Config, connect: Boolean = true) {
     private val handler = Handler(config)
     val httpApi = HttpApi(config.token)
     val kookApi = KookApi(httpApi)
+    var botUserId = ""
 
     companion object {
         lateinit var kookApi: KookApi
     }
 
     init {
+        runBlocking {
+            while (true) {
+                try {
+                    botUserId = kookApi.User().me().id
+                } catch (e: HttpException) {
+                    logger.error(e.message)
+                } catch (_: Exception) {}
+                if (botUserId.isNotEmpty()) {
+                    break
+                } else {
+                    logger.error("[main] Get bot user id error, sleep 10s")
+                    delay(10 * 1000)
+                }
+            }
+        }
         Companion.kookApi = kookApi
         if (connect) {
             if (config.host.isNotEmpty()) {
