@@ -22,7 +22,7 @@ abstract class Module {
         }
         override fun toJsonObject(): JsonObject {
             return buildJsonObject {
-                put("type", "section")
+                put("type", "header")
                 put("text", text.toJsonObject())
             }
         }
