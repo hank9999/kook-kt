@@ -57,18 +57,7 @@ class Handler(config: Config) {
                 while (true) {
                     if (messageQueue.size != 0) {
                         val data = messageQueue.removeAt(0)
-                        launch {
-                            try {
-                                messageHandler(data)
-                            } catch(e: HttpException) {
-                                logger.error("${e.javaClass.name} ${e.message}")
-                            } catch (e: Exception) {
-                                // 如果遇到什么奇怪的bug 打印全文
-                                logger.error(data.toString())
-                                logger.error("${e.javaClass.name} ${e.message}")
-                                // logger.error(e.stackTraceToString())
-                            }
-                        }
+                        messageHandler(data)
                     } else {
                         delay(5)
                     }
@@ -78,18 +67,7 @@ class Handler(config: Config) {
                 while (true) {
                     if (eventQueue.size != 0) {
                         val data = eventQueue.removeAt(0)
-                        launch {
-                            try {
-                                eventHandler(data)
-                            } catch(e: HttpException) {
-                                logger.error("${e.javaClass.name} ${e.message}")
-                            } catch (e: Exception) {
-                                // 如果遇到什么奇怪的bug 打印全文
-                                logger.error(data.toString())
-                                logger.error("${e.javaClass.name} ${e.message}")
-                                // logger.error(e.stackTraceToString())
-                            }
-                        }
+                        eventHandler(data)
                     } else {
                         delay(5)
                     }
@@ -203,9 +181,14 @@ class Handler(config: Config) {
         return false
     }
 
-    fun messageHandler(element: JsonElement) {
+    private fun messageHandler(element: JsonElement) {
         coroutineScope.launch {
-            val data = json.decodeFromJsonElement<Message>(element)
+            val data = try {
+                json.decodeFromJsonElement<Message>(element)
+            } catch (ex: Exception) {
+                logger.error("${ex.message}\n${ex.stackTraceToString()}")
+                return@launch
+            }
             logger.debug("[Handler] Received Message: $data")
             logger.debug("[Handler] Message Function Handler Processing")
             messageFuncHandlers.forEach { m ->
@@ -282,9 +265,14 @@ class Handler(config: Config) {
         }
     }
 
-    fun eventHandler(element: JsonElement) {
+    private fun eventHandler(element: JsonElement) {
         coroutineScope.launch {
-            val data = json.decodeFromJsonElement<Event>(element)
+            val data = try {
+                json.decodeFromJsonElement<Event>(element)
+            } catch (ex: Exception) {
+                logger.error("${ex.message}\n${ex.stackTraceToString()}")
+                return@launch
+            }
             logger.debug("[Handler] Received Event: $data")
             logger.debug("[Handler] Event Function Handler Processing")
             eventFuncHandlers.forEach { e ->

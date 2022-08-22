@@ -190,7 +190,7 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                             } catch (e: Exception) {
                                 // 如果遇到什么奇怪的bug 打印全文
                                 logger.error(message)
-                                logger.error("${e.javaClass.name} ${e.message}")
+                                logger.error("${e.message}\n${e.stackTraceToString()}")
                             }
                         }
                     }

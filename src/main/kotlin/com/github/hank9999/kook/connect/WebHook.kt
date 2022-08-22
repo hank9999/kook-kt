@@ -77,7 +77,7 @@ class WebHook(config: Config, handler: Handler) {
         } catch (e: Exception) {
             // 如果遇到什么奇怪的bug 打印全文
             logger.error(body)
-            logger.error("${e.javaClass.name} ${e.message}")
+            logger.error("${e.message}\n${e.stackTraceToString()}")
         }
     }
 
