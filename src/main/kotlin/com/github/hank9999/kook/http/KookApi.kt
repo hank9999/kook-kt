@@ -36,6 +36,12 @@ class Message(private val httpApi: HttpApi) {
         val data = httpApi.request(Api.Message.Create(targetId, content, type, quote, nonce, tempTargetId))
         return json.decodeFromJsonElement(data)
     }
+    suspend fun delete(msgId: String) {
+        httpApi.request(Api.Message.Delete(msgId))
+    }
+    suspend fun update(msgId: String, content: Any, quote: String? = null, tempTargetId: String? = null) {
+        httpApi.request(Api.Message.Update(msgId, content, quote, tempTargetId))
+    }
 }
 
 class GuildRole(private val httpApi: HttpApi) {
