@@ -63,8 +63,11 @@ abstract class Module {
             if (text == null && accessory == null) throw CardException("Section, no element")
             return buildJsonObject {
                 put("type", "section")
-                if (text != null) put("text", text!!.toJsonObject())
-                if (accessory != null) put("accessory", accessory!!.toJsonObject())
+                if (mode != Type.SectionMode.LEFT) {
+                    put("mode", mode.mode)
+                }
+                text?.let { put("text", text!!.toJsonObject()) }
+                accessory?.let { put("accessory", accessory!!.toJsonObject()) }
             }
         }
     }
