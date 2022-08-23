@@ -341,8 +341,8 @@ abstract class Api {
         
         class Update(msgId: String, content: Any, quote: String? = null, tempTargetId: String? = null) : Message() {
             override val method = Method.POST
-            override val bucket = "message/create"
-            override val route = "message/create"
+            override val bucket = "message/update"
+            override val route = "message/update"
             override val postData = buildJsonObject {
                 put("msg_id", msgId)
                 put("content", content.toString())
