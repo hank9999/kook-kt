@@ -38,7 +38,7 @@ class WebHook(config: Config, handler: Handler) {
             logger.debug("[WebHook] Unknown signaling, ignored")
             return
         }
-        val dObject = element["d"].jsonPrimitive
+        val dObject = element["d"]
         if (dObject["verify_token"].String != config.verify_token) {
             logger.warn("[WebHook] Wrong Verify Token, message may be fake, ignored")
             return
