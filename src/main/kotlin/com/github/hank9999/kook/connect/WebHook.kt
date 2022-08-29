@@ -26,9 +26,10 @@ class WebHook(config: Config, handler: Handler) {
         this.handler = handler
     }
 
-    fun initialize() {
-        val app = Javalin.create().start(config.host, config.port)
+    fun initialize(javalin: Javalin? = null): Javalin {
+        val app = javalin ?: Javalin.create().start(config.host, config.port)
         app.post(config.path) { ctx -> messageHandler(ctx) }
+        return app
     }
 
     private fun messageHandler(ctx: Context) {

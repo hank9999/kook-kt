@@ -12,18 +12,20 @@ import com.github.hank9999.kook.types.Message
 import com.github.hank9999.kook.types.types.ChannelPrivacyTypes
 import com.github.hank9999.kook.types.types.EventTypes
 import com.github.hank9999.kook.types.types.MessageTypes
+import io.javalin.Javalin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class Bot(config: Config, connect: Boolean = true) {
+class Bot(config: Config, connect: Boolean = true, javalinApp: Javalin? = null) {
     private val logger: Logger = LoggerFactory.getLogger(Bot::class.java)
     private val handler = Handler(config)
     val httpApi = HttpApi(config.token)
     val kookApi = KookApi(httpApi)
     var botUserId = ""
+    var javalin: Javalin? = null
 
     companion object {
         lateinit var kookApi: KookApi
@@ -47,8 +49,10 @@ class Bot(config: Config, connect: Boolean = true) {
         }
         Companion.kookApi = kookApi
         if (connect) {
-            if (config.host.isNotEmpty()) {
-                WebHook(config, handler).initialize()
+            if (javalinApp != null) {
+                javalin = WebHook(config, handler).initialize(javalinApp)
+            } else if (config.host.isNotEmpty()) {
+                javalin = WebHook(config, handler).initialize()
             } else {
                 WebSocket(handler, kookApi).connect()
             }
