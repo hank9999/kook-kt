@@ -11,6 +11,7 @@ import com.github.hank9999.kook.json.JSON.Extension.String
 import com.github.hank9999.kook.json.JSON.Extension.get
 import com.github.hank9999.kook.types.types.MessageTypes
 import com.github.hank9999.kook.types.types.MessageTypes.*
+import com.github.hank9999.kook.utils.NamedThreadFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
@@ -27,8 +28,8 @@ import java.util.concurrent.TimeUnit
 
 class WebSocket(val handler: Handler, val kookApi: KookApi) {
     private var mWebSocket: okhttp3.WebSocket? = null
-    private val coroutineScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
-    private val coroutineScopeHandler = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+    private val coroutineScope = CoroutineScope(Executors.newSingleThreadExecutor(NamedThreadFactory("KookWebSocket")).asCoroutineDispatcher())
+    private val coroutineScopeHandler = CoroutineScope(Executors.newSingleThreadExecutor(NamedThreadFactory("KookWebSocketHandler")).asCoroutineDispatcher())
     private val messageQueue: MutableList<String> = mutableListOf()
     val logger: Logger = LoggerFactory.getLogger(WebSocket::class.java)
     var sn = 0
@@ -51,7 +52,7 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
             if (gateway.isNotEmpty()) {
                 break
             } else {
-                logger.error("[WebSocket] Get gateway error, sleep 10s")
+                logger.error("Get gateway error, sleep 10s")
                 delay(10 * 1000)
             }
         }
@@ -70,7 +71,7 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
             if (success) {
                 break
             } else {
-                logger.error("[WebSocket] offline error, sleep 10s")
+                logger.error("offline error, sleep 10s")
                 delay(10 * 1000)
             }
         }
@@ -85,10 +86,10 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                     if (status == Status.CONNECTED) {
                         sendTime = System.currentTimeMillis()
                         mWebSocket?.send("{\"s\":2,\"sn\":$sn}")
-                        logger.debug("[WebSocket] Ping sn: $sn")
+                        logger.debug("Ping sn: $sn")
                         delay(6 * 1000)
                         if (lastPong != 0L && (lastPong < sendTime) && status != Status.RECONNECT) {
-                            logger.error("[WebSocket] No pong response after ping more than 6s")
+                            logger.error("No pong response after ping more than 6s")
                             status = Status.CLOSED
                         } else {
                             delay(24 * 1000)
@@ -102,7 +103,7 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
             val wsListener = WsListener(logger) { text -> addQueue(text) }
             while (true) {
                 var gateway = getGateway()
-                logger.debug("[WebSocket] Get gateway: $gateway")
+                logger.debug("Get gateway: $gateway")
                 var request = Request.Builder().url(gateway).build()
                 mWebSocket = mClient.newWebSocket(request, wsListener)
                 status = Status.CONNECTING
@@ -112,11 +113,11 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                         if (lastWebSocket != mWebSocket.hashCode()) break
                         if (status == Status.RECONNECT) break
                         if (status == Status.CLOSED && !isResuming) {
-                            logger.error("[WebSocket] Connection closed, resuming")
+                            logger.error("Connection closed, resuming")
                             mWebSocket?.close(1002, "restart")
                             mWebSocket = null
                             gateway = "${getGateway()}&resume=1&sn=$sn&session_id=$sessionId"
-                            logger.debug("[WebSocket] Get gateway: $gateway")
+                            logger.debug("Get gateway: $gateway")
                             request = Request.Builder().url(gateway).build()
                             mWebSocket = mClient.newWebSocket(request, wsListener)
                             lastWebSocket = mWebSocket.hashCode()
@@ -125,7 +126,7 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                             while (true) {
                                 if (status == Status.CONNECTED) {
                                     isResuming = false
-                                    logger.info("[WebSocket] Resume finished")
+                                    logger.info("Resume finished")
                                     break
                                 }
                                 delay(100)
@@ -136,7 +137,7 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                 }
                 while (true) {
                     if (status == Status.RECONNECT) {
-                        logger.info("[WebSocket] Reconnecting")
+                        logger.info("Reconnecting")
                         mWebSocket?.close(1002, "reconnect")
                         mWebSocket = null
                         offline()
@@ -160,7 +161,7 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                 val data = json.parseToJsonElement(message)
                 when (data["s"].Int) {
                     0 -> {
-                        logger.debug("[WebSocket] Received Event: $data")
+                        logger.debug("Received Event: $data")
                         if (data["sn"].Int > sn) {
                             sn = data["sn"].Int
                             try {
@@ -195,26 +196,26 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                         }
                     }
                     1 -> {
-                        logger.debug("[WebSocket] Received Hello: $data")
+                        logger.debug("Received Hello: $data")
                         val code = data["d"]["code"].Int
                          if (code == 0 && !isResuming) {
                              status = Status.CONNECTED
-                             logger.info("[WebSocket] Connected")
+                             logger.info("Connected")
                         } else if (code != 0) {
                              status = Status.RECONNECT
                         }
                         if (status == Status.CONNECTED) sessionId = data["d"]["session_id"].String
                     }
                     3 -> {
-                        logger.debug("[WebSocket] Received Pong")
+                        logger.debug("Received Pong")
                         lastPong = System.currentTimeMillis()
                     }
                     5 -> {
-                        logger.debug("[WebSocket] Received RECONNECT")
+                        logger.debug("Received RECONNECT")
                         status = Status.RECONNECT
                     }
                     6 -> {
-                        logger.debug("[WebSocket] Received RESUME ACK: $data")
+                        logger.debug("Received RESUME ACK: $data")
                         status = Status.CONNECTED
                     }
                     else -> {}

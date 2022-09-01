@@ -7,6 +7,7 @@ import com.github.hank9999.kook.json.JSON.Companion.json
 import com.github.hank9999.kook.json.JSON.Extension.Int
 import com.github.hank9999.kook.json.JSON.Extension.String
 import com.github.hank9999.kook.json.JSON.Extension.get
+import com.github.hank9999.kook.utils.NamedThreadFactory
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -27,7 +28,7 @@ class HttpApi(token: String) {
     private val rateLimit = RateLimit()
     private val logger: Logger = LoggerFactory.getLogger(HttpApi::class.java)
     private val threadNumber = Runtime.getRuntime().availableProcessors()*2 + 1
-    private val threadPool = ThreadPoolExecutor(threadNumber, threadNumber,0L, TimeUnit.MILLISECONDS, LinkedBlockingQueue(10240))
+    private val threadPool = ThreadPoolExecutor(threadNumber, threadNumber,0L, TimeUnit.MILLISECONDS, LinkedBlockingQueue(10240), NamedThreadFactory("HttpApi"))
     private val coroutineContext = threadPool.asCoroutineDispatcher()
     private val coroutineScope = CoroutineScope(coroutineContext)
     fun updateRateLimitInfo(bucket: String, headers: Map<String, List<String>>) {
