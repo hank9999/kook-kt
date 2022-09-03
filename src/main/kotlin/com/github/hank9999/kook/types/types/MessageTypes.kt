@@ -11,6 +11,7 @@ import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = MessageTypes.MessageTypesSerializer::class)
 enum class MessageTypes(val type: Int) {
+    @Transient NONE(-1),
     @Transient ALL(0),
     TEXT(1),
     IMG(2),
@@ -23,7 +24,9 @@ enum class MessageTypes(val type: Int) {
     SYS(255);
 
     companion object {
-        fun fromInt(type: Int) = MessageTypes.values().first { it.type == type }
+        fun fromInt(type: Int): MessageTypes {
+            return MessageTypes.values().find { it.type == type } ?: NONE
+        }
     }
 
     object MessageTypesSerializer : KSerializer<MessageTypes> {
