@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.LinkedBlockingQueue
@@ -66,6 +67,14 @@ class HttpApi(token: String) {
         updateRateLimitInfo(data.bucket, resp.headers)
         logger.debug("[HttpApi] ${data.route} response, $respJson, ${resp.headers}")
         HttpApiResponse(respJson["data"], resp.headers)
+    }
+
+    suspend fun getPageableTotal(data: Api): Int = withContext(coroutineContext) {
+        if (!data.pageable) {
+            1
+        } else {
+            execRequest(data).json.jsonObject["meta"]?.jsonObject?.get("total")?.Int ?: 0
+        }
     }
 
     suspend fun request(data: Api): JsonElement = withContext(coroutineContext) {
