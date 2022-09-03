@@ -19,6 +19,7 @@ enum class MessageTypes(val type: Int) {
     AUDIO(8),
     KMD(9),
     CARD(10),
+    ITEM(12),
     SYS(255);
 
     companion object {
