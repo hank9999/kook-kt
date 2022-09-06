@@ -195,7 +195,7 @@ class Handler(config: Config) {
                 logger.debug("Message Function Handler $m")
                 if (m.key == data.type || m.key == MessageTypes.ALL) {
                     m.value.forEach { h ->
-                        if (h.channelPrivacyTypes == data.channel_type || h.channelPrivacyTypes == ChannelPrivacyTypes.ALL) {
+                        if (h.channelPrivacyTypes == data.channelType || h.channelPrivacyTypes == ChannelPrivacyTypes.ALL) {
                             launch { h.function(data, coroutineScope) }
                         }
                     }
@@ -206,7 +206,7 @@ class Handler(config: Config) {
                 logger.debug("Message Class Handler $m")
                 if (m.key == data.type || m.key == MessageTypes.ALL) {
                     m.value.forEach { h ->
-                        if (h.channelPrivacyTypes == data.channel_type || h.channelPrivacyTypes == ChannelPrivacyTypes.ALL) {
+                        if (h.channelPrivacyTypes == data.channelType || h.channelPrivacyTypes == ChannelPrivacyTypes.ALL) {
                             launch { suspendCoroutine<Unit> { continuation -> h.function.call(h.classInstance, data, continuation) } }
                         }
                     }
@@ -216,7 +216,7 @@ class Handler(config: Config) {
                 logger.debug("Filter Class Handler Processing")
                 filterClassHandlers.forEach { m ->
                     logger.debug("Filter Class Handler $m")
-                    val isMatchChannelPrivacyType = m.channelPrivacyTypes == data.channel_type || m.channelPrivacyTypes == ChannelPrivacyTypes.ALL
+                    val isMatchChannelPrivacyType = m.channelPrivacyTypes == data.channelType || m.channelPrivacyTypes == ChannelPrivacyTypes.ALL
                     when (m.type) {
                         FilterTypes.START_WITH -> if (data.content.startsWith(m.filterString, m.ignoreCase) && isMatchChannelPrivacyType) {
                             launch { suspendCoroutine<Unit> { continuation -> m.function.call(m.classInstance, data, continuation) } }
@@ -232,7 +232,7 @@ class Handler(config: Config) {
                 logger.debug("Filter Function Handler Processing")
                 filterFuncHandlers.forEach { m ->
                     logger.debug("Filter Function Handler $m")
-                    val isMatchChannelPrivacyType = m.channelPrivacyTypes == data.channel_type || m.channelPrivacyTypes == ChannelPrivacyTypes.ALL
+                    val isMatchChannelPrivacyType = m.channelPrivacyTypes == data.channelType || m.channelPrivacyTypes == ChannelPrivacyTypes.ALL
                     when (m.type) {
                         FilterTypes.START_WITH -> if (data.content.startsWith(m.filterString, m.ignoreCase) && isMatchChannelPrivacyType) {
                             launch { m.function(data, coroutineScope) }
@@ -248,7 +248,7 @@ class Handler(config: Config) {
                 logger.debug("Command Class Handler Processing")
                 commandClassHandlers.forEach { m ->
                     logger.debug("Command Class Handler $m")
-                    val isMatchChannelPrivacyType = m.channelPrivacyTypes == data.channel_type || m.channelPrivacyTypes == ChannelPrivacyTypes.ALL
+                    val isMatchChannelPrivacyType = m.channelPrivacyTypes == data.channelType || m.channelPrivacyTypes == ChannelPrivacyTypes.ALL
                     if (whetherCommandTriggered(data.content, m.startWith, m.ignoreCase) && isMatchChannelPrivacyType) {
                         launch { suspendCoroutine<Unit> { continuation -> m.function.call(m.classInstance, data, continuation) } }
                     }
@@ -256,7 +256,7 @@ class Handler(config: Config) {
                 logger.debug("Command Function Handler Processing")
                 commandFuncHandlers.forEach { m ->
                     logger.debug("Command Function Handler $m")
-                    val isMatchChannelPrivacyType = m.channelPrivacyTypes == data.channel_type || m.channelPrivacyTypes == ChannelPrivacyTypes.ALL
+                    val isMatchChannelPrivacyType = m.channelPrivacyTypes == data.channelType || m.channelPrivacyTypes == ChannelPrivacyTypes.ALL
                     if (whetherCommandTriggered(data.content, m.startWith, m.ignoreCase) && isMatchChannelPrivacyType) {
                         launch { m.function(data, coroutineScope) }
                     }
