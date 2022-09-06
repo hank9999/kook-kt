@@ -1,6 +1,7 @@
 package com.github.hank9999.kook.types
 
 import kotlinx.serialization.Required
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -8,7 +9,7 @@ data class Attachments(
     @Required val type: String = "",
     @Required val url: String = "",
     @Required val name: String = "",
-    val file_type: String = "",
+    @SerialName("file_type") val fileType: String = "",
     val size: Int = 0,
     val duration: Int = 0,
     val width: Int = 0,

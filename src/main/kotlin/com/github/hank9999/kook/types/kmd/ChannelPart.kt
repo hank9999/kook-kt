@@ -4,9 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MentionPart(
+data class ChannelPart(
+    @SerialName("guild_id") val guildId: String = "",
     val id: String = "",
-    val username: String = "",
-    @SerialName("full_name") val fullName: String = "",
-    val avatar: String = ""
+    val name: String = ""
 )

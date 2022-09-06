@@ -65,10 +65,10 @@ class WebHook(config: Config, handler: Handler) {
                  dObject
             }
             when (MessageTypes.fromInt(data["type"].Int)) {
-                KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE -> handler.addMessageQueue(dObject)
+                KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE, ITEM -> handler.addMessageQueue(dObject)
                 SYS -> eventHandler(ctx, dObject)
                 // 因 item 内 部分字段类型不明确 暂不解析
-                ALL, NONE, ITEM -> {}
+                ALL, NONE -> {}
             }
         } catch (e: Exception) {
             // 如果遇到什么奇怪的bug 打印全文

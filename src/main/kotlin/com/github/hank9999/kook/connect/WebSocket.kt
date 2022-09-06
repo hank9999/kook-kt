@@ -184,10 +184,9 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                                     data["d"]
                                 }
                                 when (MessageTypes.fromInt(dData["type"].Int)) {
-                                    KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE -> handler.addMessageQueue(data["d"])
+                                    KMD, TEXT, CARD, VIDEO, IMG, AUDIO, FILE, ITEM -> handler.addMessageQueue(data["d"])
                                     SYS -> handler.addEventQueue(data["d"])
-                                    // 因 item 内 部分字段类型不明确 暂不解析
-                                    ALL, NONE, ITEM -> {}
+                                    ALL, NONE -> {}
                                 }
                             } catch (e: Exception) {
                                 // 如果遇到什么奇怪的bug 打印全文
