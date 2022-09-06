@@ -21,5 +21,15 @@ data class User(
     @Required val roles: List<Int> = emptyList(),
     @SerialName("joined_at") val joinedAt: Long = 0,
     @SerialName("active_time") val activeTime: Long = 0,
-    val os: String = ""
-)
+    val os: String = "",
+    @SerialName("live_info") val liveInfo: LiveInfo = LiveInfo()
+) {
+    @Serializable
+    data class LiveInfo(
+        @SerialName("audience_count") val audienceCount: Int = 0,
+        @SerialName("in_live") val inLive: Boolean = false,
+        @SerialName("live_start_time") val liveStartTime: Int = 0,
+        @SerialName("live_thumb") val liveThumb: String = ""
+    )
+}
+

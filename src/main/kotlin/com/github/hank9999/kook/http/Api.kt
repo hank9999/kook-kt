@@ -217,7 +217,17 @@ abstract class Api {
             override val pageable = false
             override val baseApiUrl = null
         }
-        
+
+        class UserList(channelId: String) : Channel() {
+            override val method = Method.GET
+            override val bucket = "channel/user-list"
+            override val route = "channel/user-list"
+            override val postData = emptyPostData
+            override val params = mapOf("channel_id" to channelId)
+            override val pageable = false
+            override val baseApiUrl = null
+        }
+
         class MoveUser(targetId: String, userIds: Array<String>) : Channel() {
             override val method = Method.POST
             override val bucket = "channel/delete"
