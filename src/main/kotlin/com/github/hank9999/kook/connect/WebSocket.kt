@@ -37,11 +37,16 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
     var lastPong = 0L
     var sessionId = ""
     var isResuming = false
-    fun addQueue(text: String) {
+    var isWsFailure = false
+    private fun addQueue(text: String) {
         messageQueue.add(text)
     }
 
-    suspend fun getGateway(): String {
+    private fun setWsFailure() {
+        isWsFailure = true
+    }
+
+    private suspend fun getGateway(): String {
         var gateway = ""
         while (true) {
             try {
@@ -59,7 +64,7 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
         return gateway
     }
 
-    suspend fun offline() {
+    private suspend fun offline() {
         while (true) {
             var success = false
             try {
@@ -99,8 +104,17 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                     }
                 }
             }
+            launch {
+                while (true) {
+                    if (isWsFailure) {
+                        isWsFailure = false
+                        status = Status.RECONNECT
+                    }
+                    delay(500)
+                }
+            }
             val mClient = OkHttpClient.Builder().pingInterval(30, TimeUnit.SECONDS).build()
-            val wsListener = WsListener(logger) { text -> addQueue(text) }
+            val wsListener = WsListener(logger, { setWsFailure() }, { addQueue(it) })
             while (true) {
                 var gateway = getGateway()
                 logger.debug("Get gateway: $gateway")
@@ -146,6 +160,7 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                         messageQueue.clear()
                         lastPong = 0L
                         isResuming = false
+                        status = Status.INIT
                         break
                     }
                     delay(100)
@@ -195,29 +210,34 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                             }
                         }
                     }
+
                     1 -> {
                         logger.debug("Received Hello: $data")
                         val code = data["d"]["code"].Int
-                         if (code == 0 && !isResuming) {
-                             status = Status.CONNECTED
-                             logger.info("Connected")
+                        if (code == 0 && !isResuming) {
+                            status = Status.CONNECTED
+                            logger.info("Connected")
                         } else if (code != 0) {
-                             status = Status.RECONNECT
+                            status = Status.RECONNECT
                         }
                         if (status == Status.CONNECTED) sessionId = data["d"]["session_id"].String
                     }
+
                     3 -> {
                         logger.debug("Received Pong")
                         lastPong = System.currentTimeMillis()
                     }
+
                     5 -> {
                         logger.debug("Received RECONNECT")
                         status = Status.RECONNECT
                     }
+
                     6 -> {
                         logger.debug("Received RESUME ACK: $data")
                         status = Status.CONNECTED
                     }
+
                     else -> {}
                 }
             } else {
