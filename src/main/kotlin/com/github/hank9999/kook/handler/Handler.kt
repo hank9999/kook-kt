@@ -186,7 +186,7 @@ class Handler(config: Config) {
             val data = try {
                 json.decodeFromJsonElement<Message>(element)
             } catch (ex: Exception) {
-                logger.error("${ex.message}\n${ex.stackTraceToString()}")
+                logger.error("$element\n${ex.message}\n${ex.stackTraceToString()}")
                 return@launch
             }
             logger.debug("Received Message: $data")
@@ -270,7 +270,7 @@ class Handler(config: Config) {
             val data = try {
                 json.decodeFromJsonElement<Event>(element)
             } catch (ex: Exception) {
-                logger.error("${ex.message}\n${ex.stackTraceToString()}")
+                logger.error("$element\n${ex.message}\n${ex.stackTraceToString()}")
                 return@launch
             }
             logger.debug("Received Event: $data")
