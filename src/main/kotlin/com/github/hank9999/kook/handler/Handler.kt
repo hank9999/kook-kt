@@ -59,7 +59,7 @@ class Handler(config: Config) {
                         val data = messageQueue.removeAt(0)
                         messageHandler(data)
                     } else {
-                        delay(5)
+                        delay(1)
                     }
                 }
             }
@@ -69,7 +69,7 @@ class Handler(config: Config) {
                         val data = eventQueue.removeAt(0)
                         eventHandler(data)
                     } else {
-                        delay(5)
+                        delay(1)
                     }
                 }
             }

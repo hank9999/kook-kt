@@ -241,7 +241,7 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                     else -> {}
                 }
             } else {
-                delay(5)
+                delay(1)
             }
         }
     }
