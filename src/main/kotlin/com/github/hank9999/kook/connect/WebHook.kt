@@ -40,7 +40,7 @@ class WebHook(config: Config, handler: Handler) {
             return
         }
         val dObject = element["d"]
-        if (dObject["verify_token"].String != config.verify_token) {
+        if (config.verify_token.isNotEmpty() && dObject["verify_token"].String != config.verify_token) {
             logger.warn("[WebHook] Wrong Verify Token, message may be fake, ignored")
             return
         }
