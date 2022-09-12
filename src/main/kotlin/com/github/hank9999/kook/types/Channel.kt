@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 data class Channel(
     @Required val id: String = "",
     @Required val name: String = "",
+    @SerialName("master_id") val masterId: String = "",
     @Required @SerialName("user_id") val userId: String = "",
     @Required @SerialName("guild_id") val guildId: String = "",
     @Required val topic: String = "",
@@ -16,6 +17,7 @@ data class Channel(
     @Required val level: Int = 0,
     @Required @SerialName("slow_mode") val slowMode: Int = 0,
     @Required val type: ChannelTypes = ChannelTypes.TEXT,
+    @SerialName("limit_amount") val limitAmount: Int = 0,
     @Required @SerialName("permission_overwrites") val permissionOverwrites: List<PermissionOverwrites> = emptyList(),
     @Required @SerialName("permission_users") val permissionUsers: List<PermissionUsers> = emptyList(),
     @Required @SerialName("permission_sync") val permissionSync: Int = 0,

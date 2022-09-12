@@ -1,4 +1,4 @@
-package com.github.hank9999.kook.http.types.apiResponse
+package com.github.hank9999.kook.http.types.apiResponse.guild
 
 import com.github.hank9999.kook.types.Channel
 import com.github.hank9999.kook.types.Role
@@ -6,7 +6,7 @@ import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GuildView(
+data class View(
     @Required val id: String = "",
     @Required val name: String = "",
     @Required val topic: String = "",

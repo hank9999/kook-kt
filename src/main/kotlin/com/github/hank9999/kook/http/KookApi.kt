@@ -22,4 +22,8 @@ class KookApi(private val httpApi: HttpApi) {
     fun Gateway(): Gateway {
         return Gateway(httpApi)
     }
+
+    fun ChannelUser(): ChannelUser {
+        return ChannelUser(httpApi)
+    }
 }
