@@ -326,7 +326,8 @@ abstract class Module {
     class Countdown(val mode: Type.CountdownMode, val endTime: Long, val startTime: Long = 0L) : Module() {
         override fun toJsonObject(): JsonObject {
             return buildJsonObject {
-                put("type", mode.mode)
+                put("type", "countdown")
+                put("mode", mode.mode)
                 put("endTime", endTime)
                 if (startTime != 0L && mode == Type.CountdownMode.SECOND) put("startTime", startTime)
             }
