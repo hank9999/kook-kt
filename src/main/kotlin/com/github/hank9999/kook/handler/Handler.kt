@@ -171,10 +171,10 @@ class Handler(config: Config) {
         }
     }
 
-    private fun whetherCommandTriggered(text: String, startWith: List<String>, ignoreCase: Boolean): Boolean {
-        logger.debug("Command List: $startWith")
-        startWith.forEach { prefix ->
-            if (text.startsWith(prefix, ignoreCase)) {
+    private fun whetherCommandTriggered(text: String, command: List<String>, ignoreCase: Boolean): Boolean {
+        logger.debug("Command List: $command")
+        command.forEach {
+            if (text.equals(it, ignoreCase)) {
                 return true
             }
         }
