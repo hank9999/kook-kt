@@ -28,7 +28,7 @@ data class User(
     data class LiveInfo(
         @SerialName("audience_count") val audienceCount: Int = 0,
         @SerialName("in_live") val inLive: Boolean = false,
-        @SerialName("live_start_time") val liveStartTime: Int = 0,
+        @SerialName("live_start_time") val liveStartTime: Long = 0,
         @SerialName("live_thumb") val liveThumb: String = ""
     )
 }
