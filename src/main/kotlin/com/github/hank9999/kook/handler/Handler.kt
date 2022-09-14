@@ -173,8 +173,9 @@ class Handler(config: Config) {
 
     private fun whetherCommandTriggered(text: String, command: List<String>, ignoreCase: Boolean): Boolean {
         logger.debug("Command List: $command")
+        val commandText = text.split(" ")[0]
         command.forEach {
-            if (text.equals(it, ignoreCase)) {
+            if (commandText.equals(it, ignoreCase)) {
                 return true
             }
         }
