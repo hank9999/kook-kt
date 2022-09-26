@@ -43,6 +43,7 @@ enum class EventTypes(val type: String) {
     SELF_EXITED_GUILD("self_exited_guild"),
     PINNED_MESSAGE("pinned_message"),
     UNPINNED_MESSAGE("unpinned_message"),
+    ADDED_EMOJI("added_emoji"),
     BROADCAST("broadcast");
 
     companion object {
