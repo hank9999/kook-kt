@@ -274,6 +274,10 @@ class Handler(config: Config) {
                 logger.error("$element\n${ex.message}\n${ex.stackTraceToString()}")
                 return@launch
             }
+            if (data.extra.type == EventTypes.NONE) {
+                logger.error(element.toString())
+                return@launch
+            }
             logger.debug("Received Event: $data")
             logger.debug("Event Function Handler Processing")
             eventFuncHandlers.forEach { e ->

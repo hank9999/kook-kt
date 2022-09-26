@@ -8,6 +8,8 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @Serializable(with = MessageTypes.MessageTypesSerializer::class)
 enum class MessageTypes(val type: Int) {
@@ -24,8 +26,15 @@ enum class MessageTypes(val type: Int) {
     SYS(255);
 
     companion object {
+        private val logger: Logger = LoggerFactory.getLogger(MessageTypes::class.java)
+
         fun fromInt(type: Int): MessageTypes {
-            return MessageTypes.values().find { it.type == type } ?: NONE
+            val result = MessageTypes.values().find { it.type == type }
+            if (result == null) {
+                logger.error("unknown message type: $type")
+                return NONE
+            }
+            return result
         }
     }
 

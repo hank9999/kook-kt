@@ -8,10 +8,13 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @Serializable(with = EventTypes.EventTypesSerializer::class)
 enum class EventTypes(val type: String) {
     @Transient ALL(""),
+    @Transient NONE(""),
     MESSAGE_BTN_CLICK("message_btn_click"),
     ADDED_REACTION("added_reaction"),
     DELETED_REACTION("deleted_reaction"),
@@ -47,7 +50,16 @@ enum class EventTypes(val type: String) {
     BROADCAST("broadcast");
 
     companion object {
-        fun fromString(type: String) = EventTypes.values().first { it.type == type }
+        private val logger: Logger = LoggerFactory.getLogger(EventTypes::class.java)
+
+        fun fromString(type: String): EventTypes {
+            val result = EventTypes.values().find { it.type == type }
+            if (result == null) {
+                logger.error("unknown event type: $type")
+                return NONE
+            }
+            return result
+        }
     }
 
     object EventTypesSerializer : KSerializer<EventTypes> {

@@ -26,7 +26,7 @@ data class Event(
 ) {
     @Serializable
     data class Extra(
-        @Required val type: EventTypes = EventTypes.GUILD_MEMBER_ONLINE,
+        @Required val type: EventTypes = EventTypes.NONE,
         val body: JsonElement = json.parseToJsonElement("{}"),
     )
 }
