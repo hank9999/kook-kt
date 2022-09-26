@@ -16,7 +16,7 @@ data class User(
     @Required val avatar: String = "",
     @Required @SerialName("vip_avatar") val vipAvatar: String = "",
     @Required @SerialName("is_vip") val isVip: Boolean = false,
-    @Required val banner: String = "",
+    val banner: String = "",
     @SerialName("mobile_verified") val mobileVerified: Boolean = true,
     @Required val roles: List<Int> = emptyList(),
     @SerialName("joined_at") val joinedAt: Long = 0,
