@@ -177,6 +177,9 @@ class WebSocket(val handler: Handler, val kookApi: KookApi) {
                 when (data["s"].Int) {
                     0 -> {
                         logger.debug("Received Event: $data")
+                        if (sn >= 65535 && data["sn"].Int == 1) {
+                            sn = 0
+                        }
                         if (data["sn"].Int > sn) {
                             sn = data["sn"].Int
                             try {
