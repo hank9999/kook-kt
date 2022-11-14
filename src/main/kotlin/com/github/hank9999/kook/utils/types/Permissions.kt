@@ -28,5 +28,6 @@ enum class Permissions(val bitValue: Int) {
     VOICE_MUTE(24),
     VOICE_NO_SPEAK(25),
     MODIFY_OTHERS_NICKNAME(26),
-    PLAY_MUSIC(27)
+    PLAY_MUSIC(27),
+    SHARE_SCREEN(28)
 }
