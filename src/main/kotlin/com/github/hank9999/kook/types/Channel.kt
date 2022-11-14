@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 data class Channel(
     @Required val id: String = "",
     @Required val name: String = "",
-    @SerialName("master_id") val masterId: String = "",
     @Required @SerialName("user_id") val userId: String = "",
     @Required @SerialName("guild_id") val guildId: String = "",
     @Required val topic: String = "",

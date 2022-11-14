@@ -11,7 +11,7 @@ data class View(
     @Required val id: String = "",
     @Required val name: String = "",
     @Required val topic: String = "",
-    @Required @SerialName("master_id") val masterId: String = "",
+    @Required @SerialName("user_id") val userId: String = "",
     @Required val icon: String = "",
     @Required @SerialName("notify_type") val notifyType: Int = 0,
     @Required val region: String = "",
