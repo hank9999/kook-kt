@@ -6,7 +6,7 @@
 
     <artifactId>kook-kt</artifactId>
     <groupId>com.github.hank9999</groupId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <packaging>jar</packaging>
 
     <properties>

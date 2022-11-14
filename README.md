@@ -15,7 +15,7 @@
     <dependency>
         <groupId>com.github.hank9999</groupId>
         <artifactId>kook-kt</artifactId>
-        <version>0.0.3</version>
+        <version>0.0.4</version>
     </dependency>
 </dependencies>
 ```
@@ -28,7 +28,7 @@ allprojects {
     }
 }
 dependencies {
-    implementation 'com.github.hank9999:kook-kt:0.0.3'
+    implementation 'com.github.hank9999:kook-kt:0.0.4'
 }
 ```
 ### 使用
