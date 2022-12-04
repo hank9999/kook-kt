@@ -149,7 +149,23 @@ abstract class Api {
             override val baseApiUrl = null
         }
     }
-    
+
+    abstract class GuildBoost : Api() {
+        class History(guildId: String, startTime: Long? = null, endTime: Long? = null) : GuildBoost() {
+            override val method = Method.GET
+            override val bucket = "guild-boost/history"
+            override val route = "guild-boost/history"
+            override val postData = emptyPostData
+            override val params = mutableMapOf<String, String>().apply {
+                this["guild_id"] = guildId
+                startTime?.let { this["start_time"] = startTime.toString() }
+                endTime?.let { this["end_time"] = endTime.toString() }
+            }
+            override val pageable = false
+            override val baseApiUrl = null
+        }
+    }
+
     abstract class Channel : Api() {
         class List(guildId: String, type: Int? = null) : Channel() {
             override val method = Method.GET
