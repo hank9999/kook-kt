@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 abstract class Module {
     abstract fun toJsonObject(): JsonObject
     val reInviteCode = Regex("^[a-zA-Z0-9]{6}$")
-    val reInviteLink = Regex("^https://(?:kook\\.top|kaihei\\.co)/[a-zA-Z0-9]{6}\$")
+    val reInviteLink = Regex("^https://(?:kook\\.top|kaihei\\.co)/[a-zA-Z0-9]{6}$")
     private val logger: Logger = LoggerFactory.getLogger(Module::class.java)
 
     class Header(val text: Element.Text) : Module() {
