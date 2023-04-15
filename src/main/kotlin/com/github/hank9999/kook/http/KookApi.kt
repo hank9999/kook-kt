@@ -10,6 +10,7 @@ class KookApi(private val httpApi: HttpApi) {
     val gateway = Gateway(httpApi)
     val channelUser = ChannelUser(httpApi)
     val channel = Channel(httpApi)
+    val directMessage = DirectMessage(httpApi)
 
     fun Message(): Message {
         return message
@@ -37,5 +38,9 @@ class KookApi(private val httpApi: HttpApi) {
 
     fun Channel(): Channel {
         return channel
+    }
+
+    fun DirectMessage(): DirectMessage {
+        return directMessage
     }
 }
