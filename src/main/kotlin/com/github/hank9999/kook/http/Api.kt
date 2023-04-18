@@ -479,7 +479,7 @@ abstract class Api {
     }
     
     abstract class DirectMessage : Api() {
-        class List(chatCode: String? = null, targetId: String? = null, msgId: String? = null, flag: String? = null) : DirectMessage() {
+        class List(targetId: String? = null, msgId: String? = null, flag: String? = null, chatCode: String? = null) : DirectMessage() {
             override val method = Method.GET
             override val bucket = "direct-message/list"
             override val route = "direct-message/list"
@@ -495,7 +495,7 @@ abstract class Api {
             override val baseApiUrl = null
         }
         
-        class Create(chatCode: String? = null, targetId: String? = null, type: Int? = null, content: String, quote: String? = null, nonce: String? = null) : DirectMessage() {
+        class Create(targetId: String? = null, type: Int? = null, content: String, quote: String? = null, nonce: String? = null, chatCode: String? = null) : DirectMessage() {
             override val method = Method.POST
             override val bucket = "direct-message/create"
             override val route = "direct-message/create"

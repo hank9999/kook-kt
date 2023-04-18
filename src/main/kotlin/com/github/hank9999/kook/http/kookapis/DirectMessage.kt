@@ -9,7 +9,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 
 class DirectMessage(private val httpApi: HttpApi) {
     suspend fun create(targetId: String, content: Any, type: MessageTypes? = null, quote: String? = null, nonce: String? = null): MessageCreate {
-        val data = httpApi.request(Api.DirectMessage.Create(null, targetId, type?.type, content.toString(), quote, nonce))
+        val data = httpApi.request(Api.DirectMessage.Create(targetId, type?.type, content.toString(), quote, nonce))
         return JSON.json.decodeFromJsonElement(data)
     }
     suspend fun delete(msgId: String) {
