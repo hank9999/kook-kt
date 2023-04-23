@@ -7,7 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class View(
+data class GuildView(
     @Required val id: String = "",
     @Required val name: String = "",
     @Required val topic: String = "",
