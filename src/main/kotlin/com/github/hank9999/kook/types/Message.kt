@@ -42,14 +42,17 @@ data class Message(
     )
 
     suspend fun reply(content: Any, type: MessageTypes? = null, nonce: String? = null, tempTargetId: String? = null): MessageCreate {
-        if (this.channelType == ChannelPrivacyTypes.PERSON)
-            return kookApi.DirectMessage().create(this.authorId, content, type, this.msgId, nonce)
-        return kookApi.Message().create(this.targetId, content, type, this.msgId, nonce, tempTargetId)
+        return when (this.channelType) {
+            ChannelPrivacyTypes.GROUP -> kookApi.Message().create(this.targetId, content, type, this.msgId, nonce)
+            ChannelPrivacyTypes.PERSON -> kookApi.Message().create(this.targetId, content, type, this.msgId, nonce, tempTargetId)
+            else -> MessageCreate()
+        }
     }
-
     suspend fun send(content: Any, type: MessageTypes? = null, quote: String? = null, nonce: String? = null, tempTargetId: String? = null): MessageCreate {
-        if (this.channelType == ChannelPrivacyTypes.PERSON)
-            return kookApi.DirectMessage().create(this.authorId, content, type, quote, nonce)
-        return kookApi.Message().create(this.targetId, content, type, quote, nonce, tempTargetId)
+        return when (this.channelType) {
+            ChannelPrivacyTypes.GROUP -> kookApi.Message().create(this.targetId, content, type, quote, nonce, tempTargetId)
+            ChannelPrivacyTypes.PERSON -> kookApi.DirectMessage().create(this.targetId, content, type, quote, nonce)
+            else -> MessageCreate()
+        }
     }
 }
