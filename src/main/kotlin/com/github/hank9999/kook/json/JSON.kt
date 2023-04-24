@@ -32,7 +32,7 @@ class JSON {
         val json = Json {
             ignoreUnknownKeys = true
             classDiscriminator = "#class"
-
+            coerceInputValues = true
         }
 
     }
