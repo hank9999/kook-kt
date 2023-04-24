@@ -52,6 +52,12 @@ class HttpApi(token: String) {
             params["page"] = page.toString()
         }
         val apiBaseUrl = if (data.baseApiUrl != null) data.baseApiUrl else api
+
+        // KOOK 的奇怪 Bug 临时单独适配
+        if (data.route == "message/list") {
+            params["page"] = "0"
+        }
+
         val resp = if (data.method == Method.GET) {
             data.params.entries.forEach {
                 params[it.key] = it.value
@@ -70,7 +76,7 @@ class HttpApi(token: String) {
     }
 
     suspend fun getPageableTotal(data: Api): Int = withContext(coroutineContext) {
-        if (!data.pageable) {
+        if (!data.pageable || data.nonStandardPageable) {
             1
         } else {
             execRequest(data).json.jsonObject["meta"]?.jsonObject?.get("total")?.Int ?: 0
@@ -80,6 +86,8 @@ class HttpApi(token: String) {
     suspend fun request(data: Api): JsonElement = withContext(coroutineContext) {
         if (!data.pageable) {
             execRequest(data).json
+        } else if (data.nonStandardPageable) {
+            execRequest(data).json["items"]
         } else {
             val json1 = execRequest(data).json
             val pageTotal = json1["meta"]["page_total"].Int
@@ -105,7 +113,7 @@ class HttpApi(token: String) {
 
     fun requestAsFlow(data: Api): Flow<JsonElement> = flow {
         val json1 = execRequest(data).json
-        if (data.pageable) {
+        if (data.pageable && !data.nonStandardPageable) {
             val pageTotal = json1["meta"]["page_total"].Int
             for (page in 1..pageTotal) {
                 if (page == 1) {
@@ -114,6 +122,8 @@ class HttpApi(token: String) {
                     emit(execRequest(data, page).json["items"])
                 }
             }
+        } else if (data.nonStandardPageable) {
+            emit(json1["items"])
         } else {
             emit(json1)
         }
@@ -122,7 +132,7 @@ class HttpApi(token: String) {
     suspend fun requestAsIterator(data: Api): Iterator<JsonElement> {
         val json1 = execRequest(data).json
         var currentPage = 0
-        val pageTotal = if (data.pageable) {
+        val pageTotal = if (data.pageable && !data.nonStandardPageable) {
             json1["meta"]["page_total"].Int
         } else {
             1

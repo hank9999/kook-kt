@@ -22,6 +22,7 @@ abstract class Api {
     abstract val postData: RequestBody
     abstract val params: Map<String, String>
     abstract val pageable: Boolean
+    abstract val nonStandardPageable: Boolean
     abstract val baseApiUrl: String?
 
     val mediaType = "application/json; charset=utf-8".toMediaType()
@@ -36,6 +37,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = if (sort != null) mapOf("sort" to sort) else emptyParams
             override val pageable = true
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -46,6 +48,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = mapOf("guild_id" to guildId)
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -64,6 +67,7 @@ abstract class Api {
                 joinedAt?.let { require(joinedAt in 0..1); this["joined_at"] = joinedAt.toString()}
             }
             override val pageable = true
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -78,6 +82,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -90,6 +95,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -103,6 +109,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -118,6 +125,7 @@ abstract class Api {
                 returnType?.let { this["return_type"] = returnType }
             }
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -132,6 +140,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -146,6 +155,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -162,6 +172,7 @@ abstract class Api {
                 endTime?.let { this["end_time"] = endTime.toString() }
             }
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -177,6 +188,7 @@ abstract class Api {
                 type?.let { this["type"] = type.toString() }
             }
             override val pageable = true
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -187,6 +199,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = mapOf("target_id" to targetId)
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -204,6 +217,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -219,6 +233,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -231,6 +246,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
 
@@ -241,6 +257,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = mapOf("channel_id" to channelId)
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
 
@@ -258,6 +275,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -270,6 +288,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = mapOf("channel_id" to channelId)
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -284,6 +303,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -300,6 +320,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -314,6 +335,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -332,6 +354,7 @@ abstract class Api {
                 pageSize?.let { this["page_size"] = pageSize.toString() }
             }
             override val pageable = false
+            override val nonStandardPageable = true
             override val baseApiUrl = null
         }
         
@@ -342,6 +365,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = mapOf("msg_id" to msgId)
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -362,6 +386,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -377,6 +402,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -389,6 +415,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -399,6 +426,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = mapOf("msg_id" to msgId, "emoji" to emoji)
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -412,6 +440,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -426,6 +455,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -438,6 +468,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = mapOf("guild_id" to guildId, "user_id" to userId)
             override val pageable = true
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -450,6 +481,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = emptyParams
             override val pageable = true
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -462,6 +494,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -474,6 +507,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -492,6 +526,7 @@ abstract class Api {
                 flag?.let { this["flag"] = flag }
             }
             override val pageable = true
+            override val nonStandardPageable = true
             override val baseApiUrl = null
         }
         
@@ -510,6 +545,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -524,6 +560,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -536,6 +573,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -548,6 +586,7 @@ abstract class Api {
                 emoji?.let { this["emoji"] = emoji }
             }
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -561,6 +600,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -575,6 +615,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -589,6 +630,7 @@ abstract class Api {
                 compress?.let { this["compress"] = compress.toString() }
             }
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -601,6 +643,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -614,6 +657,7 @@ abstract class Api {
                 guildId?.let { this["guild_id"] = guildId }
             }
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -624,6 +668,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -639,6 +684,7 @@ abstract class Api {
             }.build()
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -658,6 +704,7 @@ abstract class Api {
             }.build()
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -670,6 +717,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = mapOf("guild_id" to guildId)
             override val pageable = true
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -683,6 +731,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -701,6 +750,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -714,6 +764,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -728,6 +779,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -742,6 +794,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -754,6 +807,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = mapOf("user_id" to userId)
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -769,6 +823,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -781,6 +836,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = mapOf("guild_id" to guildId)
             override val pageable = true
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -796,6 +852,7 @@ abstract class Api {
             }.build()
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -817,6 +874,7 @@ abstract class Api {
             }.build()
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -830,6 +888,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
         
@@ -842,6 +901,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -858,6 +918,7 @@ abstract class Api {
                 channelId?.let { this["channel_id"] = channelId }
             }
             override val pageable = true
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
 
@@ -874,6 +935,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
 
@@ -888,6 +950,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -900,6 +963,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = mapOf("guild_id" to guildId)
             override val pageable = true
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
 
@@ -915,6 +979,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
 
@@ -928,6 +993,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -943,6 +1009,7 @@ abstract class Api {
                 style?.let { require( style in 0..2 ); this["style"] = style.toString() }
             }
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -955,6 +1022,7 @@ abstract class Api {
             override val postData = emptyPostData
             override val params = emptyParams
             override val pageable = true
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
 
@@ -968,6 +1036,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
 
@@ -982,6 +1051,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
 
@@ -994,6 +1064,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
 
@@ -1016,6 +1087,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
 
@@ -1029,6 +1101,7 @@ abstract class Api {
             }.toString().toRequestBody(mediaType)
             override val params = emptyParams
             override val pageable = false
+            override val nonStandardPageable = false
             override val baseApiUrl = null
         }
     }
@@ -1047,7 +1120,8 @@ abstract class Api {
              }.toString().toRequestBody(mediaType)
              override val params = emptyParams
              override val pageable = false
-                 override val baseApiUrl = "https://www.kookapp.cn/api"
+             override val nonStandardPageable = false
+             override val baseApiUrl = "https://www.kookapp.cn/api"
          }
      }
 }
