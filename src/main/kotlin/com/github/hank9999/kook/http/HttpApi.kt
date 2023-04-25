@@ -53,11 +53,6 @@ class HttpApi(token: String) {
         }
         val apiBaseUrl = if (data.baseApiUrl != null) data.baseApiUrl else api
 
-        // KOOK 的奇怪 Bug 临时单独适配
-        if (data.route == "message/list") {
-            params["page"] = "0"
-        }
-
         val resp = if (data.method == Method.GET) {
             data.params.entries.forEach {
                 params[it.key] = it.value
