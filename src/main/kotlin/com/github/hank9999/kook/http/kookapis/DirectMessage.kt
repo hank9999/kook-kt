@@ -10,11 +10,6 @@ import com.github.hank9999.kook.types.types.MessageTypes
 import kotlinx.serialization.json.decodeFromJsonElement
 
 class DirectMessage(private val httpApi: HttpApi) {
-    suspend fun list(targetId: String? = null, msgId: String? = null, flag: String? = null, chatCode: String? = null): List<DirectMessageList> {
-        val data = httpApi.request(Api.DirectMessage.List(targetId, msgId, flag, chatCode))
-        return JSON.json.decodeFromJsonElement(data)
-    }
-
     suspend fun list(targetId: String? = null, msgId: String? = null, flag: MessageListFlags? = null, chatCode: String? = null): List<DirectMessageList> {
         val data = httpApi.request(Api.DirectMessage.List(targetId, msgId, flag?.value, chatCode))
         return JSON.json.decodeFromJsonElement(data)
