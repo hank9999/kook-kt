@@ -1,6 +1,5 @@
 package com.github.hank9999.kook.common.entity.user
 
-import com.github.hank9999.kook.common.entity.user.TagInfo
 import com.github.hank9999.kook.common.interfaces.IUser
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
