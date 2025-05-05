@@ -11,4 +11,4 @@
 
 ## LICENSE
 本仓库采用 MIT 开源协议  
-`CallAwait.kt` 和 `CallStackRecorder.kt` 来自于 [gildor/kotlin-coroutines-okhttp](https://github.com/gildor/kotlin-coroutines-okhttp) 使用 Apache License 2.0 授权
+`Optional.kt` 来自于 [kordlib/kord](https://github.com/kordlib/kord/) 项目，版权归原项目所有，遵循 MIT 授权协议，特此感谢。  
