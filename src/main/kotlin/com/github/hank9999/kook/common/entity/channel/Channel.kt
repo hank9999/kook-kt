@@ -24,7 +24,7 @@ data class Channel(
     @SerialName("is_category") override val isCategory: Boolean,
     @SerialName("permission_sync") override val permissionSync: Int,
     @SerialName("permission_overwrites") override val permissionOverwrites: List<PermissionOverwrite>,
-    @SerialName("permission_users") override val permissionUsers: List<PermissionUser>,
+    @SerialName("permission_users") override val permissionUsers: List<PermissionUser>
 ) : IChannel {
     @Serializable
     data class PermissionOverwrite(
