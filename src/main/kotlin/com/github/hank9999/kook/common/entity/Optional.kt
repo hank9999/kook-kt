@@ -1,31 +1,31 @@
-/*
-    MIT License
+/*     MIT License
 
-    Copyright (c) 2019 Hope
+     Copyright (c) 2019 Hope
 
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
+     Permission is hereby granted, free of charge, to any person obtaining a copy
+     of this software and associated documentation files (the "Software"), to deal
+     in the Software without restriction, including without limitation the rights
+     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+     copies of the Software, and to permit persons to whom the Software is
+     furnished to do so, subject to the following conditions:
 
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
+     The above copyright notice and this permission notice shall be included in all
+     copies or substantial portions of the Software.
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+     SOFTWARE.
 
-    This file was copied from the kordlib/kord project under MIT License.
-    Original source: https://github.com/kordlib/kord/blob/main/common/src/commonMain/kotlin/entity/optional/Optional.kt
-    Copyright belongs to the original project.
-    Modified by hank9999 in 2025.
-    Changes: Remove some feature for simplification.
+     This file was copied from the kordlib/kord project under MIT License.
+     Original source: https://github.com/kordlib/kord/blob/main/common/src/commonMain/kotlin/entity/optional/Optional.kt
+     Copyright belongs to the original project.
+     Modified by hank9999 in 2025.
+     Changes: 1. Remove some feature for simplification.
+              2. Translation.
  */
 
 package com.github.hank9999.kook.common.entity
@@ -40,29 +40,25 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 /**
- * Represents a value which maybe in three status.
- * Specifically:
+ *表示一个可能处于三种状态的值。*
+ *具体来说:*
+ * * [Missing] - 在序列化实体中不存在的字段
+ * * [Null] - 在序列化实体中被赋值为null的字段
+ * * [Value] - 在序列化实体中被赋值为非null值的字段
  *
- * * [Missing] - a field that was not present in the serialized entity
- * * [Null] - a field that was assigned null in the serialized entity
- * * [Value] - a field that was assigned a non-null value in the serialized entity.
+ * 可以通过kotlinx.serialization进行(反)序列化, 比如：
+ * * `Optional<T>` - 只是可选但不可为null的字段
+ * * `Optional<T?>` - 既可选又可为null的字段
+ * * 只是可为null的字段应该用`T?`表示
  *
- * The base class is  (de)serializable with kotlinx.serialization and should be used as follows:
+ * 尝试将`null`反序列化为`Optional<T>`将导致抛出[SerializationException]异常。
  *
- * * `Optional<T>` - a field that is only optional but not nullable.
- * * `Optional<T?>` - A field that is both optional and nullable.
- * * A field that is only nullable should be represented as `T?` instead.
- *
- * Trying to deserialize `null` as `Optional<T>` will result in a [SerializationException] being thrown.
- *
- * Note that `Optional` fields should have a default value of `Optional.Missing`:
- *
+ * 注意，`Optional`字段应该有一个默认值`Optional.Missing`：
  * ```kotlin
  * @Serializable
- * class DiscordUser(
- *     val id: Long,
- *     val username: String,
- *     val bot: Optional<Boolean?> = Optional.Missing()
+ * class User(
+ *     val id: String
+ *     val isBot: Optional<Boolean?> = Optional.Missing()
  * )
  * ```
  */
@@ -70,20 +66,19 @@ import kotlinx.serialization.encoding.Encoder
 public sealed class Optional<out T> {
 
     /**
-     * The value this optional wraps.
-     * * Both [Missing] and [Null] will always return `null`.
-     * * [Value] will always return a non-null value.
+     * 这个Optional的值。
+     * * [Missing]和[Null]总是返回`null`。
+     * * [Value]总是返回一个非null值。
      */
     public open val value: T?
         get() = throw UnsupportedOperationException("This is implemented in implementation classes")
 
     /**
-     * Represents a field that was not present in the serialized entity.
+     * 表示在序列化实体中不存在的字段。
      */
     public class Missing<out T> private constructor() : Optional<T>() {
-
         /**
-         * The value this optional wraps, always `null`.
+         * 这个Optional的值总为`null`。
          */
         override val value: T?
             get() = null
@@ -104,12 +99,11 @@ public sealed class Optional<out T> {
     }
 
     /**
-     * Represents a field that was assigned null in the serialized entity.
+     * 表示在序列化实体中被赋值为null的字段。
      */
     public class Null<out T> private constructor() : Optional<T?>() {
-
         /**
-         * The value this optional wraps, always `null`.
+         * 这个Optional的值总为`null`。
          */
         override val value: T?
             get() = null
@@ -130,16 +124,16 @@ public sealed class Optional<out T> {
     }
 
     /**
-     * Represents a field that was assigned a non-null value in the serialized entity.
-     * Equality and hashcode is implemented through its [value].
+     * 表示在序列化实体中被赋值为非null值的字段。
+     * 比较和哈希通过其[value]实现。
      *
-     * @param value the value this optional wraps.
+     * @param value 这个Optional包装的值。
      */
     public class Value<T : Any>(override val value: T) : Optional<T>() {
         override fun toString(): String = "Optional.Something(content=$value)"
 
         /**
-         * Destructures this optional to its [value].
+         * 将这个Optional解构为其[value]。
          */
         public operator fun component1(): T = value
 
@@ -158,17 +152,17 @@ public sealed class Optional<out T> {
             else Value(value)
 
         /**
-         * Returns a [Missing] optional of type [T].
+         * 返回类型为[T]的[Missing] Optional。
          */
         public operator fun <T : Any> invoke(): Missing<T> = Missing()
 
         /**
-         * Returns a [Value] optional of type [T] with the given [value].
+         * 返回类型为[T]的带有给定[value]的[Value] Optional。
          */
         public operator fun <T : Any> invoke(value: T): Value<T> = Value(value)
 
         /**
-         * Returns an [Optional] that is either [value] on a non-null [value], or [Null] on `null`.
+         * 返回一个[Optional]，当[value]非null时为[value]，当为`null`时为[Null]。
          */
         @JvmName("invokeNullable")
         public operator fun <T : Any> invoke(value: T?): Optional<T?> = when (value) {
@@ -183,16 +177,16 @@ public sealed class Optional<out T> {
         @OptIn(ExperimentalSerializationApi::class)
         override fun deserialize(decoder: Decoder): Optional<T> {
             /**
-             * let's clear up any inconsistencies, an Optional cannot be <T: Any> and be represented as nullable.
+             * 一个Optional不能既是<T: Any>又表示为可空。
              */
             if (!descriptor.isNullable && !decoder.decodeNotNullMark()) {
                 throw SerializationException("descriptor for ${descriptor.serialName} was not nullable but null mark was encountered")
             }
 
             /**
-             * This is rather ugly; I can't figure out a way to convince the compiler that <T> isn't nullable,
-             * we have personally proven above that the serializer cannot return null so we'll just act as if we
-             * know what we're doing.
+             * 无法想到一种方法让编译器相信<T>不是可空的，
+             * 即使已经亲自证明了上面的序列化器不能返回null，
+             * 所以假装知道在做什么。
              */
             val optional: Optional<T?> = when {
                 !decoder.decodeNotNullMark() -> {
@@ -280,7 +274,7 @@ public inline fun <E : Any, T : Any> Optional<E>.map(mapper: (E) -> T): Optional
 }
 
 /**
- * Applies the [mapper] to the optional if it is a [Value], returns the same optional otherwise.
+ * 如果是[Value]，则对Optional应用[mapper]，否则返回相同的Optional。
  */
 @Suppress("UNCHECKED_CAST")
 public inline fun <E : Any, T : Any> Optional<E>.flatMap(mapper: (E) -> Optional<T>): Optional<T> = when (this) {
