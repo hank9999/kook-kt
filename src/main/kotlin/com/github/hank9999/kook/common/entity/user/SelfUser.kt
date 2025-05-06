@@ -6,7 +6,23 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SelfUser(
-    val user: User,
+    override val id: String,
+    override val username: String,
+    override val nickname: String,
+    @SerialName("identify_num") override val identifyNum: String,
+    override val online: Boolean,
+    override val os: String,
+    override val status: Int,
+    override val avatar: String,
+    @SerialName("vip_avatar") override val vipAvatar: String,
+    override val banner: String,
+    @SerialName("is_vip") override val isVip: Boolean,
+    @SerialName("vip_amp") override val vipAmp: Boolean,
+    override val bot: Boolean,
+    override val roles: List<Int>,
+    @SerialName("is_sys") override val isSys: Boolean,
+
+    // --- user/me 机器人特有字段 ---
     @SerialName("bot_status") val botStatus: Int,
     val tagInfo: TagInfo,
     @SerialName("mobile_verified") val mobileVerified: Boolean,
@@ -15,4 +31,4 @@ data class SelfUser(
     @SerialName("mobile_prefix") val mobilePrefix: String,
     val mobile: String,
     @SerialName("invited_count") val invitedCount: Int
-) : IUser by user
+) : IUser
