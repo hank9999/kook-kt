@@ -38,15 +38,11 @@ object UserSerializer : KSerializer<IUser> {
         val isGuild = jsonObject["joined_at"]?.jsonPrimitive?.longOrNull != null
         val isSelf = jsonObject["bot_status"]?.jsonPrimitive?.booleanOrNull ?: false
 
-        if (isSelf) {
-            return jsonDecoder.json.decodeFromJsonElement(SelfUser.serializer(), jsonElement)
+        return when {
+            isSelf -> jsonDecoder.json.decodeFromJsonElement(SelfUser.serializer(), jsonElement)
+            isGuild && isBot -> jsonDecoder.json.decodeFromJsonElement(GuildBotUser.serializer(), jsonElement)
+            isGuild -> jsonDecoder.json.decodeFromJsonElement(GuildUser.serializer(), jsonElement)
+            else -> jsonDecoder.json.decodeFromJsonElement(User.serializer(), jsonElement)
         }
-        if (isGuild && isBot) {
-            return jsonDecoder.json.decodeFromJsonElement(GuildBotUser.serializer(), jsonElement)
-        }
-        if (isGuild) {
-            return jsonDecoder.json.decodeFromJsonElement(GuildUser.serializer(), jsonElement)
-        }
-        return jsonDecoder.json.decodeFromJsonElement(User.serializer(), jsonElement)
     }
 }
