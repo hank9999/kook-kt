@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GuildUser(
+data class GuildBotUser(
     override val id: String,
     override val username: String,
     override val nickname: String,
@@ -23,6 +23,12 @@ data class GuildUser(
     @SerialName("is_sys") override val isSys: Boolean,
     @SerialName("mobile_verified") override val mobileVerified: Boolean,
     @SerialName("joined_at") override val joinedAt: Long,
-    @SerialName("active_time") override val activeTime: Long
+    @SerialName("active_time") override val activeTime: Long,
+
+    // --- Bot 特有字段 ---
+    @SerialName("bot_status") val botStatus: Int,
+    @SerialName("tag_info") val tagInfo: TagInfo,
+    @SerialName("client_id") val clientId: String,
+    val verified: Boolean,
 ) : IGuildUser
 
