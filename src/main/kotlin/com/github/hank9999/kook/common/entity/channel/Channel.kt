@@ -35,6 +35,7 @@ data class Channel(
     @Serializable
     data class PermissionUser(
         override val user: GuildUser,
+        @SerialName("user_id") override val userId: String,
         override val allow: Int,
         override val deny: Int
     ) : IChannel.IPermissionUser

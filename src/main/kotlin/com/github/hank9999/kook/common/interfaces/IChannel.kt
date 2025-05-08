@@ -28,6 +28,7 @@ interface IChannel {
 
     interface IPermissionUser {
         val user: IUser
+        val userId: String
         val allow: Int
         val deny: Int
     }
