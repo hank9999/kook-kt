@@ -7,6 +7,8 @@ group = "com.github.hank9999"
 version = "0.0.5"
 
 repositories {
+    mavenLocal()
+    maven { url = uri("https://maven.aliyun.com/repository/public") }
     mavenCentral()
 }
 
