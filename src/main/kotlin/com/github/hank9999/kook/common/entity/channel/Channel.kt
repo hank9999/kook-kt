@@ -1,7 +1,8 @@
 package com.github.hank9999.kook.common.entity.channel
 
-import com.github.hank9999.kook.common.entity.user.GuildUser
 import com.github.hank9999.kook.common.interfaces.IChannel
+import com.github.hank9999.kook.common.interfaces.IUser
+import com.github.hank9999.kook.common.serializers.UserSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -34,7 +35,7 @@ data class Channel(
     ) : IChannel.IPermissionOverwrite
     @Serializable
     data class PermissionUser(
-        override val user: GuildUser,
+        @Serializable(with = UserSerializer::class) override val user: IUser,
         @SerialName("user_id") override val userId: String,
         override val allow: Int,
         override val deny: Int
