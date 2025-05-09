@@ -1,12 +1,11 @@
 package com.github.hank9999.kook.common.serializers
 
-import com.github.hank9999.kook.common.entity.user.GuildBotUser
-import com.github.hank9999.kook.common.entity.user.GuildUser
-import com.github.hank9999.kook.common.entity.user.SelfUser
-import com.github.hank9999.kook.common.entity.user.User
-import com.github.hank9999.kook.common.interfaces.IUser
+import com.github.hank9999.kook.common.entity.GuildBotUser
+import com.github.hank9999.kook.common.entity.GuildUser
+import com.github.hank9999.kook.common.entity.SelfUser
+import com.github.hank9999.kook.common.entity.User
+import com.github.hank9999.kook.common.entity.IUser
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -26,7 +25,6 @@ object UserSerializer : KSerializer<IUser> {
             is SelfUser -> encoder.encodeSerializableValue(SelfUser.serializer(), value)
             is GuildUser -> encoder.encodeSerializableValue(GuildUser.serializer(), value)
             is GuildBotUser -> encoder.encodeSerializableValue(GuildBotUser.serializer(), value)
-            else -> throw SerializationException("${value::class.simpleName} is not a valid IUser type for UserSerializer")
         }
     }
 

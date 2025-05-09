@@ -1,4 +1,4 @@
-package com.github.hank9999.kook.common.entity.user
+package com.github.hank9999.kook.common.entity
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
