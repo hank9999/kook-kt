@@ -1,6 +1,5 @@
 package com.github.hank9999.kook.common.entity
 
-import com.github.hank9999.kook.common.entity.channel.Channel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -18,5 +17,5 @@ data class Guild(
     @SerialName("default_channel_id") val defaultChannelId: String,
     @SerialName("welcome_channel_id") val welcomeChannelId: String,
     val roles: List<Role>,
-    val channels: List<Channel>
+    val channels: List<IChannel>
 )

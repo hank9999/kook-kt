@@ -42,8 +42,8 @@ data class Channel(
     @SerialName("limit_amount") override val limitAmount: Int,
     @SerialName("is_category") override val isCategory: Boolean,
     @SerialName("permission_sync") override val permissionSync: Int,
-    @SerialName("permission_overwrites") override val permissionOverwrites: List<PermissionOverwrite>,
-    @SerialName("permission_users") override val permissionUsers: List<PermissionUser>
+    @SerialName("permission_overwrites") override val permissionOverwrites: List<IPermissionOverwrite>,
+    @SerialName("permission_users") override val permissionUsers: List<IPermissionUser>
 ) : IChannel
 
 @Serializable
@@ -64,8 +64,8 @@ data class DetailChannel(
     @SerialName("limit_amount") override val limitAmount: Int,
     @SerialName("is_category") override val isCategory: Boolean,
     @SerialName("permission_sync") override val permissionSync: Int,
-    @SerialName("permission_overwrites") override val permissionOverwrites: List<PermissionOverwrite>,
-    @SerialName("permission_users") override val permissionUsers: List<PermissionUser>,
+    @SerialName("permission_overwrites") override val permissionOverwrites: List<IPermissionOverwrite>,
+    @SerialName("permission_users") override val permissionUsers: List<IPermissionUser>,
 
     // --- channel/view 特有字段 ---
     @SerialName("voice_quality") val voiceQuality: String,
