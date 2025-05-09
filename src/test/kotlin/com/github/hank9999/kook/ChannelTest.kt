@@ -1,8 +1,8 @@
 package com.github.hank9999.kook;
 
-import com.github.hank9999.kook.common.entity.channel.DetailChannel
-import com.github.hank9999.kook.common.entity.user.GuildBotUser
-import com.github.hank9999.kook.common.entity.user.GuildUser
+import com.github.hank9999.kook.common.entity.DetailChannel
+import com.github.hank9999.kook.common.entity.GuildBotUser
+import com.github.hank9999.kook.common.entity.GuildUser
 import com.github.hank9999.kook.common.utils.JSON
 import kotlin.test.Test
 import kotlin.test.assertEquals
