@@ -75,7 +75,7 @@ data class SelfUser(
 
     // --- user/me 机器人特有字段 ---
     @SerialName("bot_status") val botStatus: Int,
-    val tagInfo: TagInfo,
+    @SerialName("tag_info") val tagInfo: TagInfo,
     @SerialName("mobile_verified") val mobileVerified: Boolean,
     @SerialName("client_id") val clientId: String,
     val verified: Boolean,

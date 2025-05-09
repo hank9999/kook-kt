@@ -11,7 +11,7 @@ data class Guild(
     @SerialName("user_id") val userId: String,
     val icon: String,
     @SerialName("notify_type") val notifyType: Int,
-    @SerialName("region") val region: String,
+    val region: String,
     @SerialName("enable_open") val enableOpen: Boolean,
     @SerialName("open_id") val openId: String,
     @SerialName("default_channel_id") val defaultChannelId: String,
