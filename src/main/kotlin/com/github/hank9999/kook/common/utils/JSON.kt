@@ -16,22 +16,22 @@ object JSON {
     }
 
     val JsonElement.String: String
-        get() { return this.jsonPrimitive.content }
+        get() = this.jsonPrimitive.content
 
     val JsonElement.Int: Int
-        get() { return this.jsonPrimitive.int }
+        get() = this.jsonPrimitive.int
 
     val JsonElement.Bool: Boolean
-        get() { return this.jsonPrimitive.boolean }
+        get() = this.jsonPrimitive.boolean
 
     val JsonElement.Long: Long
-        get() { return this.jsonPrimitive.long }
+        get() = this.jsonPrimitive.long
 
     val JsonElement.Double: Double
-        get() { return this.jsonPrimitive.double }
+        get() = this.jsonPrimitive.double
 
     val JsonElement.Float: Float
-        get() { return this.jsonPrimitive.float }
+        get() = this.jsonPrimitive.float
 
     private val json = Json {
         encodeDefaults = false
