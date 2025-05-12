@@ -20,6 +20,7 @@ dependencies {
     implementation("io.ktor:ktor-server-core-jvm:${ktorVersion}")
     implementation("io.ktor:ktor-client-core-jvm:${ktorVersion}")
     implementation("io.github.oshai:kotlin-logging:7.0.7")
+    implementation("org.slf4j:slf4j-api:2.0.17")
     testImplementation(kotlin("test"))
 }
 
