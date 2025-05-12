@@ -19,6 +19,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
     implementation("io.ktor:ktor-server-core-jvm:${ktorVersion}")
     implementation("io.ktor:ktor-client-core-jvm:${ktorVersion}")
+    implementation("io.github.oshai:kotlin-logging:7.0.7")
     testImplementation(kotlin("test"))
 }
 
