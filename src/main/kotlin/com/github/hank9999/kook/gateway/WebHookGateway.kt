@@ -47,18 +47,25 @@ class WebHookGateway : IGateway {
     val json = JSON.defaultJson()
 
     fun initWebhook() {
+        logger.debug {
+            "Webhook: 开始初始化路由, 路径: $path, 压缩: $compress, "
+            "来源验证: ${if (verifyToken.isNotEmpty()) '有' else '无'}, "
+            "加密: ${if (encryptKey.isNotEmpty()) '有' else '无'}"
+        }
         server.application.routing {
             post(path) {
                 val byteContent = call.receiveStream().readBytes()
                 val textContent = if (compress) Zlib.decompress(byteContent) else byteContent.decodeToString()
+                logger.debug { "Webhook: 收到原始消息 $textContent" }
                 val rawElement = json.parseToJsonElement(textContent)
                 val element = if (encryptKey.isNotEmpty()) {
-                    val decryptJson = CryptUtils.decrypt(rawElement["encrypt"].String, encryptKey)
+                    val decryptJson = CryptUtils.decrypt(rawElement["encrypt"].String, encryptKey).also {
+                        logger.debug { "Webhook: 解密后内容 $it" }
+                    }
                     json.parseToJsonElement(decryptJson)
                 } else {
                     rawElement
                 }
-
             }
         }
     }
