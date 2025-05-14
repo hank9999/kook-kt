@@ -48,8 +48,8 @@ class WebHookGateway : IGateway {
 
     fun initWebhook() {
         logger.debug {
-            "Webhook: 开始初始化路由, 路径: $path, 压缩: $compress, "
-            "来源验证: ${if (verifyToken.isNotEmpty()) '有' else '无'}, "
+            "Webhook: 开始初始化路由, 路径: $path, 压缩: $compress, " +
+            "来源验证: ${if (verifyToken.isNotEmpty()) '有' else '无'}, " +
             "加密: ${if (encryptKey.isNotEmpty()) '有' else '无'}"
         }
         server.application.routing {
