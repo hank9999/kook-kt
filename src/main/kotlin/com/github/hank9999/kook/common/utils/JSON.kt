@@ -11,8 +11,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
 
 object JSON {
-    operator fun JsonElement.get(i: String): JsonElement {
-        return jsonObject[i]!!
+    operator fun JsonElement.get(i: String): JsonElement? {
+        return jsonObject[i]
     }
 
     val JsonElement.String: String
