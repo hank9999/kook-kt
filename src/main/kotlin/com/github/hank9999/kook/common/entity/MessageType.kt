@@ -26,7 +26,7 @@ enum class MessageType(val type: Int) {
         fun fromValue(value: Int): MessageType = entries.firstOrNull { it.type == value } ?: UNKNOWN
     }
 
-    object MessageTypesSerializer : KSerializer<MessageType> {
+    internal object MessageTypesSerializer : KSerializer<MessageType> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("com.github.hank9999.kook.common.entity.MessageType", PrimitiveKind.INT)
         override fun serialize(encoder: Encoder, value: MessageType) = encoder.encodeInt(value.type)
         override fun deserialize(decoder: Decoder): MessageType = MessageType.fromValue(decoder.decodeInt())
