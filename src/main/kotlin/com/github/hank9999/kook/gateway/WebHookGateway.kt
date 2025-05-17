@@ -6,9 +6,11 @@ import com.github.hank9999.kook.common.utils.Zlib
 import com.github.hank9999.kook.common.utils.JSON.String
 import com.github.hank9999.kook.common.utils.JSON.get
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.request.receiveStream
+import io.ktor.server.response.respond
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.SupervisorJob
@@ -59,13 +61,19 @@ class WebHookGateway : IGateway {
                 logger.debug { "Webhook: 收到原始消息 $textContent" }
                 val rawElement = json.parseToJsonElement(textContent)
                 val element = if (encryptKey.isNotEmpty()) {
-                    val decryptJson = CryptUtils.decrypt(rawElement["encrypt"].String, encryptKey).also {
+                    val encryptData = rawElement["encrypt"]?.String ?: run {
+                        logger.warn { "Webhook: 未找到加密数据" }
+                        call.respond(HttpStatusCode.OK)
+                        return@post
+                    }
+                    val decryptJson = CryptUtils.decrypt(encryptData, encryptKey).also {
                         logger.debug { "Webhook: 解密后内容 $it" }
                     }
                     json.parseToJsonElement(decryptJson)
                 } else {
                     rawElement
                 }
+                call.respond(HttpStatusCode.OK)
             }
         }
     }
