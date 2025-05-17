@@ -23,7 +23,7 @@ enum class SignalType(val code: Int) {
     /** server->client 服务端确认会话恢复请求 */
     SERVER_RESUME_ACK(6),
     /** 未知 */
-    UNKNOWN(-1);
+    @Transient UNKNOWN(-1);
 
     companion object {
         fun fromCode(value: Int): SignalType = entries.firstOrNull { it.code == value } ?: UNKNOWN
