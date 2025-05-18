@@ -24,8 +24,8 @@ sealed class Event {
     object DeserializationStrategy : KDeserializationStrategy<Event> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("com.github.hank9999.kook.gateway.Event") {
             element<SignalType>("s")
-            element<Int?>("sn")
-            element<JsonElement?>("d")
+            element<Int>("sn", isOptional = true)
+            element<JsonElement>("d", isOptional = true)
         }
 
         override fun deserialize(decoder: Decoder): Event = decoder.decodeStructure(descriptor) {
@@ -38,8 +38,8 @@ sealed class Event {
                 when (val index = decodeElementIndex(descriptor)) {
                     CompositeDecoder.DECODE_DONE -> break
                     0 -> s = decodeSerializableElement(descriptor, index, SignalType.serializer())
-                    1 -> sn = decodeNullableSerializableElement(descriptor, index, Int.serializer().nullable)
-                    2 -> d = decodeNullableSerializableElement(descriptor, index, JsonElement.serializer().nullable)
+                    1 -> sn = decodeNullableSerializableElement(descriptor, index, Int.serializer())
+                    2 -> d = decodeNullableSerializableElement(descriptor, index, JsonElement.serializer())
                     else -> throw SerializationException("Unknown index $index in Event deserialization")
                 }
             }
