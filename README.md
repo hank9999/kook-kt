@@ -12,3 +12,4 @@
 ## LICENSE
 本仓库采用 MIT 开源协议  
 `Optional.kt` 来自于 [kordlib/kord](https://github.com/kordlib/kord/) 项目，版权归原项目所有，遵循 MIT 授权协议，特此感谢。  
+本项目框架设计参考了 Kord、Kook.Net、khl.py, 特此感谢
