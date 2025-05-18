@@ -11,7 +11,7 @@ import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
-import kotlinx.serialization.descriptors.nullable
+import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.decodeStructure
@@ -23,9 +23,9 @@ sealed class Event {
 
     object DeserializationStrategy : KDeserializationStrategy<Event> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("com.github.hank9999.kook.gateway.Event") {
-            element("s", SignalType.serializer().descriptor)
-            element("sn", Int.serializer().descriptor.nullable)
-            element("d", JsonElement.serializer().descriptor.nullable)
+            element<SignalType>("s")
+            element<Int?>("sn")
+            element<JsonElement?>("d")
         }
 
         override fun deserialize(decoder: Decoder): Event = decoder.decodeStructure(descriptor) {
