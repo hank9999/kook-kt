@@ -5,27 +5,33 @@ import com.github.hank9999.kook.common.utils.JSON.Int
 import com.github.hank9999.kook.common.utils.JSON.String
 import com.github.hank9999.kook.common.utils.JSON.get
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.DeserializationStrategy as KDeserializationStrategy
 
+@Serializable(with = Event.EventSerializer::class)
 sealed class Event {
     abstract val sn: Int?
 
-    object DeserializationStrategy : KDeserializationStrategy<Event> {
+    object EventSerializer : KSerializer<Event> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("com.github.hank9999.kook.gateway.Event") {
             element<SignalType>("s")
             element<Int>("sn", isOptional = true)
             element<JsonElement>("d", isOptional = true)
+        }
+
+        override fun serialize(encoder: Encoder, value: Event) {
+            throw SerializationException("This object cannot be serialized.")
         }
 
         override fun deserialize(decoder: Decoder): Event = decoder.decodeStructure(descriptor) {
