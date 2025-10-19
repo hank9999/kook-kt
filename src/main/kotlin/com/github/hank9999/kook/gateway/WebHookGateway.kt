@@ -5,6 +5,9 @@ import com.github.hank9999.kook.common.utils.JSON
 import com.github.hank9999.kook.common.utils.Zlib
 import com.github.hank9999.kook.common.utils.JSON.String
 import com.github.hank9999.kook.common.utils.JSON.get
+import com.github.hank9999.kook.gateway.entity.ChallengeEvent
+import com.github.hank9999.kook.gateway.entity.Event
+import com.github.hank9999.kook.gateway.entity.MessageEvent
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.engine.ApplicationEngine
@@ -72,6 +75,13 @@ class WebHookGateway : IGateway {
                     json.parseToJsonElement(decryptJson)
                 } else {
                     rawElement
+                }
+
+                val event = json.decodeFromJsonElement(Event.EventSerializer, element)
+                if (event is MessageEvent && event.verifyToken != verifyToken) {
+                    logger.warn { "Webhook: 来自不可信来源, 来源 verifyToken: ${event.verifyToken}" }
+                    call.respond(HttpStatusCode.Unauthorized)
+                    return@post
                 }
                 call.respond(HttpStatusCode.OK)
             }
