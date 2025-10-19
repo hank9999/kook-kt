@@ -8,6 +8,7 @@ import com.github.hank9999.kook.common.utils.JSON.get
 import com.github.hank9999.kook.gateway.entity.ChallengeEvent
 import com.github.hank9999.kook.gateway.entity.Event
 import com.github.hank9999.kook.gateway.entity.MessageEvent
+import com.github.hank9999.kook.gateway.entity.responses.ChallengeResp
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.engine.ApplicationEngine
@@ -81,6 +82,12 @@ class WebHookGateway : IGateway {
                 if (event is MessageEvent && event.verifyToken != verifyToken) {
                     logger.warn { "Webhook: 来自不可信来源, 来源 verifyToken: ${event.verifyToken}" }
                     call.respond(HttpStatusCode.Unauthorized)
+                    return@post
+                }
+
+                if (event is ChallengeEvent) {
+                    logger.debug { "Webhook: 收到 challenge 事件, challenge: ${event.challenge}" }
+                    call.respond(HttpStatusCode.OK, ChallengeResp(event.challenge))
                     return@post
                 }
                 call.respond(HttpStatusCode.OK)
