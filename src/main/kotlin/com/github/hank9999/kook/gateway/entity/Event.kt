@@ -1,4 +1,4 @@
-package com.github.hank9999.kook.gateway
+package com.github.hank9999.kook.gateway.entity
 import com.github.hank9999.kook.common.entity.ChannelPrivacyType
 import com.github.hank9999.kook.common.entity.MessageType
 import com.github.hank9999.kook.common.utils.JSON.Int
@@ -24,7 +24,7 @@ sealed class Event {
     abstract val sn: Int?
 
     object EventSerializer : KSerializer<Event> {
-        override val descriptor: SerialDescriptor = buildClassSerialDescriptor("com.github.hank9999.kook.gateway.Event") {
+        override val descriptor: SerialDescriptor = buildClassSerialDescriptor("com.github.hank9999.kook.gateway.entity.Event") {
             element<SignalType>("s")
             element<Int>("sn", isOptional = true)
             element<JsonElement>("d", isOptional = true)

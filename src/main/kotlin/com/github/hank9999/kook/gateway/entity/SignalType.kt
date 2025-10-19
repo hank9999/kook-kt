@@ -1,6 +1,7 @@
-package com.github.hank9999.kook.gateway
-import kotlinx.serialization.Serializable
+package com.github.hank9999.kook.gateway.entity
+
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -30,7 +31,8 @@ enum class SignalType(val code: Int) {
     }
 
     internal object SignalTypeSerializer : KSerializer<SignalType> {
-        override val descriptor = PrimitiveSerialDescriptor("com.github.hank9999.kook.gateway.SignalType", PrimitiveKind.INT)
+        override val descriptor =
+            PrimitiveSerialDescriptor("com.github.hank9999.kook.gateway.SignalType", PrimitiveKind.INT)
         override fun serialize(encoder: Encoder, value: SignalType) = encoder.encodeInt(value.code)
         override fun deserialize(decoder: Decoder): SignalType = SignalType.fromCode(decoder.decodeInt())
     }

@@ -1,8 +1,8 @@
 package com.github.hank9999.kook
 
 import com.github.hank9999.kook.common.utils.JSON
-import com.github.hank9999.kook.gateway.ChallengeEvent
-import com.github.hank9999.kook.gateway.Event
+import com.github.hank9999.kook.gateway.entity.ChallengeEvent
+import com.github.hank9999.kook.gateway.entity.Event
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
