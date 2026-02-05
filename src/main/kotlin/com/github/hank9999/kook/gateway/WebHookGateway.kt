@@ -35,7 +35,7 @@ class WebHookGateway : IGateway {
         encryptKey: String = ""
     ) {
         this.coroutineContext = SupervisorJob() + dispatcher
-        this.events = events
+        this._events = events
         this.server = server
         this.path = path
         this.compress = compress
@@ -45,7 +45,8 @@ class WebHookGateway : IGateway {
 
     private val server: EmbeddedServer<ApplicationEngine, ApplicationEngine.Configuration>
     override val coroutineContext: CoroutineContext
-    override val events: SharedFlow<Event>
+    private val _events: MutableSharedFlow<Event>
+    override val events: SharedFlow<Event> get() = _events
     private val path: String
     private val compress: Boolean
     private val verifyToken: String
@@ -90,6 +91,7 @@ class WebHookGateway : IGateway {
                     call.respond(HttpStatusCode.OK, ChallengeResp(event.challenge))
                     return@post
                 }
+                _events.emit(event)
                 call.respond(HttpStatusCode.OK)
             }
         }
