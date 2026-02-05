@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 /**
  * 服务器事件数据
- * 用于 updated_guild 和 deleted_guild 事件
+ * 用于 updated_guild (channel_type=GROUP) 和 deleted_guild 事件
  */
 @Serializable
 data class GuildEventData(
@@ -27,6 +27,17 @@ data class GuildEventData(
     val level: Int = 0,
     val status: Int = 0,
     @SerialName("auto_delete_time") val autoDeleteTime: String? = null,
+)
+
+/**
+ * 服务器自身更新事件数据
+ * 用于 updated_guild (channel_type=PERSON) 事件
+ * 当 Bot 自己在某服务器中的昵称变更时触发
+ */
+@Serializable
+data class GuildSelfUpdateEventData(
+    val id: String,
+    @SerialName("my_nickname") val myNickname: String,
 )
 
 /**

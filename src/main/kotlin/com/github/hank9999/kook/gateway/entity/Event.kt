@@ -213,7 +213,13 @@ sealed class Event {
                 SystemEventType.GUILD_MEMBER_OFFLINE -> MemberOfflineEvent(json.decodeFromJsonElement(body), context, sn)
 
                 // 服务器事件
-                SystemEventType.UPDATED_GUILD -> GuildUpdatedEvent(json.decodeFromJsonElement(body), context, sn)
+                SystemEventType.UPDATED_GUILD -> {
+                    when (context.channelType) {
+                        ChannelPrivacyType.GROUP -> GuildUpdatedEvent(json.decodeFromJsonElement(body), context, sn)
+                        ChannelPrivacyType.PERSON -> GuildSelfUpdatedEvent(json.decodeFromJsonElement(body), context, sn)
+                        else -> UnknownSystemEvent(extraType, body, context, sn)
+                    }
+                }
                 SystemEventType.DELETED_GUILD -> GuildDeletedEvent(json.decodeFromJsonElement(body), context, sn)
 
                 // 角色事件
@@ -346,6 +352,7 @@ data class MemberOfflineEvent(val data: MemberOnlineStatusEventData, override va
 
 data class GuildUpdatedEvent(val data: GuildEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class GuildDeletedEvent(val data: GuildEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
+data class GuildSelfUpdatedEvent(val data: GuildSelfUpdateEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class BlockListAddedEvent(val data: BlockListAddedEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class BlockListDeletedEvent(val data: BlockListDeletedEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class EmojiAddedEvent(val data: EmojiEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
