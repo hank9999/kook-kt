@@ -19,6 +19,14 @@ data class GuildEventData(
     @SerialName("open_id") val openId: Int = 0,
     @SerialName("default_channel_id") val defaultChannelId: String = "",
     @SerialName("welcome_channel_id") val welcomeChannelId: String = "",
+    val banner: String = "",
+    @SerialName("banner_status") val bannerStatus: Int = 0,
+    @SerialName("custom_id") val customId: String = "",
+    @SerialName("boost_num") val boostNum: Int = 0,
+    @SerialName("buffer_boost_num") val bufferBoostNum: Int = 0,
+    val level: Int = 0,
+    val status: Int = 0,
+    @SerialName("auto_delete_time") val autoDeleteTime: String? = null,
 )
 
 /**
@@ -50,4 +58,5 @@ data class BlockListDeletedEventData(
 data class EmojiEventData(
     val id: String,
     val name: String,
+    @SerialName("emoji_type") val emojiType: Int = 0,
 )

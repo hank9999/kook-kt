@@ -190,6 +190,7 @@ sealed class Event {
 
                 // 消息操作事件
                 SystemEventType.UPDATED_MESSAGE -> MessageUpdatedEvent(json.decodeFromJsonElement(body), context, sn)
+                SystemEventType.EMBEDS_APPEND -> EmbedsAppendEvent(json.decodeFromJsonElement(body), context, sn)
                 SystemEventType.DELETED_MESSAGE -> MessageDeletedEvent(json.decodeFromJsonElement(body), context, sn)
                 SystemEventType.PINNED_MESSAGE -> MessagePinnedEvent(json.decodeFromJsonElement(body), context, sn)
                 SystemEventType.UNPINNED_MESSAGE -> MessageUnpinnedEvent(json.decodeFromJsonElement(body), context, sn)
@@ -197,7 +198,12 @@ sealed class Event {
                 // 频道事件
                 SystemEventType.ADDED_CHANNEL -> ChannelAddedEvent(json.decodeFromJsonElement(Channel.serializer(), body), context, sn)
                 SystemEventType.UPDATED_CHANNEL -> ChannelUpdatedEvent(json.decodeFromJsonElement(Channel.serializer(), body), context, sn)
+                SystemEventType.UPDATED_SERVER_TYPE -> ChannelServerTypeUpdatedEvent(json.decodeFromJsonElement(Channel.serializer(), body), context, sn)
+                SystemEventType.SORT_CHANNEL -> ChannelSortedEvent(json.decodeFromJsonElement(body), context, sn)
                 SystemEventType.DELETED_CHANNEL -> ChannelDeletedEvent(json.decodeFromJsonElement(body), context, sn)
+                SystemEventType.BATCH_ADDED_CHANNEL -> ChannelBatchAddedEvent(json.decodeFromJsonElement(body), context, sn)
+                SystemEventType.BATCH_UPDATED_CHANNEL -> ChannelBatchUpdatedEvent(json.decodeFromJsonElement(body), context, sn)
+                SystemEventType.BATCH_DELETED_CHANNEL -> ChannelBatchDeletedEvent(json.decodeFromJsonElement(body), context, sn)
 
                 // 服务器成员事件
                 SystemEventType.JOINED_GUILD -> MemberJoinedGuildEvent(json.decodeFromJsonElement(body), context, sn)
@@ -222,11 +228,15 @@ sealed class Event {
                 // 表情事件
                 SystemEventType.ADDED_EMOJI -> EmojiAddedEvent(json.decodeFromJsonElement(body), context, sn)
                 SystemEventType.REMOVED_EMOJI -> EmojiRemovedEvent(json.decodeFromJsonElement(body), context, sn)
+                SystemEventType.DELETED_EMOJI -> EmojiDeletedEvent(json.decodeFromJsonElement(body), context, sn)
                 SystemEventType.UPDATED_EMOJI -> EmojiUpdatedEvent(json.decodeFromJsonElement(body), context, sn)
 
                 // 语音事件
                 SystemEventType.JOINED_CHANNEL -> UserJoinedVoiceChannelEvent(json.decodeFromJsonElement(body), context, sn)
                 SystemEventType.EXITED_CHANNEL -> UserExitedVoiceChannelEvent(json.decodeFromJsonElement(body), context, sn)
+                SystemEventType.LIVE_STATUS_CHANGED -> LiveStatusChangedEvent(json.decodeFromJsonElement(body), context, sn)
+                SystemEventType.ADD_GUILD_MUTE -> GuildMuteAddedEvent(json.decodeFromJsonElement(body), context, sn)
+                SystemEventType.DELETE_GUILD_MUTE -> GuildMuteDeletedEvent(json.decodeFromJsonElement(body), context, sn)
 
                 // 私聊事件
                 SystemEventType.UPDATED_PRIVATE_MESSAGE -> DirectMessageUpdatedEvent(json.decodeFromJsonElement(body), context, sn)
@@ -308,12 +318,21 @@ sealed class SystemEvent : MessageEvent() {
 data class ReactionAddedEvent(val data: ReactionEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class ReactionDeletedEvent(val data: ReactionEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class MessageUpdatedEvent(val data: MessageUpdatedEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
+data class EmbedsAppendEvent(val data: EmbedsAppendEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class MessageDeletedEvent(val data: MessageDeletedEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class MessagePinnedEvent(val data: MessagePinEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class MessageUnpinnedEvent(val data: MessagePinEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class ChannelAddedEvent(val data: IChannel, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class ChannelUpdatedEvent(val data: IChannel, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
+data class ChannelServerTypeUpdatedEvent(val data: IChannel, override val context: SystemEventContext, override val sn: Int?) :
+    SystemEvent()
+data class ChannelSortedEvent(val data: ChannelSortEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class ChannelDeletedEvent(val data: ChannelDeletedEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
+data class ChannelBatchAddedEvent(val data: List<Channel>, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
+data class ChannelBatchUpdatedEvent(val data: ChannelBatchUpdateEventData, override val context: SystemEventContext, override val sn: Int?) :
+    SystemEvent()
+data class ChannelBatchDeletedEvent(val data: List<ChannelBatchDeleteEventItemData>, override val context: SystemEventContext, override val sn: Int?) :
+    SystemEvent()
 
 // ============ 服务器成员事件 ============
 
@@ -331,6 +350,7 @@ data class BlockListAddedEvent(val data: BlockListAddedEventData, override val c
 data class BlockListDeletedEvent(val data: BlockListDeletedEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class EmojiAddedEvent(val data: EmojiEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class EmojiRemovedEvent(val data: EmojiEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
+data class EmojiDeletedEvent(val data: EmojiEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class EmojiUpdatedEvent(val data: EmojiEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 
 // ============ 角色事件 ============
@@ -350,6 +370,9 @@ data class DirectReactionDeletedEvent(val data: DirectReactionEventData, overrid
 
 data class UserJoinedVoiceChannelEvent(val data: UserJoinedVoiceEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 data class UserExitedVoiceChannelEvent(val data: UserExitedVoiceEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
+data class LiveStatusChangedEvent(val data: LiveStatusChangeEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
+data class GuildMuteAddedEvent(val data: GuildMuteDeafEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
+data class GuildMuteDeletedEvent(val data: GuildMuteDeafEventData, override val context: SystemEventContext, override val sn: Int?) : SystemEvent()
 
 // ============ 用户事件 ============
 
