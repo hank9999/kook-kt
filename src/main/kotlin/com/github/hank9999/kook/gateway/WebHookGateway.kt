@@ -20,7 +20,10 @@ import io.ktor.server.routing.routing
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
 
 class WebHookGateway : IGateway {
     private val logger = KotlinLogging.logger {}
@@ -47,6 +50,8 @@ class WebHookGateway : IGateway {
     override val coroutineContext: CoroutineContext
     private val _events: MutableSharedFlow<Event>
     override val events: SharedFlow<Event> get() = _events
+    private val _ping = MutableStateFlow<Duration?>(null)
+    override val ping: StateFlow<Duration?> get() = _ping
     private val path: String
     private val compress: Boolean
     private val verifyToken: String
@@ -95,5 +100,13 @@ class WebHookGateway : IGateway {
                 call.respond(HttpStatusCode.OK)
             }
         }
+    }
+
+    override suspend fun start() {
+        initWebhook()
+    }
+
+    override suspend fun stop() {
+        _ping.value = null
     }
 }
