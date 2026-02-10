@@ -64,4 +64,39 @@ class HandshakeHandlerTest {
         handler.clearSession()
         assertNull(handler.sessionId)
     }
+
+    /** 验证收到 ResumeAck（信令6）携带 session_id 时恢复成功并更新 sessionId */
+    @Test
+    fun resumeAckWithSessionIdCompletesSuccessfully() = runTest {
+        val flow = MutableSharedFlow<Event>(replay = 1)
+        val handler = HandshakeHandler(flow, UnconfinedTestDispatcher(testScheduler))
+        handler.attach()
+
+        val awaiter = handler.newHelloAwaiter()
+        flow.emit(json.decodeFromString("""{"s":6,"d":{"session_id":"resumed-session"}}"""))
+
+        assertTrue(withTimeout(2.seconds) { awaiter.await() })
+        assertEquals("resumed-session", handler.sessionId)
+    }
+
+    /** 验证收到 ResumeAck（信令6）不携带 session_id 时恢复成功且保留原 sessionId */
+    @Test
+    fun resumeAckWithoutSessionIdPreservesExistingSession() = runTest {
+        val flow = MutableSharedFlow<Event>(replay = 1)
+        val handler = HandshakeHandler(flow, UnconfinedTestDispatcher(testScheduler))
+        handler.attach()
+
+        // 先通过信令1建立初始 session
+        val firstAwaiter = handler.newHelloAwaiter()
+        flow.emit(json.decodeFromString("""{"s":1,"d":{"code":0,"session_id":"original"}}"""))
+        assertTrue(withTimeout(2.seconds) { firstAwaiter.await() })
+        assertEquals("original", handler.sessionId)
+
+        // 收到不携带 session_id 的 ResumeAck
+        val resumeAwaiter = handler.newHelloAwaiter()
+        flow.emit(json.decodeFromString("""{"s":6,"d":{}}"""))
+
+        assertTrue(withTimeout(2.seconds) { resumeAwaiter.await() })
+        assertEquals("original", handler.sessionId)
+    }
 }
