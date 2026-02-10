@@ -331,7 +331,7 @@ public class WebSocketGateway(
                 }
         } finally {
             if (isRunning() && !reconnectSignal.isCompleted) {
-                markReconnect(ReconnectMode.RESUME, closeSocket = false)
+                markReconnect(ReconnectMode.RESUME, shouldCloseSocket = false)
             }
         }
     }
@@ -349,6 +349,10 @@ public class WebSocketGateway(
                 logger.warn { "sequence buffer overflow (bufferLimit exceeded), requesting resume" }
                 requestReconnect(fullReset = false)
             }
+            is SequenceHandler.ProcessResult.BufferTimeout -> {
+                logger.warn { "sequence buffer timeout (missing sn not received within timeout), requesting resume" }
+                requestReconnect(fullReset = false)
+            }
         }
     }
 
@@ -359,14 +363,14 @@ public class WebSocketGateway(
      */
     private suspend fun requestReconnect(fullReset: Boolean) {
         val mode = if (fullReset) ReconnectMode.FULL else ReconnectMode.RESUME
-        markReconnect(mode, closeSocket = true)
+        markReconnect(mode, shouldCloseSocket = true)
     }
 
     /**
      * 标记重连并触发信号
      * FULL 模式优先级高于 RESUME，一旦标记为 FULL 不会被降级
      */
-    private suspend fun markReconnect(mode: ReconnectMode, closeSocket: Boolean) {
+    private suspend fun markReconnect(mode: ReconnectMode, shouldCloseSocket: Boolean) {
         val shouldReconnect = stateMutex.withLock {
             if (state !is State.Running) {
                 false
@@ -383,7 +387,7 @@ public class WebSocketGateway(
         if (!shouldReconnect) return
 
         reconnectSignal.complete(Unit)
-        if (closeSocket) {
+        if (shouldCloseSocket) {
             closeSocket()
         }
     }

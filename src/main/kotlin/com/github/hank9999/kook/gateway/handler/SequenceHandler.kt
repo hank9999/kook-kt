@@ -3,6 +3,10 @@ package com.github.hank9999.kook.gateway.handler
 import com.github.hank9999.kook.gateway.entity.Event
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 
 /**
  * 序列号处理器
@@ -11,6 +15,8 @@ import kotlinx.coroutines.sync.withLock
  */
 internal class SequenceHandler(
     private val bufferLimit: Int = 50,
+    private val bufferTimeout: Duration = 60.seconds,
+    private val timeSource: TimeSource = TimeSource.Monotonic,
 ) {
 
     /** 事件处理结果 */
@@ -19,6 +25,8 @@ internal class SequenceHandler(
         data class Events(val events: List<Event>) : ProcessResult()
         /** 缓冲区溢出，需要触发重连 */
         data object BufferOverflow : ProcessResult()
+        /** 缓冲区超时，缺失的序列号长时间未到达，需要触发 resume 重连 */
+        data object BufferTimeout : ProcessResult()
     }
 
     private val lock = Mutex()
@@ -27,6 +35,8 @@ internal class SequenceHandler(
     private var maxSn: Int = 0
     /** 乱序事件缓冲区，按序列号排序 */
     private val buffer = sortedMapOf<Int, Event>()
+    /** 缓冲区首次出现缺号的时刻，buffer 清空时重置 */
+    private var bufferSince: TimeMark? = null
 
     /** 当前已处理的最大序列号 */
     val value: Int
@@ -60,6 +70,11 @@ internal class SequenceHandler(
                 if (buffer.size > bufferLimit) {
                     return@withLock ProcessResult.BufferOverflow
                 }
+                if (bufferSince == null) {
+                    bufferSince = timeSource.markNow()
+                } else if (bufferSince!!.elapsedNow() > bufferTimeout) {
+                    return@withLock ProcessResult.BufferTimeout
+                }
                 return@withLock ProcessResult.Events(emptyList())
             }
 
@@ -75,6 +90,10 @@ internal class SequenceHandler(
                 maxSn = nextSn
             }
 
+            if (buffer.isEmpty()) {
+                bufferSince = null
+            }
+
             ProcessResult.Events(readyEvents)
         }
     }
@@ -84,6 +103,7 @@ internal class SequenceHandler(
         lock.withLock {
             maxSn = 0
             buffer.clear()
+            bufferSince = null
         }
     }
 }

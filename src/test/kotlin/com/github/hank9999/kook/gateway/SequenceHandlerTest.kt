@@ -8,6 +8,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TestTimeSource
 
 /** SequenceHandler 序列号处理器测试 */
 class SequenceHandlerTest {
@@ -66,5 +68,56 @@ class SequenceHandlerTest {
         // sn=5 到达，buffer 大小超过 limit=3，触发溢出
         val overflow = handler.process(ResumeAckEvent(5))
         assertIs<ProcessResult.BufferOverflow>(overflow)
+    }
+
+    /** 验证缺号超时后返回 BufferTimeout 信号 */
+    @Test
+    fun sequenceHandlerReturnsBufferTimeoutWhenMissingSnNotReceived() = runTest {
+        val timeSource = TestTimeSource()
+        val handler = SequenceHandler(bufferTimeout = 10.seconds, timeSource = timeSource)
+
+        // sn=2 到达但缺 sn=1，进入缓冲区，记录 bufferSince
+        val buffered = handler.process(ResumeAckEvent(2))
+        assertIs<ProcessResult.Events>(buffered)
+        assertTrue(buffered.events.isEmpty())
+
+        // 推进时间但未超时，仍正常缓冲
+        timeSource += 9.seconds
+        val stillBuffered = handler.process(ResumeAckEvent(3))
+        assertIs<ProcessResult.Events>(stillBuffered)
+        assertTrue(stillBuffered.events.isEmpty())
+
+        // 推进时间超过 timeout，触发超时
+        timeSource += 2.seconds
+        val timeout = handler.process(ResumeAckEvent(4))
+        assertIs<ProcessResult.BufferTimeout>(timeout)
+    }
+
+    /** 验证缺号补齐后 bufferSince 重置，不会误触发超时 */
+    @Test
+    fun sequenceHandlerResetsBufferSinceWhenGapFilled() = runTest {
+        val timeSource = TestTimeSource()
+        val handler = SequenceHandler(bufferTimeout = 10.seconds, timeSource = timeSource)
+
+        // sn=2 缓冲
+        handler.process(ResumeAckEvent(2))
+        timeSource += 8.seconds
+
+        // sn=1 到达，缺号补齐，释放 sn=1,2，bufferSince 应重置
+        val filled = handler.process(ResumeAckEvent(1))
+        assertIs<ProcessResult.Events>(filled)
+        assertEquals(listOf(1, 2), filled.events.mapNotNull { it.sn })
+
+        // 新的缺号出现（sn=4，缺 sn=3）
+        timeSource += 8.seconds
+        val newGap = handler.process(ResumeAckEvent(4))
+        assertIs<ProcessResult.Events>(newGap)
+        assertTrue(newGap.events.isEmpty())
+
+        // 再过 8 秒（距新缺号仅 8 秒，未超过 10 秒），不应超时
+        timeSource += 8.seconds
+        val notTimeout = handler.process(ResumeAckEvent(5))
+        assertIs<ProcessResult.Events>(notTimeout)
+        assertTrue(notTimeout.events.isEmpty())
     }
 }
