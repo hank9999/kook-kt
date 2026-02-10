@@ -80,7 +80,7 @@ sealed class Event {
                 SignalType.SERVER_HANDSHAKE_ACK -> HandshakeAckEvent(sn = sn, data = d)
                 SignalType.SERVER_PONG -> PongEvent(sn = sn)
                 SignalType.SERVER_REQUEST_RECONNECT -> ReconnectEvent(sn = sn, data = d)
-                SignalType.SERVER_RESUME_ACK -> ResumeAckEvent(sn = sn)
+                SignalType.SERVER_RESUME_ACK -> ResumeAckEvent(sn = sn, data = d)
                 else -> UnknownEvent(signalType = s, sn = sn, data = d)
             }
         }
@@ -416,8 +416,16 @@ data class ReconnectEvent(
     val data: JsonElement? = null,
 ) : Event()
 
+/** 信令 5 携带的重连负载，包含服务端下发的错误码和错误信息 */
+@Serializable
+data class ReconnectPayload(
+    val code: Int? = null,
+    val err: String? = null,
+)
+
 data class ResumeAckEvent(
     override val sn: Int? = null,
+    val data: JsonElement? = null,
 ) : Event()
 
 data class UnknownEvent(

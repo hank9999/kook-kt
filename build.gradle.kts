@@ -19,8 +19,13 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
     implementation("io.ktor:ktor-server-core-jvm:${ktorVersion}")
     implementation("io.ktor:ktor-client-core-jvm:${ktorVersion}")
+    implementation("io.ktor:ktor-client-okhttp-jvm:${ktorVersion}")
+    implementation("io.ktor:ktor-client-websockets-jvm:${ktorVersion}")
+    implementation("io.ktor:ktor-client-content-negotiation-jvm:${ktorVersion}")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:${ktorVersion}")
     implementation("io.github.oshai:kotlin-logging:7.0.7")
     implementation("org.slf4j:slf4j-api:2.0.17")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation(kotlin("test"))
 }
 
