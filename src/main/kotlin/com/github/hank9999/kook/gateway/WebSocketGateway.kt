@@ -29,15 +29,12 @@ import io.ktor.websocket.Frame
 import io.ktor.websocket.readBytes
 import io.ktor.websocket.readText
 import io.ktor.websocket.close
-import io.ktor.websocket.send
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -106,6 +103,7 @@ public class WebSocketGateway(
 
     private val sequenceHandler = SequenceHandler()
     private val handshakeHandler = HandshakeHandler(events)
+    private val reconnectHandler: ReconnectHandler
     private val heartbeatHandler: HeartbeatHandler
 
     private var socket: DefaultClientWebSocketSession? = null
@@ -130,7 +128,7 @@ public class WebSocketGateway(
     )
 
     init {
-        ReconnectHandler(events) { event ->
+        reconnectHandler = ReconnectHandler(events) { event ->
             val payload = event.data?.let {
                 JSON.defaultJson().decodeFromJsonElement<ReconnectPayload>(it)
             }
@@ -211,7 +209,7 @@ public class WebSocketGateway(
         }
 
         _ping.value = null
-        heartbeatHandler.stop()
+        cancelHandlers()
         closeSocket()
     }
 
@@ -221,10 +219,17 @@ public class WebSocketGateway(
             state = State.Stopped
             reconnectMode = ReconnectMode.NONE
         }
-        heartbeatHandler.stop()
+        cancelHandlers()
         _ping.value = null
         reconnectSignal.complete(Unit)
         closeSocket()
+    }
+
+    /** 取消所有事件处理器的协程作用域 */
+    private fun cancelHandlers() {
+        handshakeHandler.cancel()
+        heartbeatHandler.cancel()
+        reconnectHandler.cancel()
     }
 
     /** 初始化启动状态，重置所有处理器和重试策略 */
@@ -241,6 +246,10 @@ public class WebSocketGateway(
         resumeRetry.reset()
         reconnectSignal = CompletableDeferred()
         _ping.value = null
+
+        handshakeHandler.attach()
+        heartbeatHandler.attach()
+        reconnectHandler.attach()
     }
 
     /**

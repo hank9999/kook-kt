@@ -26,6 +26,7 @@ class HandshakeHandlerTest {
     fun handshakeHandlerParsesSuccessHello() = runTest {
         val flow = MutableSharedFlow<Event>(replay = 1)
         val handler = HandshakeHandler(flow, UnconfinedTestDispatcher(testScheduler))
+        handler.attach()
 
         val awaiter = handler.newHelloAwaiter()
         flow.emit(json.decodeFromString("""{"s":1,"d":{"code":0,"session_id":"abc123"}}"""))
@@ -39,6 +40,7 @@ class HandshakeHandlerTest {
     fun handshakeHandlerParsesFailedHello() = runTest {
         val flow = MutableSharedFlow<Event>(replay = 1)
         val handler = HandshakeHandler(flow, UnconfinedTestDispatcher(testScheduler))
+        handler.attach()
 
         val awaiter = handler.newHelloAwaiter()
         flow.emit(json.decodeFromString("""{"s":1,"d":{"code":40103}}"""))
@@ -52,6 +54,7 @@ class HandshakeHandlerTest {
     fun handshakeHandlerCanClearSession() = runTest {
         val flow = MutableSharedFlow<Event>(replay = 1)
         val handler = HandshakeHandler(flow, UnconfinedTestDispatcher(testScheduler))
+        handler.attach()
 
         val awaiter = handler.newHelloAwaiter()
         flow.emit(json.decodeFromString("""{"s":1,"d":{"code":0,"session_id":"to-clear"}}"""))

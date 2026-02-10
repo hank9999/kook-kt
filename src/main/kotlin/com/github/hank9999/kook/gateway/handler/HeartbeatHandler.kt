@@ -126,4 +126,10 @@ internal class HeartbeatHandler(
         heartbeatJob = null
         pendingPingAt = null
     }
+
+    override fun cancel() {
+        super.cancel()
+        heartbeatJob = null
+        pendingPingAt = null
+    }
 }
