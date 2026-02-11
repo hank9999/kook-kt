@@ -33,8 +33,10 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -108,6 +110,7 @@ public class WebSocketGateway(
 
     private var socket: DefaultClientWebSocketSession? = null
     private var reconnectSignal = CompletableDeferred<Unit>()
+    private var bufferTimeoutJob: Job? = null
 
     @Volatile
     private var state: State = State.Stopped
@@ -159,6 +162,8 @@ public class WebSocketGateway(
             val attemptMode = prepareAttemptMode()
             val handshakeAwaiter = handshakeHandler.newHelloAwaiter()
             reconnectSignal = CompletableDeferred()
+            bufferTimeoutJob?.cancel()
+            bufferTimeoutJob = null
 
             try {
                 val gatewayUrl = buildGatewayUrl(resume = attemptMode == ReconnectMode.RESUME)
@@ -230,6 +235,8 @@ public class WebSocketGateway(
         handshakeHandler.cancel()
         heartbeatHandler.cancel()
         reconnectHandler.cancel()
+        bufferTimeoutJob?.cancel()
+        bufferTimeoutJob = null
     }
 
     /** 初始化启动状态，重置所有处理器和重试策略 */
@@ -344,13 +351,21 @@ public class WebSocketGateway(
                 for (ordered in result.events) {
                     eventFlowRef.emit(ordered)
                 }
+                if (result.buffering) {
+                    if (bufferTimeoutJob == null) {
+                        bufferTimeoutJob = launch {
+                            delay(60.seconds)
+                            logger.warn { "sequence buffer timeout (missing sn not received within timeout), requesting resume" }
+                            requestReconnect(fullReset = false)
+                        }
+                    }
+                } else {
+                    bufferTimeoutJob?.cancel()
+                    bufferTimeoutJob = null
+                }
             }
             is SequenceHandler.ProcessResult.BufferOverflow -> {
                 logger.warn { "sequence buffer overflow (bufferLimit exceeded), requesting resume" }
-                requestReconnect(fullReset = false)
-            }
-            is SequenceHandler.ProcessResult.BufferTimeout -> {
-                logger.warn { "sequence buffer timeout (missing sn not received within timeout), requesting resume" }
                 requestReconnect(fullReset = false)
             }
         }
