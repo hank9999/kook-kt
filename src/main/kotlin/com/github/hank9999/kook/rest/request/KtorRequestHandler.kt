@@ -38,7 +38,8 @@ import kotlin.time.Duration.Companion.seconds
  * 2. 执行 HTTP 请求
  * 3. 从响应头解析 rate limit 信息
  * 4. 429 → 循环重试 (最多 [maxRetries] 次)
- * 5. 拆包 KookApiResponse → 检查 code → 反序列化 data
+ * 5. 502/503/504 → 指数退避重试 (最多 [maxTransientRetries] 次)
+ * 6. 拆包 KookApiResponse → 检查 code → 反序列化 data
  */
 class KtorRequestHandler(
     private val client: HttpClient,
@@ -46,12 +47,14 @@ class KtorRequestHandler(
     private val json: Json = JSON.defaultJson(),
     override val token: String,
     private val maxRetries: Int = 5,
+    private val maxTransientRetries: Int = 3,
 ) : RequestHandler, Closeable {
 
     private val logger = KotlinLogging.logger {}
 
     override suspend fun <T> handle(request: Request<T>): T {
         var retries = 0
+        var transientRetries = 0
         while (true) {
             val response = requestRateLimiter.consume(request) { requestToken ->
                 val httpResponse = executeRequest(request)
@@ -76,6 +79,20 @@ class KtorRequestHandler(
                         delay(1.seconds)
                     }
                     logger.debug { "[RATE_LIMIT] ${request.route} -> 429, retrying ($retries/$maxRetries)..." }
+                }
+                response.isTransientError -> {
+                    transientRetries++
+                    if (transientRetries > maxTransientRetries) {
+                        throw KookRestRequestException(
+                            status = response.status.value,
+                            kookCode = null,
+                            kookMessage = "Server error ${response.status.value} after $maxTransientRetries retries for ${request.route}",
+                        )
+                    }
+                    // 指数退避: 1s, 2s, 4s
+                    val backoff = (1.seconds * (1 shl (transientRetries - 1)))
+                    logger.debug { "[TRANSIENT] ${request.route} -> ${response.status.value}, retrying in $backoff ($transientRetries/$maxTransientRetries)..." }
+                    delay(backoff)
                 }
                 response.isError -> {
                     logger.debug { "[ERROR] ${request.route} -> ${response.status.value}: $body" }

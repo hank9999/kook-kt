@@ -10,6 +10,9 @@ private const val RATE_LIMIT_BUCKET = "X-Rate-Limit-Bucket"
 private const val RATE_LIMIT_GLOBAL = "X-Rate-Limit-Global"
 
 val HttpResponse.isRateLimit: Boolean get() = status.value == 429
+
+/** 502 Bad Gateway / 503 Service Unavailable / 504 Gateway Timeout */
+val HttpResponse.isTransientError: Boolean get() = status.value in intArrayOf(502, 503, 504)
 val HttpResponse.isError: Boolean get() = status.value in 400..<600
 val HttpResponse.isGlobalRateLimit: Boolean get() = headers[RATE_LIMIT_GLOBAL] != null
 
