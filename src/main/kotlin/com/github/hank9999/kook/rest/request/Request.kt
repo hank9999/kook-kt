@@ -5,6 +5,7 @@ import io.ktor.client.request.forms.ChannelProvider
 import io.ktor.http.Headers
 import io.ktor.http.Parameters
 import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.json.Json
 
 /**
  * 序列化请求体
@@ -12,7 +13,9 @@ import kotlinx.serialization.SerializationStrategy
 data class RequestBody<T : Any>(
     val strategy: SerializationStrategy<T>,
     val body: T,
-)
+) {
+    fun encode(json: Json): String = json.encodeToString(strategy, body)
+}
 
 /**
  * 命名文件 (用于 multipart 上传)

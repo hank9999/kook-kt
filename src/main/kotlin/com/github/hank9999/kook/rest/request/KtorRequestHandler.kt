@@ -161,7 +161,7 @@ class KtorRequestHandler(
             when (request) {
                 is JsonRequest -> {
                     val requestBody = request.body ?: return@request
-                    val jsonStr = encodeBody(requestBody)
+                    val jsonStr = requestBody.encode(json)
                     logger.debug { request.logString(jsonStr) }
                     setBody(TextContent(jsonStr, ContentType.Application.Json))
                 }
@@ -170,7 +170,7 @@ class KtorRequestHandler(
                         request.body?.let {
                             append(
                                 "payload_json",
-                                encodeBody(it),
+                                it.encode(json),
                                 Headers.build {
                                     append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                                 },
@@ -186,15 +186,6 @@ class KtorRequestHandler(
                 }
             }
         }
-    }
-
-    /**
-     * 类型安全地序列化 RequestBody (避免星投影问题)
-     */
-    @Suppress("UNCHECKED_CAST")
-    private fun encodeBody(body: RequestBody<*>): String {
-        val typed = body as RequestBody<Any>
-        return json.encodeToString(typed.strategy, typed.body)
     }
 
     override fun close() {
