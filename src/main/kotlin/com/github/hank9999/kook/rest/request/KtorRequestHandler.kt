@@ -28,6 +28,7 @@ import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import java.io.Closeable
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -203,6 +204,14 @@ class KtorRequestHandler(
         ): KtorRequestHandler {
             val client = HttpClient(OkHttp) {
                 expectSuccess = false
+                engine {
+                    config {
+                        connectTimeout(10, TimeUnit.SECONDS)
+                        readTimeout(30, TimeUnit.SECONDS)
+                        writeTimeout(30, TimeUnit.SECONDS)
+                        callTimeout(3, TimeUnit.MINUTES)
+                    }
+                }
             }
             return KtorRequestHandler(client, requestRateLimiter, json, token)
         }
