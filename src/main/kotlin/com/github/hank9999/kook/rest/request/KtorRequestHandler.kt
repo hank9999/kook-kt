@@ -70,6 +70,7 @@ class KtorRequestHandler(
                     retries++
                     if (retries > maxRetries) {
                         throw KookRestRequestException(
+                            request = request,
                             status = 429,
                             kookCode = null,
                             kookMessage = "Rate limit exceeded after $maxRetries retries for ${request.route}",
@@ -85,6 +86,7 @@ class KtorRequestHandler(
                     transientRetries++
                     if (transientRetries > maxTransientRetries) {
                         throw KookRestRequestException(
+                            request = request,
                             status = response.status.value,
                             kookCode = null,
                             kookMessage = "Server error ${response.status.value} after $maxTransientRetries retries for ${request.route}",
@@ -98,6 +100,7 @@ class KtorRequestHandler(
                 response.isError -> {
                     logger.debug { "[ERROR] ${request.route} -> ${response.status.value}: $body" }
                     throw KookRestRequestException(
+                        request = request,
                         status = response.status.value,
                         kookCode = null,
                         kookMessage = body,
@@ -119,6 +122,7 @@ class KtorRequestHandler(
 
         if (apiResponse.code != 0) {
             throw KookRestRequestException(
+                request = request,
                 status = 200,
                 kookCode = apiResponse.code,
                 kookMessage = apiResponse.message,
@@ -134,6 +138,7 @@ class KtorRequestHandler(
         val data = apiResponse.data
         if (data is JsonNull) {
             throw KookRestRequestException(
+                request = request,
                 status = 200,
                 kookCode = apiResponse.code,
                 kookMessage = "Expected non-null data for ${request.route}, but got null",
