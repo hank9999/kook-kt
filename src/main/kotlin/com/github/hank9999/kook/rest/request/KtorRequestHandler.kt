@@ -99,11 +99,12 @@ class KtorRequestHandler(
                 }
                 response.isError -> {
                     logger.debug { "[ERROR] ${request.route} -> ${response.status.value}: $body" }
+                    val (kookCode, kookMessage) = tryParseErrorBody(body)
                     throw KookRestRequestException(
                         request = request,
                         status = response.status.value,
-                        kookCode = null,
-                        kookMessage = body,
+                        kookCode = kookCode,
+                        kookMessage = kookMessage,
                     )
                 }
                 else -> {
@@ -111,6 +112,21 @@ class KtorRequestHandler(
                     return unwrapResponse(request, body)
                 }
             }
+        }
+    }
+
+    /**
+     * 尝试从错误响应体中解析 KOOK 业务错误码和消息
+     *
+     * KOOK API 在 4xx/5xx 时仍可能返回 `{code, message, data}` 格式,
+     * 解析失败时回退为原始响应体字符串。
+     */
+    private fun tryParseErrorBody(body: String): Pair<Int?, String> {
+        return try {
+            val apiResponse = json.decodeFromString(KookApiResponse.serializer(), body)
+            apiResponse.code to apiResponse.message
+        } catch (_: Exception) {
+            null to body
         }
     }
 
