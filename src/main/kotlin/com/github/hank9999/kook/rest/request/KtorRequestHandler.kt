@@ -24,9 +24,11 @@ import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.content.TextContent
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import java.io.Closeable
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * 基于 Ktor 的 [RequestHandler] 实现
@@ -68,6 +70,10 @@ class KtorRequestHandler(
                             kookCode = null,
                             kookMessage = "Rate limit exceeded after $maxRetries retries for ${request.route}",
                         )
+                    }
+                    // 服务端未返回 X-Rate-Limit-Reset 时, 兜底延迟防止紧密循环
+                    if (response.rateLimitResetSeconds == null) {
+                        delay(1.seconds)
                     }
                     logger.debug { "[RATE_LIMIT] ${request.route} -> 429, retrying ($retries/$maxRetries)..." }
                 }
