@@ -115,7 +115,7 @@ class KtorRequestHandler(
                 kookMessage = "Expected non-null data for ${request.route}, but got null",
             )
         }
-        return mapper.deserialize(json, data.toString())
+        return mapper.deserialize(json, data)
     }
 
     private suspend fun <T> executeRequest(request: Request<T>): HttpResponse {

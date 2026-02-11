@@ -3,25 +3,26 @@ package com.github.hank9999.kook.rest.route
 import io.ktor.http.HttpMethod
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 
 /**
  * 响应 data 字段的反序列化映射器
  */
 sealed interface ResponseMapper<T> {
-    fun deserialize(json: Json, body: String): T
+    fun deserialize(json: Json, element: JsonElement): T
 }
 
 internal class ValueMapper<T>(
     val strategy: DeserializationStrategy<T>,
 ) : ResponseMapper<T> {
-    override fun deserialize(json: Json, body: String): T =
-        json.decodeFromString(strategy, body)
+    override fun deserialize(json: Json, element: JsonElement): T =
+        json.decodeFromJsonElement(strategy, element)
 
     override fun toString(): String = "ValueMapper(strategy=$strategy)"
 }
 
 internal object UnitMapper : ResponseMapper<Unit> {
-    override fun deserialize(json: Json, body: String) = Unit
+    override fun deserialize(json: Json, element: JsonElement) = Unit
     override fun toString(): String = "UnitMapper"
 }
 
