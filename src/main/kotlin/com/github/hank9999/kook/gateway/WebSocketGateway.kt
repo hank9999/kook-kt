@@ -4,6 +4,7 @@ import com.github.hank9999.kook.common.utils.JSON
 import com.github.hank9999.kook.common.utils.Zlib
 import com.github.hank9999.kook.gateway.entity.Event
 import com.github.hank9999.kook.gateway.entity.ReconnectPayload
+import com.github.hank9999.kook.gateway.handler.DispatchSilenceHandler
 import com.github.hank9999.kook.gateway.handler.HeartbeatHandler
 import com.github.hank9999.kook.gateway.handler.HandshakeHandler
 import com.github.hank9999.kook.gateway.handler.ReconnectHandler
@@ -66,6 +67,8 @@ private val logger = KotlinLogging.logger {}
  * @param eventFlow 事件分发流
  * @param client Ktor HTTP 客户端
  * @param apiBaseUrl API 基础地址
+ * @param dispatchSilenceTimeout dispatch 事件静默超时阈值，超过此时间未收到任何 dispatch 事件（信令 0）
+ *        则触发全量重连。null 表示禁用此检测。为避免对安静 bot 的误判，每次静默触发后阈值会指数退避翻倍
  */
 public class WebSocketGateway(
     private val token: String,
@@ -74,6 +77,7 @@ public class WebSocketGateway(
     eventFlow: MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 1024),
     private val client: HttpClient = defaultClient(),
     private val apiBaseUrl: String = "https://www.kookapp.cn",
+    private val dispatchSilenceTimeout: Duration? = null,
 ) : IGateway {
 
     /** 网关内部状态 */
@@ -107,6 +111,7 @@ public class WebSocketGateway(
     private val handshakeHandler = HandshakeHandler(events)
     private val reconnectHandler: ReconnectHandler
     private val heartbeatHandler: HeartbeatHandler
+    private val dispatchSilenceHandler: DispatchSilenceHandler?
 
     private var socket: DefaultClientWebSocketSession? = null
     private var reconnectSignal = CompletableDeferred<Unit>()
@@ -149,6 +154,18 @@ public class WebSocketGateway(
             onPingUpdate = { _ping.value = it },
             sequence = sequenceHandler,
         )
+
+        dispatchSilenceHandler = dispatchSilenceTimeout?.let { timeout ->
+            DispatchSilenceHandler(
+                events,
+                baseSilenceTimeout = timeout,
+                maxSilenceTimeout = timeout * 8,
+                onSilence = {
+                    logger.warn { "no dispatch events for extended period, forcing full reconnect" }
+                    requestReconnect(fullReset = true)
+                },
+            )
+        }
     }
 
     /**
@@ -235,6 +252,7 @@ public class WebSocketGateway(
         handshakeHandler.cancel()
         heartbeatHandler.cancel()
         reconnectHandler.cancel()
+        dispatchSilenceHandler?.cancel()
         bufferTimeoutJob?.cancel()
         bufferTimeoutJob = null
     }
@@ -257,6 +275,7 @@ public class WebSocketGateway(
         handshakeHandler.attach()
         heartbeatHandler.attach()
         reconnectHandler.attach()
+        dispatchSilenceHandler?.attach()
     }
 
     /**
